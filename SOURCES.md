@@ -12,6 +12,10 @@ output. The output-order wording for problems 15, 49, 131, and 347 was corrected
 allow equivalent answers instead of requiring the reference solution's order.
 Full original constraints are not present in the source dataset.
 
+The 17 knowledge groups and navigation order in `dist/data/groups.js` follow
+the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. Only group names and problem
+IDs are included; the document itself is not distributed.
+
 LeetCode mode reuses the upstream `core` metadata for function signatures, argument
 types, return types, in-place changes, and class operations. Function templates are
 generated from that metadata; class-operation templates are adapted from the

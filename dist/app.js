@@ -1,6 +1,7 @@
 import { PythonRunner } from './runner.js?v=3';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=3';
 import { checkOutput } from './checker.js';
+import problemGroups from './data/groups.js';
 
 const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
@@ -11,6 +12,13 @@ function save(key, value) { try { localStorage.setItem(prefix + key, value); ret
 const initialMode = new URL(location.href).searchParams.get('mode') || read('mode', 'acm');
 state.mode = initialMode === 'leetcode' ? 'leetcode' : 'acm';
 const modeKey = key => state.mode === 'leetcode' ? `leetcode:${key}` : key;
+const groupByProblem = new Map(problemGroups.flatMap(group => group.problemIds.map(id => [id, group.id])));
+let expandedGroups = new Set();
+try { expandedGroups = new Set(JSON.parse(read('expandedGroups', '[]')).filter(id => problemGroups.some(group => group.id === id))); } catch {}
+const searchCollapsedGroups = new Set();
+const storedFontSize = Number(read('leetcode:editorFontSize', '14'));
+let editorFontSize = Number.isFinite(storedFontSize) ? Math.max(11, Math.min(20, Math.round(storedFontSize))) : 14;
+let wrapCode = read('leetcode:wrapCode', 'true') !== 'false';
 function loadProgress() {
   try { state.passed = new Set(JSON.parse(read(modeKey('passed'), '[]'))); } catch { state.passed = new Set(); }
   state.passed = new Set([...state.passed].filter(id => state.problems.some(p => p.id === id)));
@@ -30,6 +38,13 @@ const editor = CodeMirror.fromTextArea($('codeEditor'), {
   }
 });
 editor.getInputField().setAttribute('aria-label', 'Python 代码编辑器');
+editor.on('renderLine', (cm, line, element) => {
+  if (!cm.getOption('lineWrapping')) return;
+  const indent = CodeMirror.countColumn(line.text, null, cm.getOption('tabSize'));
+  const offset = Math.min(indent, 16) * cm.defaultCharWidth();
+  element.style.paddingLeft = `calc(var(--code-line-padding, 14px) + ${offset}px)`;
+  element.style.textIndent = `${-offset}px`;
+});
 editor.on('cursorActivity', () => {
   const cursor = editor.getCursor();
   $('cursorPosition').textContent = `第 ${cursor.line + 1} 行，第 ${cursor.ch + 1} 列`;
@@ -44,6 +59,26 @@ function updateModeControl() {
   $('modeLabel').textContent = label;
   $('modeButton').setAttribute('aria-label', `切换刷题模式，当前 ${label}`);
   $('modeMenu').querySelectorAll('[data-mode]').forEach(option => option.setAttribute('aria-checked', String(option.dataset.mode === state.mode)));
+  applyEditorPreferences();
+}
+function applyEditorPreferences() {
+  const isLeetCode = state.mode === 'leetcode';
+  const fontSize = isLeetCode ? editorFontSize : 14;
+  $('editorTools').hidden = !isLeetCode;
+  const wrapper = editor.getWrapperElement().parentElement;
+  wrapper.style.setProperty('--editor-font-size', `${fontSize}px`);
+  wrapper.style.setProperty('--editor-line-height', `${Math.round(fontSize * 1.7)}px`);
+  $('fontSizeValue').value = String(editorFontSize);
+  $('fontDecrease').disabled = editorFontSize === 11;
+  $('fontIncrease').disabled = editorFontSize === 20;
+  $('wrapCode').setAttribute('aria-pressed', String(wrapCode));
+  editor.setOption('lineWrapping', isLeetCode && wrapCode);
+  editor.refresh();
+}
+function changeEditorFont(delta) {
+  editorFontSize = Math.max(11, Math.min(20, editorFontSize + delta));
+  save('leetcode:editorFontSize', String(editorFontSize));
+  applyEditorPreferences();
 }
 function closeModeMenu(restoreFocus = false) {
   const wasOpen = !$('modeMenu').hidden;
@@ -107,19 +142,63 @@ editor.on('change', () => {
   if (state.results.length) $('resultTab').firstChild.textContent = '上次结果';
 });
 
+function setGroupOpen(section, open) {
+  const header = section.querySelector('.group-header');
+  const content = section.querySelector('.group-content');
+  if (!open && content.contains(document.activeElement)) header.focus();
+  section.classList.toggle('is-open', open);
+  header.setAttribute('aria-expanded', String(open));
+  content.setAttribute('aria-hidden', String(!open));
+  content.inert = !open;
+}
 function renderList() {
   const search = $('searchInput').value.trim().toLowerCase();
-  const list = state.problems.filter(p => `${p.id} ${p.title}`.toLowerCase().includes(search));
-  $('problemList').replaceChildren();
-  if (!list.length) { const empty = document.createElement('div'); empty.className = 'empty-result'; empty.textContent = '没有找到题目'; $('problemList').append(empty); }
-  for (const p of list) {
-    const button = document.createElement('button'); button.type = 'button'; button.className = `problem-item${state.current?.id === p.id ? ' active' : ''}`;
-    button.dataset.problemId = p.id;
-    if (state.current?.id === p.id) button.setAttribute('aria-current', 'true');
-    button.innerHTML = `<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span><span class="problem-check" aria-label="${state.passed.has(p.id) ? '已通过' : '未通过'}">${state.passed.has(p.id) ? '✓' : ''}</span>`;
-    button.addEventListener('click', () => selectProblem(p.id)); $('problemList').append(button);
+  const byId = new Map(state.problems.map(p => [p.id, p]));
+  const fragment = document.createDocumentFragment();
+  let count = 0;
+  for (const group of problemGroups) {
+    const groupMatches = group.name.toLowerCase().includes(search);
+    const list = group.problemIds.map(id => byId.get(id)).filter(p => p && (!search || groupMatches || `${p.id} ${p.title}`.toLowerCase().includes(search)));
+    if (!list.length) continue;
+    count += list.length;
+    const section = document.createElement('section'); section.className = 'problem-group'; section.dataset.groupId = group.id;
+    const header = document.createElement('button'); header.type = 'button'; header.className = 'group-header';
+    header.id = `group-${group.id}-toggle`; header.setAttribute('aria-controls', `group-${group.id}-content`);
+    header.setAttribute('aria-label', `${group.name}，${list.length} 题`);
+    header.innerHTML = `<svg class="group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><svg class="group-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 7v12a2 2 0 0 0 2 2h13l4-12H8l-3 3"/></svg><span class="group-name">${escapeHtml(group.name)}</span><span class="group-count">${list.length}</span>`;
+    const content = document.createElement('div'); content.className = 'group-content'; content.id = `group-${group.id}-content`;
+    const items = document.createElement('div'); items.className = 'group-items';
+    for (const p of list) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = `problem-item${state.current?.id === p.id ? ' active' : ''}`;
+      button.dataset.problemId = p.id; button.title = `${p.id}. ${p.title}`;
+      if (state.current?.id === p.id) button.setAttribute('aria-current', 'true');
+      button.innerHTML = `<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span><span class="problem-check" aria-label="${state.passed.has(p.id) ? '已通过' : '未通过'}">${state.passed.has(p.id) ? '✓' : ''}</span>`;
+      button.addEventListener('click', () => selectProblem(p.id)); items.append(button);
+    }
+    content.append(items); section.append(header, content);
+    setGroupOpen(section, search ? !searchCollapsedGroups.has(group.id) : expandedGroups.has(group.id));
+    header.addEventListener('click', () => {
+      const open = !section.classList.contains('is-open');
+      if (search) {
+        if (open) searchCollapsedGroups.delete(group.id); else searchCollapsedGroups.add(group.id);
+      } else {
+        if (open) expandedGroups.add(group.id); else expandedGroups.delete(group.id);
+        save('expandedGroups', JSON.stringify([...expandedGroups]));
+      }
+      setGroupOpen(section, open);
+    });
+    fragment.append(section);
   }
+  if (!count) { const empty = document.createElement('div'); empty.className = 'empty-result'; empty.textContent = '没有找到题目'; fragment.append(empty); }
+  $('problemList').replaceChildren(fragment);
   $('progressText').textContent = `${state.passed.size} / ${state.problems.length} 已通过`;
+}
+function revealCurrentProblem() {
+  const list = $('problemList'), selected = list.querySelector('[aria-current="true"]');
+  if (!selected) return;
+  const outer = list.getBoundingClientRect(), inner = selected.getBoundingClientRect();
+  if (inner.top < outer.top) list.scrollTop -= outer.top - inner.top;
+  else if (inner.bottom > outer.bottom) list.scrollTop += inner.bottom - outer.bottom;
 }
 function selectProblem(id, force = false) {
   const base = state.problems.find(x => x.id === Number(id)); if (!base || (!force && state.current?.id === base.id)) return;
@@ -136,13 +215,15 @@ function selectProblem(id, force = false) {
   $('statementContent').scrollTop = 0;
   $('resultView').innerHTML = '<div class="empty-result">运行代码后查看结果</div>';
   $('resultTab').firstChild.textContent = '结果'; $('resultIndicator').className = '';
+  const groupId = groupByProblem.get(p.id);
+  if (groupId) { expandedGroups.add(groupId); searchCollapsedGroups.delete(groupId); save('expandedGroups', JSON.stringify([...expandedGroups])); }
   selectCase(0); setTab('input'); renderList();
   save('current', String(p.id));
   const url = new URL(location.href); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode); history.replaceState(null, '', url);
   document.title = `${p.title} · Hot 100`;
   $('workspaceTitle').textContent = p.title;
   if (!force && mobileLayout.matches) setSidebar(false);
-  requestAnimationFrame(() => editor.refresh());
+  requestAnimationFrame(() => { editor.refresh(); revealCurrentProblem(); });
 }
 function renderCaseTabs() {
   $('caseTabs').replaceChildren();
@@ -247,7 +328,13 @@ async function execute(submit) {
   } finally { if (token === state.token) setBusy(false); }
 }
 
-$('searchInput').addEventListener('input', renderList);
+$('searchInput').addEventListener('input', () => {
+  searchCollapsedGroups.clear(); renderList();
+  if (!$('searchInput').value.trim()) requestAnimationFrame(revealCurrentProblem);
+});
+$('fontDecrease').addEventListener('click', () => changeEditorFont(-1));
+$('fontIncrease').addEventListener('click', () => changeEditorFont(1));
+$('wrapCode').addEventListener('click', () => { wrapCode = !wrapCode; save('leetcode:wrapCode', String(wrapCode)); applyEditorPreferences(); });
 $('modeButton').addEventListener('click', () => $('modeMenu').hidden ? openModeMenu() : closeModeMenu());
 $('modeButton').addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openModeMenu(true); }
@@ -294,7 +381,10 @@ $('appShell').addEventListener('transitionend', e => { if (e.target === $('appSh
 
 try {
   const response = await fetch('./data/problems.json'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
-  state.problems = await response.json();
+  const problems = await response.json();
+  const byId = new Map(problems.map(p => [p.id, p]));
+  state.problems = problemGroups.flatMap(group => group.problemIds.map(id => byId.get(id)));
+  if (state.problems.some(p => !p) || new Set(state.problems).size !== problems.length) throw new Error('题目分组加载失败，请刷新重试');
   loadProgress(); updateModeControl(); syncSidebar();
   const requested = Number(new URL(location.href).searchParams.get('problem') || read('current', '1'));
   selectProblem(state.problems.some(p => p.id === requested) ? requested : state.problems[0].id);
