@@ -2,6 +2,7 @@ import { PythonRunner } from './runner.js?v=3';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=3';
 import { checkOutput } from './checker.js';
 import problemGroups from './data/groups.js';
+import { initLayout } from './layout.js?v=5';
 
 const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
@@ -105,6 +106,7 @@ function changeMode(mode) {
   if (id) selectProblem(id, true);
 }
 const mobileLayout = matchMedia('(max-width: 800px)');
+initLayout({ read, save, mobileLayout, refreshEditor: () => editor.refresh() });
 function syncSidebar() {
   const open = mobileLayout.matches ? $('appShell').classList.contains('sidebar-open') : !$('appShell').classList.contains('sidebar-collapsed');
   const sidebar = $('sidebar');
