@@ -184,7 +184,7 @@ function renderList() {
     const header = document.createElement('button'); header.type = 'button'; header.className = 'group-header';
     header.id = `group-${group.id}-toggle`; header.setAttribute('aria-controls', `group-${group.id}-content`);
     header.setAttribute('aria-label', `${group.name}，${list.length} 题`);
-    header.innerHTML = `<svg class="group-chevron skin-icon-codex" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><svg class="group-chevron skin-icon-claude" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg><svg class="group-icon skin-icon-codex" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 7v12a2 2 0 0 0 2 2h13l4-12H8l-3 3"/></svg><svg class="group-icon skin-icon-claude" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h6l2 2h10v13H3ZM3 10h18"/></svg><span class="group-name">${escapeHtml(group.name)}</span><span class="group-count">${list.length}</span>`;
+    header.innerHTML = `<svg class="group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><svg class="group-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 7v12a2 2 0 0 0 2 2h13l4-12H8l-3 3"/></svg><span class="group-name">${escapeHtml(group.name)}</span><span class="group-count">${list.length}</span>`;
     const content = document.createElement('div'); content.className = 'group-content'; content.id = `group-${group.id}-content`;
     const items = document.createElement('div'); items.className = 'group-items';
     for (const p of list) {
@@ -321,7 +321,7 @@ function renderResults(submit) {
   const tone = failed ? 'failure' : checked.length ? 'success' : '';
   const elapsed = state.elapsedMs >= 1000 ? `${(state.elapsedMs / 1000).toFixed(2)} s` : `${Math.round(state.elapsedMs || 0)} ms`;
   const pythonMs = Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0));
-  const statusIcon = tone ? `<svg class="status-icon skin-icon-codex" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg><svg class="status-icon skin-icon-claude" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3Z"/>${tone === 'success' ? '<path d="m7 12 4 4 6-8"/>' : '<path d="m8 8 8 8m0-8-8 8"/>'}</svg>` : '';
+  const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
   const caseName = (x, i) => submit ? `用例 ${i + 1}` : x.name;
   const tabs = results.map((x, i) => {
     const color = resultTone(x);

@@ -46,11 +46,3 @@ node scripts/prepare-leetcode.mjs /path/to/hot100-judge
 
 Both generators apply `scripts/problem-corrections.json` after importing upstream
 data so that regeneration preserves the audited corrections and added cases.
-
-## Theme marks
-
-The Codex mark in the theme selector comes from the Codex changelog card on
-[OpenAI Developers](https://developers.openai.com/). The Claude asterisk is the
-standalone mark in the official [Claude website](https://claude.com/) wordmark.
-They identify the two visual themes; all rights to the marks remain with their
-respective owners. The site is not affiliated with OpenAI or Anthropic.
