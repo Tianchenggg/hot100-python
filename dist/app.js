@@ -23,6 +23,10 @@ const editor = CodeMirror.fromTextArea($('codeEditor'), {
   }
 });
 editor.getInputField().setAttribute('aria-label', 'Python 代码编辑器');
+editor.on('cursorActivity', () => {
+  const cursor = editor.getCursor();
+  $('cursorPosition').textContent = `第 ${cursor.line + 1} 行，第 ${cursor.ch + 1} 列`;
+});
 
 function persistCode() {
   if (!state.current) return;
@@ -78,6 +82,7 @@ function selectProblem(id) {
   save('current', String(p.id));
   const url = new URL(location.href); url.searchParams.set('problem', p.id); history.replaceState(null, '', url);
   document.title = `${p.title} · Hot 100`;
+  $('workspaceTitle').textContent = p.title;
   $('appShell').classList.remove('sidebar-open');
   requestAnimationFrame(() => editor.refresh());
 }
@@ -138,8 +143,9 @@ function renderResults(submit) {
   const r = results[state.resultIndex];
   const label = submit ? `${passed} / ${state.current.tests.length} 通过` : getLabel(r);
   const tone = all ? 'success' : (r.status === 'ok' && !r.compared && !submit ? '' : 'failure');
+  const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
   $('resultIndicator').className = tone;
-  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${all ? '✓ ' : ''}${escapeHtml(label)}</span><span class="result-time">${Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0))} ms</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="muted">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block"><label>实际输出</label>${codeBlock(r.stdout)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
+  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time">${Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0))} ms</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>实际输出</label>${codeBlock(r.stdout)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
   $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => { state.resultIndex = Number(button.dataset.case); renderResults(submit); }));
   $('resultView').querySelector('[data-line]')?.addEventListener('click', () => { editor.setCursor(r.line - 1, 0); editor.scrollIntoView({ line: r.line - 1, ch: 0 }, 60); editor.focus(); });
   if (editor.getValue() === state.submittedCode) markError(r.line);
@@ -186,6 +192,7 @@ $('runButton').addEventListener('click', () => execute(false)); $('submitButton'
 $('inputTab').addEventListener('click', () => { setTab('input'); expandPanel(); }); $('resultTab').addEventListener('click', () => { setTab('result'); expandPanel(); });
 $('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.indexOf(state.current) - 1]?.id));
 $('nextProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.indexOf(state.current) + 1]?.id));
+$('railToggle').addEventListener('click', () => { $('appShell').classList.toggle('sidebar-collapsed'); editor.refresh(); });
 $('closeSidebar').addEventListener('click', () => { $('appShell').classList.add('sidebar-collapsed'); $('appShell').classList.remove('sidebar-open'); editor.refresh(); });
 $('openSidebar').addEventListener('click', () => { $('appShell').classList.remove('sidebar-collapsed'); $('appShell').classList.toggle('sidebar-open'); editor.refresh(); });
 $('panelToggle').addEventListener('click', () => {
