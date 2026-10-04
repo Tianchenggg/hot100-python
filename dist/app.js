@@ -110,10 +110,9 @@ initLayout({ read, save, mobileLayout, refreshEditor: () => editor.refresh() });
 function syncSidebar() {
   const open = mobileLayout.matches ? $('appShell').classList.contains('sidebar-open') : !$('appShell').classList.contains('sidebar-collapsed');
   const sidebar = $('sidebar');
-  if (!open && sidebar.contains(document.activeElement)) (mobileLayout.matches ? $('openSidebar') : $('railToggle')).focus();
+  if (!open && sidebar.contains(document.activeElement)) (mobileLayout.matches ? $('openSidebar') : $('homeButton')).focus();
   sidebar.inert = !open;
   sidebar.setAttribute('aria-hidden', String(!open));
-  $('railToggle').setAttribute('aria-expanded', String(open));
   $('openSidebar').setAttribute('aria-expanded', String(open));
   if (!open) closeModeMenu();
 }
@@ -125,6 +124,20 @@ function setSidebar(open) {
   }
   syncSidebar();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) editor.refresh();
+}
+function setSearchOpen(open, restoreFocus = false) {
+  if (!open && (restoreFocus || $('searchField').contains(document.activeElement))) $('searchButton').focus();
+  $('searchField').hidden = !open;
+  $('searchButton').setAttribute('aria-expanded', String(open));
+  if (open) {
+    closeModeMenu();
+    $('searchInput').focus();
+  } else if ($('searchInput').value) {
+    $('searchInput').value = '';
+    searchCollapsedGroups.clear();
+    renderList();
+    requestAnimationFrame(revealCurrentProblem);
+  }
 }
 function clearErrorLine() {
   if (state.errorLine !== null) editor.removeLineClass(state.errorLine, 'background', 'code-error-line');
@@ -203,7 +216,13 @@ function revealCurrentProblem() {
   else if (inner.bottom > outer.bottom) list.scrollTop += inner.bottom - outer.bottom;
 }
 function selectProblem(id, force = false) {
-  const base = state.problems.find(x => x.id === Number(id)); if (!base || (!force && state.current?.id === base.id)) return;
+  const base = state.problems.find(x => x.id === Number(id));
+  if (!base) return;
+  if (!force && state.current?.id === base.id) {
+    setSearchOpen(false);
+    if (mobileLayout.matches) setSidebar(false);
+    return;
+  }
   const p = state.mode === 'leetcode' ? getLeetCodeProblem(base) : base;
   if (state.current) persistCode();
   if (state.busy) stop();
@@ -224,7 +243,10 @@ function selectProblem(id, force = false) {
   const url = new URL(location.href); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode); history.replaceState(null, '', url);
   document.title = `${p.title} · Hot 100`;
   $('workspaceTitle').textContent = p.title;
-  if (!force && mobileLayout.matches) setSidebar(false);
+  if (!force) {
+    setSearchOpen(false);
+    if (mobileLayout.matches) setSidebar(false);
+  }
   requestAnimationFrame(() => { editor.refresh(); revealCurrentProblem(); });
 }
 function renderCaseTabs() {
@@ -334,6 +356,13 @@ $('searchInput').addEventListener('input', () => {
   searchCollapsedGroups.clear(); renderList();
   if (!$('searchInput').value.trim()) requestAnimationFrame(revealCurrentProblem);
 });
+$('searchButton').addEventListener('click', () => setSearchOpen($('searchField').hidden, true));
+$('homeButton').addEventListener('click', () => {
+  closeModeMenu();
+  setSearchOpen(false);
+  setSidebar(true);
+  requestAnimationFrame(() => { $('problemList').scrollTop = 0; });
+});
 $('fontDecrease').addEventListener('click', () => changeEditorFont(-1));
 $('fontIncrease').addEventListener('click', () => changeEditorFont(1));
 $('wrapCode').addEventListener('click', () => { wrapCode = !wrapCode; save('leetcode:wrapCode', String(wrapCode)); applyEditorPreferences(); });
@@ -362,8 +391,6 @@ $('runButton').addEventListener('click', () => execute(false)); $('submitButton'
 $('inputTab').addEventListener('click', () => { setTab('input'); expandPanel(); }); $('resultTab').addEventListener('click', () => { setTab('result'); expandPanel(); });
 $('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) - 1]?.id));
 $('nextProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) + 1]?.id));
-$('railToggle').addEventListener('click', () => setSidebar($('appShell').classList.contains('sidebar-collapsed')));
-$('closeSidebar').addEventListener('click', () => setSidebar(false));
 $('openSidebar').addEventListener('click', () => setSidebar(true));
 $('sidebarBackdrop').addEventListener('click', () => setSidebar(false));
 $('panelToggle').addEventListener('click', () => {
@@ -377,7 +404,14 @@ $('panelResizer').addEventListener('pointerup', () => { drag = null; });
 $('panelResizer').addEventListener('pointercancel', () => { drag = null; });
 $('panelResizer').addEventListener('keydown', e => { if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); expandPanel(); setPanelHeight($('testPanel').getBoundingClientRect().height + (e.key === 'ArrowUp' ? 24 : -24)); } });
 function setPanelHeight(value) { const height = Math.max(180, Math.min(value, Math.max(200, innerHeight - 240))); $('testPanel').style.setProperty('--panel-height', `${height}px`); editor.refresh(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModeMenu(true); if (mobileLayout.matches) setSidebar(false); } if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); persistCode(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (!$('modeMenu').hidden) closeModeMenu(true);
+    else if (!$('searchField').hidden) setSearchOpen(false, true);
+    else if (mobileLayout.matches) setSidebar(false);
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); persistCode(); }
+});
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
