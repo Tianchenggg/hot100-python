@@ -8,12 +8,15 @@
   <title>Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css">
+  <script src="./skins.js?v=9"></script>
   <link rel="stylesheet" href="./styles.css?v=7">
+  <link rel="stylesheet" href="./skins.css?v=9">
 </head>
 <body>
   <div class="app-shell" id="appShell">
     <nav class="app-rail" aria-label="导航">
       <button class="icon-button rail-home" id="homeButton" aria-label="主页" aria-current="page" title="主页"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.8 2.8a2 2 0 0 1 2.4 0l8 6.2a1.25 1.25 0 0 1-.77 2.24H20V20a1 1 0 0 1-1 1h-5v-6a2 2 0 0 0-4 0v6H5a1 1 0 0 1-1-1v-8.76h-.43A1.25 1.25 0 0 1 2.8 9Z"/></svg></button>
+      <button class="icon-button skin-trigger " id="skinButton" aria-label="皮肤" aria-haspopup="dialog" aria-expanded="false" aria-controls="skinPanel" title="皮肤"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.3a2.2 2.2 0 0 0 1.5-3.8 1.5 1.5 0 0 1 1-2.6H18a3 3 0 0 0 3-3A8.7 8.7 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="10.5" cy="6.8" r=".8"/><circle cx="15" cy="7" r=".8"/><circle cx="17.5" cy="10.5" r=".8"/></svg></button>
       <a class="rail-github" id="repoLink" href="https://github.com/Tianchenggg/hot100-python" target="_blank" rel="noreferrer" aria-label="GitHub 源码" title="GitHub 源码"><svg viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4a3.5 3.5 0 0 0-1-3c3 0 6-1.5 6-6a4.6 4.6 0 0 0-1-3c.4-1 .4-2-.1-3 0 0-1.1-.3-3.4 1a12 12 0 0 0-7 0C6.2 2.7 5 3 5 3c-.5 1-.5 2-.1 3a4.6 4.6 0 0 0-1 3c0 4.5 3 6 6 6a3.5 3.5 0 0 0-1 3v4"/></svg></a>
     </nav>
     <aside class="sidebar" id="sidebar" aria-label="题目列表">
@@ -30,7 +33,7 @@
       <label class="search-field" id="searchField" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg><input id="searchInput" type="search" placeholder="搜索题目" aria-label="搜索题号、标题或知识点" autocomplete="off"></label>
       <div class="sidebar-section-label">题目<span>100</span></div>
       <div class="problem-list" id="problemList"><div class="empty-result">正在加载…</div></div>
-      <div class="sidebar-footer"><span id="progressText">0 / 100 已通过</span></div>
+      <div class="sidebar-footer"><span id="progressText">0 / 100 已通过</span><button class="icon-button skin-trigger skin-mobile-trigger" id="skinMobileButton" aria-label="皮肤" aria-haspopup="dialog" aria-expanded="false" aria-controls="skinPanel" title="皮肤"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.3a2.2 2.2 0 0 0 1.5-3.8 1.5 1.5 0 0 1 1-2.6H18a3 3 0 0 0 3-3A8.7 8.7 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="10.5" cy="6.8" r=".8"/><circle cx="15" cy="7" r=".8"/><circle cx="17.5" cy="10.5" r=".8"/></svg></button></div>
     </aside>
     <div id="sidebarResizer" class="layout-resizer sidebar-resizer" role="separator" aria-label="调整题目列表宽度" aria-controls="sidebar" aria-orientation="vertical" tabindex="0" title="拖动调整宽度，双击恢复"></div>
     <button id="sidebarBackdrop" class="sidebar-backdrop" aria-label="关闭题目列表" tabindex="-1" aria-hidden="true"></button>
@@ -61,6 +64,20 @@
       </div>
     </main>
   </div>
+  <section class="skin-panel" id="skinPanel" role="dialog" aria-labelledby="skinTitle" hidden>
+    <div class="skin-panel-head"><h2 id="skinTitle">皮肤</h2><button class="icon-button" id="closeSkinPanel" aria-label="关闭皮肤选择"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
+    <div class="skin-options" role="radiogroup" aria-label="界面皮肤">
+        <button class="skin-option" data-skin-option="codex" role="radio" aria-checked="true" tabindex="0">
+          <span class="skin-preview preview-codex" aria-hidden="true"><span class="preview-nav"><i></i><i></i><i></i></span><span class="preview-sheet"><i></i><i></i><i></i></span><span class="preview-code"><i></i><i></i><i></i><i></i></span></span>
+          <span class="skin-option-label">Codex<svg class="skin-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></span>
+        </button>
+        <button class="skin-option" data-skin-option="claude" role="radio" aria-checked="false" tabindex="-1">
+          <span class="skin-preview preview-claude" aria-hidden="true"><span class="preview-nav"><i></i><i></i><i></i></span><span class="preview-sheet"><i></i><i></i><i></i></span><span class="preview-code"><i></i><i></i><i></i><i></i></span></span>
+          <span class="skin-option-label">Claude Code<svg class="skin-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></span>
+        </button>
+    </div>
+  </section>
+  <span id="skinStatus" class="skin-status" role="status"></span>
   <script src="./vendor/codemirror/lib/codemirror.js"></script>
   <script src="./vendor/codemirror/mode/python/python.js"></script>
   <script src="./vendor/codemirror/addon/edit/matchbrackets.js"></script>
