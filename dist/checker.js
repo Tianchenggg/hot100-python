@@ -1,4 +1,4 @@
-import { outputsEqual } from './runner.js';
+import { outputsEqual } from './runner.js?v=7';
 
 const normalizeNewlines = (text) => text.replace(/\r\n?/g, '\n');
 const tokens = (text) => text.trim() ? text.trim().split(/\s+/) : [];
@@ -191,6 +191,7 @@ export function checkOutput(problem, input, expected, actual) {
       case 108: return balancedSearchTree(input, actual);
       case 131: return rowCollection(expected, actual);
       case 347: return topFrequent(input, actual);
+      case 438: return sameMultiset(integers(expected), integers(actual));
       default: return exactOutput(expected, actual);
     }
   } catch {

@@ -36,6 +36,8 @@ check(46, '2\n1 2\n', '1 2\n2 1\n', '1 2\n1 2\n', false, 'permutations preserve 
 check(46, '0\n', '\n', '', false, 'empty permutation requires one empty row');
 check(49, '4\nab ba ab ac\n', 'ab ba ab\nac\n', 'ac\nba ab ab\n', true, 'anagram group order');
 check(49, '4\nab ba ab ac\n', 'ab ba ab\nac\n', 'ac\nba ab\n', false, 'anagram repeated words retained');
+check(49, '3\n"" "" a\n', '"" ""\na\n', 'a\n"" ""\n', true, 'empty strings use explicit tokens');
+check(49, '3\n"" "" a\n', '"" ""\na\n', 'a\n""\n', false, 'empty strings retain multiplicity');
 const queenExpected = '.Q.. ...Q Q... ..Q.\n..Q. Q... ...Q .Q..\n';
 check(51, '4\n', queenExpected, '..Q. Q... ...Q .Q..\n.Q.. ...Q Q... ..Q.\n', true, 'whole queen board order');
 check(51, '4\n', queenExpected, 'Q... Q... Q... Q...\n..Q. Q... ...Q .Q..\n', false, 'queens attack each other');
@@ -65,6 +67,9 @@ check(347, '4 2\n1 1 2 3\n', '1 2\n', '3 1\n', true, 'frequency boundary ties ac
 check(347, '4 2\n1 1 2 3\n', '1 2\n', '2 3\n', false, 'frequency boundary cannot omit higher frequency');
 check(347, '4 2\n1 1 2 3\n', '1 2\n', '1 1\n', false, 'top frequencies cannot repeat a value');
 check(347, '4 2\n1 1 2 3\n', '1 2\n', '1 99\n', false, 'top frequency value must exist');
+check(438, 'cbaebabacd\nabc\n', '0 6\n', '6 0\n', true, 'anagram indices may use either order');
+check(438, 'cbaebabacd\nabc\n', '0 6\n', '0 0\n', false, 'anagram indices cannot replace a match with a duplicate');
+check(438, 'cbaebabacd\nabc\n', '0 6\n', '0 6 8\n', false, 'anagram indices cannot add a nonexistent match');
 check(3, 'abcabcbb\n', '3\n', '2\n', false, 'ordinary incorrect answer');
 check(20, '()\n', 'true\n', 'false\n', false, 'ordinary boolean incorrect answer');
 check(62, '', '1000000\n', '1000001\n', false, 'integer results do not get relative float tolerance');

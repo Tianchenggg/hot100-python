@@ -74,5 +74,16 @@ for (const problem of problems) {
   }[problem.id];
   dataset[problem.id] = { core, template, signature, inputSpec, outputSpec, ...(desc ? { desc } : {}), examples: cases.slice(0, 2), tests: cases };
 }
+const corrections = JSON.parse(fs.readFileSync(new URL('./problem-corrections.json', import.meta.url)));
+for (const [id, entry] of Object.entries(dataset)) {
+  const patch = corrections[id].leetcode;
+  for (const [key, value] of Object.entries(patch)) {
+    if (!['examplesReplacements', 'testsReplacements', 'additionalTests'].includes(key)) entry[key] = value;
+  }
+  for (const [index, value] of Object.entries(patch.testsReplacements || {})) entry.tests[Number(index)] = value;
+  entry.tests.push(...(patch.additionalTests || []));
+  entry.examples = entry.tests.slice(0, 2);
+  for (const [index, value] of Object.entries(patch.examplesReplacements || {})) entry.examples[Number(index)] = value;
+}
 fs.writeFileSync(new URL('../dist/data/leetcode.js', import.meta.url), `export default ${JSON.stringify(dataset)};\n`);
 console.log(`Generated ${problems.length} LeetCode problems, ${Object.values(dataset).reduce((n, p) => n + p.tests.length, 0)} cases.`);

@@ -88,6 +88,7 @@ const timeout = await fastRunner.run('while True: pass');
 assert.equal(timeout.status, 'timeout');
 assert.ok(timeout.ms >= 200 && timeout.ms < 2000);
 assert.equal((await fastRunner.run('print("recovered")')).stdout, 'recovered\n');
+fastRunner.cancel();
 
 const cancelled = await runner.run('while True: pass', '', {
   onStatus(status) { if (status === 'running') setTimeout(() => runner.cancel(), 30); },
@@ -106,6 +107,36 @@ await run('class Solution:\n    def double(self, value)\n        return value', 
 await run('class Solution:\n    def double(self, value):\n        return "x" * 65537', '', { status: 'output_limit' }, { harness });
 await run('print("ACM still isolated")', '', { status: 'ok', stdout: 'ACM still isolated\n', value: undefined });
 
+const isolationCases = [{ input: 'first', output: 'fresh\n' }, { input: 'second', output: 'fresh\n' }, { input: 'third', output: 'fresh\n' }, { input: 'fourth', output: 'fresh\n' }];
+const isolation = await runner.runCases(`import sys, os, math, builtins, io
+assert not os.path.exists('/tmp/runner-leak')
+assert math.sqrt(9) == 3
+assert not hasattr(builtins, '_runner_leak')
+assert sys.stdin.read() in ('first', 'second', 'third', 'fourth')
+print('fresh')
+open('/tmp/runner-leak', 'w').write('changed')
+math.sqrt = lambda value: -1
+builtins._runner_leak = True
+sys.stdin = io.StringIO('changed')
+os.chdir('/tmp')`, isolationCases);
+assert.equal(isolation.allPassed, true);
+assert.equal(isolation.results.length, 4);
+const harnessCases = await runner.runCases('class Solution:\n    def double(self, value):\n        return value * 2', [{ input: '2', output: '4' }, { input: '3', output: '6' }], {
+  buildHarness: test => ({ setup: '', invoke: `_leetcode_result = str(Solution().double(${test.input}))` }),
+  compare: (test, result) => test.output === result.value,
+});
+assert.equal(harnessCases.allPassed, true);
+const orderedProgress = [];
+const ordered = await runner.runCases('import time\nn = int(input())\ntime.sleep(0.1 if n == 0 else 0)\nprint(n)', [0, 1, 2, 3].map(n => ({ input: String(n), output: String(n) })), {
+  onProgress: entry => orderedProgress.push(entry.result.index),
+});
+assert.equal(ordered.allPassed, true);
+assert.deepEqual(orderedProgress, [0, 1, 2, 3]);
+const failedBatch = await runner.runCases('raise ValueError("stop")', isolationCases, { stopOnError: true });
+assert.equal(failedBatch.cancelled, false);
+assert.equal(failedBatch.results.length, 1);
+assert.equal(failedBatch.results[0].status, 'error');
+
 const cases = [{ input: '2\n', output: '4\n' }, { input: '3\n', output: '6\n' }];
 const progress = [];
 const batch = await runner.runCases('print(int(input()) * 2)', cases, {
@@ -119,13 +150,74 @@ const stoppedBatch = await runner.runCases('print(int(input()) * 2)', cases, {
 assert.equal(stoppedBatch.cancelled, true);
 assert.equal(stoppedBatch.results.length, 1);
 
+runner.cancel();
 globalThis.Worker = class {
   postMessage() {}
   terminate() {}
 };
-const noLoad = await new PythonRunner({ loadTimeoutMs: 20 }).run('print(1)');
+const noLoadRunner = new PythonRunner({ loadTimeoutMs: 20, warmWorkers: 0 });
+const noLoad = await noLoadRunner.run('print(1)');
 assert.equal(noLoad.status, 'timeout');
 assert.equal(noLoad.ms, 0);
+globalThis.Worker = BrowserWorker;
+
+let liveWorkers = 0;
+let peakWorkers = 0;
+let createdWorkers = 0;
+let sentRuns = 0;
+class ScheduledWorker {
+  constructor() {
+    this.closed = false;
+    this.runs = 0;
+    createdWorkers += 1;
+    liveWorkers += 1;
+    peakWorkers = Math.max(peakWorkers, liveWorkers);
+    this.readyTimer = setTimeout(() => this.onmessage?.({ data: { type: 'ready' } }), 5);
+  }
+  postMessage(data) {
+    assert.equal(this.closed, false);
+    assert.equal(++this.runs, 1, 'Each worker may execute only one case');
+    sentRuns += 1;
+    this.runTimer = setTimeout(() => this.onmessage?.({ data: { type: 'result', status: 'ok', ms: 1 } }), data.input === '0' ? 25 : 1);
+  }
+  terminate() {
+    if (this.closed) return;
+    this.closed = true;
+    liveWorkers -= 1;
+    clearTimeout(this.readyTimer);
+    clearTimeout(this.runTimer);
+  }
+}
+globalThis.Worker = ScheduledWorker;
+const scheduled = new PythonRunner({ idleTimeoutMs: 20 });
+assert.equal(createdWorkers, 0, 'No Python initialization before Run/Submit');
+const scheduleProgress = [];
+const scheduleBatch = await scheduled.runCases('pass', [0, 1, 2, 3].map(input => ({ input, output: '' })), {
+  onProgress: entry => scheduleProgress.push(entry.index),
+});
+assert.equal(scheduleBatch.allPassed, true);
+assert.deepEqual(scheduleProgress, [1, 2, 3, 4]);
+assert.ok(peakWorkers <= 2, 'At most two workers may be alive');
+assert.equal(sentRuns, 4, 'Warm worker must not execute user code');
+assert.equal(liveWorkers, 1, 'Only one unused worker is retained');
+await Promise.all(scheduled.idle.map(slot => slot.ready));
+const beforeWarmRun = createdWorkers;
+await scheduled.run('pass');
+assert.equal(createdWorkers, beforeWarmRun + 1, 'Reuse pristine worker, then prepare its replacement');
+await Promise.all(scheduled.idle.map(slot => slot.ready));
+await new Promise(resolve => setTimeout(resolve, 30));
+assert.equal(liveWorkers, 0, 'Idle worker expires');
+await scheduled.run('pass');
+scheduled.cancel();
+assert.equal(liveWorkers, 0, 'Cancel also releases unused workers');
+const cancelDuringLoad = await scheduled.runCases('pass', isolationCases, { onStatus: () => scheduled.cancel() });
+assert.equal(cancelDuringLoad.cancelled, true);
+assert.equal(liveWorkers, 0);
+const cancelDuringRun = await scheduled.runCases('pass', isolationCases, {
+  onStatus: status => { if (status === 'running') scheduled.cancel(); },
+});
+assert.equal(cancelDuringRun.cancelled, true);
+assert.equal(liveWorkers, 0);
 globalThis.Worker = BrowserWorker;
 
 assert.equal(outputsEqual('1.0\n', '1.0000001\n'), true);
@@ -133,6 +225,11 @@ assert.equal(outputsEqual('a  \r\n', 'a\n'), true);
 assert.equal(outputsEqual('1 2\n', '2 1\n'), false);
 assert.equal(outputsEqual('hello\n', 'hello\n\n'), false);
 assert.equal(outputsEqual('1\n', '1.1\n'), false);
+assert.equal(outputsEqual('2.5\n', '1e999\n'), false);
+assert.equal(outputsEqual('2.5\n', '-1e999\n'), false);
+assert.equal(outputsEqual('100000', '100000.05'), false);
+assert.equal(outputsEqual('0', '0.00001'), true);
+assert.equal(outputsEqual('0', '0.0000101'), false);
 console.log(JSON.stringify({ runner: 'passed', fieldAssertions: assertions, freshWorkerLoadMs: timings }));
 }
 

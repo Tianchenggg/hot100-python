@@ -145,6 +145,14 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .statement-content h1 { margin: 0 0 13px; font-size: 23px; font-weight: 600; line-height: 1.45; letter-spacing: -.65px; }
 .problem-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--muted); font-size: 12px; }
 .difficulty { color: var(--secondary); font-weight: 400; }
+.problem-meta .source-link { margin-left: auto; color: var(--muted); font-size: 11px; text-decoration: none; }
+.problem-meta .source-link:hover { color: var(--text); }
+.problem-constraints { margin: 21px 0 0; color: var(--secondary); font-size: 12px; }
+.problem-constraints summary { width: fit-content; cursor: pointer; color: var(--secondary); }
+.problem-constraints summary:hover { color: var(--text); }
+.problem-constraints summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.statement-content .problem-constraints ul { margin: 8px 0 0; padding-left: 18px; }
+.statement-content .problem-constraints li { margin: 3px 0; overflow-wrap: anywhere; }
 .description { color: var(--text); white-space: pre-line; margin: 18px 0 0; }
 .description p { margin: 0 0 16px; }
 .description strong { font-weight: 600; }

@@ -1,6 +1,6 @@
-import { PythonRunner } from './runner.js?v=3';
-import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=3';
-import { checkOutput } from './checker.js';
+import { PythonRunner } from './runner.js?v=7';
+import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
+import { checkOutput } from './checker.js?v=7';
 import problemGroups from './data/groups.js';
 import { initLayout } from './layout.js?v=5';
 
@@ -12,6 +12,7 @@ function read(key, fallback = '') { try { return localStorage.getItem(prefix + k
 function save(key, value) { try { localStorage.setItem(prefix + key, value); return true; } catch { return false; } }
 const initialMode = new URL(location.href).searchParams.get('mode') || read('mode', 'acm');
 state.mode = initialMode === 'leetcode' ? 'leetcode' : 'acm';
+save('mode', state.mode);
 const modeKey = key => state.mode === 'leetcode' ? `leetcode:${key}` : key;
 const groupByProblem = new Map(problemGroups.flatMap(group => group.problemIds.map(id => [id, group.id])));
 let expandedGroups = new Set();
@@ -232,7 +233,8 @@ function selectProblem(id, force = false) {
   editor.clearHistory(); $('saveStatus').textContent = '已保存到此浏览器';
   const index = state.problems.findIndex(item => item.id === p.id);
   $('prevProblem').disabled = index === 0; $('nextProblem').disabled = index === state.problems.length - 1;
-  $('statementContent').innerHTML = `<div class="problem-meta"><span class="difficulty">${escapeHtml(p.difficulty)}</span></div><h1>${p.id}. ${escapeHtml(p.title)}</h1><p class="description">${escapeHtml(p.desc)}</p><h2>输入</h2><p class="spec-text">${escapeHtml(p.inputSpec)}</p><h2>输出</h2><p class="spec-text">${escapeHtml(p.outputSpec)}</p>${p.examples.map((e, i) => `<section class="example-block"><h2>样例 ${i + 1}</h2><div class="example-label">输入</div><pre class="example-code">${escapeHtml(e.input)}</pre><div class="example-label">输出</div><pre class="example-code">${escapeHtml(e.output)}</pre></section>`).join('')}`;
+  const constraints = p.constraints?.length ? `<details class="problem-constraints"><summary>数据范围</summary><ul>${p.constraints.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul></details>` : '';
+  $('statementContent').innerHTML = `<div class="problem-meta"><span class="difficulty">${escapeHtml(p.difficulty)}</span><a class="source-link" href="${escapeHtml(p.url)}" target="_blank" rel="noreferrer">原题 ↗</a></div><h1>${p.id}. ${escapeHtml(p.title)}</h1><p class="description">${escapeHtml(p.desc)}</p><h2>输入</h2><p class="spec-text">${escapeHtml(p.inputSpec)}</p><h2>输出</h2><p class="spec-text">${escapeHtml(p.outputSpec)}</p>${constraints}${p.examples.map((e, i) => `<section class="example-block"><h2>样例 ${i + 1}</h2><div class="example-label">输入</div><pre class="example-code">${escapeHtml(e.input)}</pre><div class="example-label">输出</div><pre class="example-code">${escapeHtml(e.output)}</pre></section>`).join('')}`;
   $('statementContent').scrollTop = 0;
   $('resultView').innerHTML = '<div class="empty-result">运行代码后查看结果</div>';
   $('resultTab').firstChild.textContent = '结果'; $('resultIndicator').className = '';
@@ -283,6 +285,7 @@ function setBusy(busy) {
   $('codingPane')?.setAttribute('aria-busy', String(busy));
 }
 function renderWorking(message) {
+  if ($('resultView').querySelector('.status-badge.working')?.textContent === message) return;
   $('resultView').innerHTML = `<div class="result-summary"><span class="status-badge working"><span class="spinner" aria-hidden="true"></span>${escapeHtml(message)}</span></div>`;
   $('resultIndicator').className = 'working';
 }
@@ -306,9 +309,11 @@ function renderResults(submit) {
   const r = results[state.resultIndex];
   const label = submit ? `${passed} / ${state.current.tests.length} 通过` : getLabel(r);
   const tone = all ? 'success' : (r.status === 'ok' && !r.compared && !submit ? '' : 'failure');
+  const elapsed = state.elapsedMs >= 1000 ? `${(state.elapsedMs / 1000).toFixed(2)} s` : `${Math.round(state.elapsedMs || 0)} ms`;
+  const pythonMs = Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0));
   const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
   $('resultIndicator').className = tone;
-  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time">${Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0))} ms</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
+  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time" title="总耗时（含环境准备与判题）；Python 执行合计 ${pythonMs} ms">${elapsed}</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
   $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => { state.resultIndex = Number(button.dataset.case); renderResults(submit); }));
   $('resultView').querySelector('[data-line]')?.addEventListener('click', () => { editor.setCursor(r.line - 1, 0); editor.scrollIntoView({ line: r.line - 1, ch: 0 }, 60); editor.focus(); });
   if (editor.getValue() === state.submittedCode) markError(r.line);
@@ -321,27 +326,40 @@ async function execute(submit) {
   if (!code.trim()) { $('resultView').innerHTML = '<div class="empty-result">请先写入代码</div>'; editor.focus(); return; }
   persistCode(); setBusy(true); state.results = []; state.resultIndex = 0; state.submittedCode = code;
   const token = ++state.token; const p = state.current;
+  const isLeetCode = state.mode === 'leetcode';
+  const startedAt = performance.now();
+  const compare = isLeetCode ? checkLeetCodeOutput : checkOutput;
   const cases = submit ? p.tests : [{ input: $('testInput').value, output: $('expectedOutput').value }];
+  const asResult = (r, c) => {
+    const compared = submit || c.output !== '';
+    const actual = isLeetCode ? r.value ?? '' : r.stdout;
+    const passed = r.status === 'ok' && (!compared || (submit ? r.ok : compare(p, c.input, c.output, actual)));
+    return { ...r, actual, input: c.input, expected: c.output, compared, passed };
+  };
   try {
-    for (let i = 0; i < cases.length; i++) {
+    renderWorking('准备 Python…');
+    if (submit) {
+      let completed = 0;
+      const batch = await runner.runCases(code, cases, {
+        buildHarness: isLeetCode ? c => buildLeetCodeHarness(p, c.input) : undefined,
+        compare: (c, r) => compare(p, c.input, c.output, isLeetCode ? r.value ?? '' : r.stdout),
+        stopOnError: true,
+        onStatus: status => { if (token === state.token && status === 'running') renderWorking(`评测 ${completed} / ${cases.length}…`); },
+        onProgress: ({ index }) => { completed = index; if (token === state.token) renderWorking(`评测 ${index} / ${cases.length}…`); },
+      });
       if (token !== state.token) return;
-      renderWorking(submit ? `评测 ${i + 1} / ${cases.length}…` : '准备 Python…');
-      const c = cases[i];
-      const harness = state.mode === 'leetcode' ? buildLeetCodeHarness(p, c.input) : undefined;
+      state.results = batch.results.map(r => asResult(r, cases[r.index]));
+    } else {
+      const c = cases[0];
+      const harness = isLeetCode ? buildLeetCodeHarness(p, c.input) : undefined;
       const r = await runner.run(code, c.input, { harness, onStatus: status => {
-        if (token !== state.token) return;
-        const text = typeof status === 'string' ? status : status?.status;
-        renderWorking(submit ? `评测 ${i + 1} / ${cases.length}…` : (text === 'running' ? '运行中…' : '准备 Python…'));
+        if (token === state.token) renderWorking(status === 'running' ? '运行中…' : '准备 Python…');
       } });
       if (token !== state.token) return;
-      const compared = submit || c.output !== '';
-      const actual = state.mode === 'leetcode' ? r.value ?? '' : r.stdout;
-      const compare = state.mode === 'leetcode' ? checkLeetCodeOutput : checkOutput;
-      const passed = r.status === 'ok' && (!compared || compare(p, c.input, c.output, actual));
-      state.results.push({ ...r, actual, input: c.input, expected: c.output, compared, passed });
-      if (r.status !== 'ok') break;
+      state.results = [asResult(r, c)];
     }
     if (token !== state.token) return;
+    state.elapsedMs = performance.now() - startedAt;
     state.resultIndex = Math.max(0, state.results.findIndex(r => !r.passed));
     if (submit && state.results.length === cases.length && state.results.every(r => r.passed)) {
       state.passed.add(p.id); save(modeKey('passed'), JSON.stringify([...state.passed])); renderList();
@@ -413,10 +431,11 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); persistCode(); }
 });
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
+window.addEventListener('pagehide', () => { persistCode(); if (state.busy) stop(); else runner.cancel(); });
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {
-  const response = await fetch('./data/problems.json'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
+  const response = await fetch('./data/problems.json?v=7'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
   const problems = await response.json();
   const byId = new Map(problems.map(p => [p.id, p]));
   state.problems = problemGroups.flatMap(group => group.problemIds.map(id => byId.get(id)));

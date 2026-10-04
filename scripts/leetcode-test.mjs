@@ -113,9 +113,19 @@ checked(347, { nums: [1, 1, 2, 2, 3], k: 2 }, [1, 2], [1, 1], false);
 checked(347, { nums: [1, 1, 2, 2, 3], k: 2 }, [1, 2], [1, 3], false);
 checked(4, { nums1: [1], nums2: [2] }, 1.5, 1.50000001);
 checked(4, { nums1: [1], nums2: [2] }, 1.5, 1.51, false);
+checked(4, { nums1: [100000], nums2: [100000] }, 100000, 100000.05, false);
+checked(295, { operations: ['MedianFinder'], arguments: [[]] }, [null, 1.5], [null, 1.500005]);
+checked(295, { operations: ['MedianFinder'], arguments: [[]] }, [null, 100000], [null, 100000.05], false);
 checked(3, { s: 'abc' }, 3, 3.00000001, false);
 checked(20, { s: '()' }, true, 1, false);
 checked(20, { s: '()' }, true, 'true', false);
+checked(438, { s: 'cbaebabacd', p: 'abc' }, [0, 6], [6, 0]);
+checked(438, { s: 'cbaebabacd', p: 'abc' }, [0, 6], [0, 0], false);
+checked(438, { s: 'cbaebabacd', p: 'abc' }, [0, 6], [0, 6, 8], false);
+equal(checkLeetCodeOutput(problems.get(4), '{"nums1":[1],"nums2":[2]}', '1.5', '1e999'), false,
+  'An overflowed floating-point answer is not a valid approximate result');
+equal(checkLeetCodeOutput(problems.get(295), '{"operations":["MedianFinder"],"arguments":[[]]}', '[null,1.5]', '[null,1e999]'), false,
+  'MedianFinder rejects overflowed numbers in arrays');
 
 const debug = runValue(1, solution('twoSum(self, nums: List[int], target: int) -> List[int]',
   'print("debug", nums)\nimport sys\nsys.stderr.write("trace\\n")\nreturn [1, 0]'), undefined, [1, 0]);
@@ -165,6 +175,58 @@ const cyclicOutput = execute(206, solution('reverseList(self, head)', 'head.next
 assert.ok(cyclicOutput.error, 'Unexpected output cycles must terminate with an error'); assertions += 1;
 const sharedTree = execute(226, solution('invertTree(self, root)', 'root.right = root.left\nreturn root'), { root: [1, 2, 3] });
 assert.ok(sharedTree.error, 'A tree output cannot reuse one node twice'); assertions += 1;
+
+function rejected(id, method, body, input, label) {
+  const result = execute(id, solution(method, body), input);
+  assert.ok(result.error, label);
+  assertions += 1;
+}
+
+runValue(24, solution('swapPairs(self, head)',
+  'second = head.next\nhead.next = second.next\nsecond.next = head\nreturn second'), { head: [1, 1, 2] }, [1, 1, 2]);
+runValue(25, solution('reverseKGroup(self, head, k)',
+  'second = head.next\nhead.next = second.next\nsecond.next = head\nreturn second'), { head: [1, 1, 2], k: 2 }, [1, 1, 2]);
+runValue(24, solution('swapPairs(self, head)', 'return None'), { head: [] }, []);
+rejected(24, 'swapPairs(self, head)', 'head.val, head.next.val = head.next.val, head.val\nreturn head',
+  { head: [1, 2] }, 'Swapping values is not swapping nodes');
+rejected(24, 'swapPairs(self, head)', 'return ListNode(2, ListNode(1))',
+  { head: [1, 2] }, 'Replacing nodes does not satisfy the pair-swap contract');
+rejected(24, 'swapPairs(self, head)', 'return head',
+  { head: [1, 1] }, 'Duplicate values cannot hide an incorrect node order');
+rejected(25, 'reverseKGroup(self, head, k)', 'head.val, head.next.val = head.next.val, head.val\nreturn head',
+  { head: [1, 2], k: 2 }, 'Group reversal cannot exchange values');
+rejected(25, 'reverseKGroup(self, head, k)', 'return ListNode(2, ListNode(1))',
+  { head: [1, 2], k: 2 }, 'Group reversal must preserve the original nodes');
+rejected(25, 'reverseKGroup(self, head, k)', 'return head',
+  { head: [1, 1], k: 2 }, 'Group reversal checks identity even when values are equal');
+rejected(25, 'reverseKGroup(self, head, k)', 'head.next = head\nreturn head',
+  { head: [1], k: 1 }, 'A cycle cannot be hidden behind an otherwise correct prefix');
+rejected(236, 'lowestCommonAncestor(self, root, p, q)', 'p.val = root.val\nreturn p',
+  { root: [3, 5, 1], p: 5, q: 1 }, 'Changing a node value cannot forge the actual ancestor');
+rejected(287, 'findDuplicate(self, nums)', 'nums.sort()\nreturn 2',
+  { nums: [1, 3, 4, 2, 2] }, 'Finding a duplicate must preserve the input array');
+runValue(287, solution('findDuplicate(self, nums)', 'return 2'), { nums: [1, 3, 4, 2, 2] }, 2);
+rejected(3, 'lengthOfLongestSubstring(self, s)', 'return 3.0',
+  { s: 'abc' }, 'An integer return type rejects floating-point values');
+rejected(1, 'twoSum(self, nums, target)', 'return [0.0, 1.0]',
+  { nums: [2, 7], target: 9 }, 'Integer index arrays reject floats');
+rejected(20, 'isValid(self, s)', 'return 1',
+  { s: '()' }, 'A boolean return type rejects integers');
+rejected(206, 'reverseList(self, head)', 'head.val = 1.0\nreturn head',
+  { head: [1] }, 'Linked-list values must retain the integer type');
+rejected(108, 'sortedArrayToBST(self, nums)', 'return TreeNode(1.0)',
+  { nums: [1] }, 'Tree node values must retain the integer type');
+rejected(236, 'lowestCommonAncestor(self, root, p, q)', 'root.val = 3.0\nreturn root',
+  { root: [3, 5, 1], p: 5, q: 1 }, 'Special node-return problems also validate their value types');
+rejected(160, 'getIntersectionNode(self, headA, headB)', 'headA.val = 1.0\nreturn headA',
+  { listA: [1], listB: [1], skipA: 0, skipB: 0 }, 'Protected node values cannot silently change type');
+
+const wrongOpsType = execute(155, `class MinStack:
+    def __init__(self): pass
+    def push(self, val): pass
+    def top(self): return 1.0
+`, { operations: ['MinStack', 'push', 'top'], arguments: [[], [1], []] });
+assert.ok(wrongOpsType.error, 'Class-operation return values must follow their declared type'); assertions += 1;
 
 runValue(155, `class MinStack:
     def __init__(self):

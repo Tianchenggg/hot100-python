@@ -20,6 +20,8 @@ assert.deepEqual(
 let count = 0;
 for (const p of problems) {
   assert.ok(p.title && p.desc && p.inputSpec && p.outputSpec, `Incomplete problem ${p.id}`);
+  assert.ok(Array.isArray(p.constraints) && p.constraints.length && p.constraints.every(item => typeof item === 'string' && item.trim()), `Missing constraints ${p.id}`);
+  assert.match(p.url, /^https:\/\/leetcode\.cn\/problems\/[a-z0-9-]+\/$/, `Missing official source ${p.id}`);
   assert.ok(p.examples.length && p.tests.length, `Missing cases ${p.id}`);
   for (const c of [...p.examples, ...p.tests]) {
     assert.equal(typeof c.input, 'string');
@@ -28,5 +30,5 @@ for (const p of problems) {
   for (const unwanted of ['core','freq','topic','explain','template']) assert.ok(!(unwanted in p));
   count += p.tests.length;
 }
-assert.equal(count, 478);
+assert.equal(count, 484);
 console.log(`Validated ${groups.length} groups, ${problems.length} problems and ${count} test cases.`);

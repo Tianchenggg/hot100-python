@@ -1,0 +1,2317 @@
+{
+  "checkedAt": "2026-10-04",
+  "endpoint": "https://leetcode.com/graphql",
+  "problems": [
+    {
+      "id": 1,
+      "titleSlug": "two-sum",
+      "source": "https://leetcode.cn/problems/two-sum/",
+      "englishSource": "https://leetcode.com/problems/two-sum/",
+      "contentSha256": "57482927aab4935781921c65529b9f40f2cb019b530e885faf40faee43ff252f",
+      "metadata": {
+        "name": "twoSum",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer[]",
+          "size": 2
+        },
+        "manual": false
+      }
+    },
+    {
+      "id": 2,
+      "titleSlug": "add-two-numbers",
+      "source": "https://leetcode.cn/problems/add-two-numbers/",
+      "englishSource": "https://leetcode.com/problems/add-two-numbers/",
+      "contentSha256": "1d02c0329aba037d3c4aefd3147cadd6792816cfce16164512ac6acd5dfe685f",
+      "metadata": {
+        "name": "addTwoNumbers",
+        "params": [
+          {
+            "name": "l1",
+            "type": "ListNode",
+            "dealloc": false
+          },
+          {
+            "name": "l2",
+            "type": "ListNode",
+            "dealloc": false
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 3,
+      "titleSlug": "longest-substring-without-repeating-characters",
+      "source": "https://leetcode.cn/problems/longest-substring-without-repeating-characters/",
+      "englishSource": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+      "contentSha256": "e68064bd5d9a07df76a178b4892397f024564ba7b4f2169ae2489e7755b19c3e",
+      "metadata": {
+        "name": "lengthOfLongestSubstring",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "titleSlug": "median-of-two-sorted-arrays",
+      "source": "https://leetcode.cn/problems/median-of-two-sorted-arrays/",
+      "englishSource": "https://leetcode.com/problems/median-of-two-sorted-arrays/",
+      "contentSha256": "969de50fa972f735b63db35007f77081193cd45a44147cf5160dd9808e2781c7",
+      "metadata": {
+        "name": "findMedianSortedArrays",
+        "params": [
+          {
+            "name": "nums1",
+            "type": "integer[]"
+          },
+          {
+            "name": "nums2",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "double"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "titleSlug": "longest-palindromic-substring",
+      "source": "https://leetcode.cn/problems/longest-palindromic-substring/",
+      "englishSource": "https://leetcode.com/problems/longest-palindromic-substring/",
+      "contentSha256": "fe71ae19c9073d056d62f0fdd8aedf551d0c13569718cdb7a6bbbe2bdf5e7eb7",
+      "metadata": {
+        "name": "longestPalindrome",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "titleSlug": "container-with-most-water",
+      "source": "https://leetcode.cn/problems/container-with-most-water/",
+      "englishSource": "https://leetcode.com/problems/container-with-most-water/",
+      "contentSha256": "aab196940944fffb2ceb8f67a910d28868866c3fefdb8ca8b2e0c1a99391abce",
+      "metadata": {
+        "name": "maxArea",
+        "params": [
+          {
+            "name": "height",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "titleSlug": "3sum",
+      "source": "https://leetcode.cn/problems/3sum/",
+      "englishSource": "https://leetcode.com/problems/3sum/",
+      "contentSha256": "9f34b422d56fde7a0f9d615b37e238d4cf55463fbee8f1855a4568efefbe4a95",
+      "metadata": {
+        "name": "threeSum",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "colsize": 3,
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 17,
+      "titleSlug": "letter-combinations-of-a-phone-number",
+      "source": "https://leetcode.cn/problems/letter-combinations-of-a-phone-number/",
+      "englishSource": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/",
+      "contentSha256": "62d68853d12dd0509e47ca98653f3c69ebdd0e329bb5cfd84e2d68d97eeab63b",
+      "metadata": {
+        "name": "letterCombinations",
+        "params": [
+          {
+            "name": "digits",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "list<string>"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "titleSlug": "remove-nth-node-from-end-of-list",
+      "source": "https://leetcode.cn/problems/remove-nth-node-from-end-of-list/",
+      "englishSource": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
+      "contentSha256": "75f9a11ddbbb3049dc6f5c0ce508d9c1d716568d1f402345213d53883b5c15c1",
+      "metadata": {
+        "name": "removeNthFromEnd",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode",
+            "dealloc": false
+          },
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 20,
+      "titleSlug": "valid-parentheses",
+      "source": "https://leetcode.cn/problems/valid-parentheses/",
+      "englishSource": "https://leetcode.com/problems/valid-parentheses/",
+      "contentSha256": "cc58a8cb40b43cc316752d6cb347af35054c0217ffb5dbe8a61dfd7aa86777e6",
+      "metadata": {
+        "name": "isValid",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 21,
+      "titleSlug": "merge-two-sorted-lists",
+      "source": "https://leetcode.cn/problems/merge-two-sorted-lists/",
+      "englishSource": "https://leetcode.com/problems/merge-two-sorted-lists/",
+      "contentSha256": "c2e853aaef28768d618e9ba239b252399e832caee0dcf09d48e16148704c4fc1",
+      "metadata": {
+        "name": "mergeTwoLists",
+        "params": [
+          {
+            "name": "list1",
+            "type": "ListNode",
+            "dealloc": false
+          },
+          {
+            "name": "list2",
+            "type": "ListNode",
+            "dealloc": false
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 22,
+      "titleSlug": "generate-parentheses",
+      "source": "https://leetcode.cn/problems/generate-parentheses/",
+      "englishSource": "https://leetcode.com/problems/generate-parentheses/",
+      "contentSha256": "ec075ea14e800551a0c36e19f8ba393aefc3f0f01f8e3b70dede7dd0ff8830ca",
+      "metadata": {
+        "name": "generateParenthesis",
+        "params": [
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "list<string>"
+        }
+      }
+    },
+    {
+      "id": 23,
+      "titleSlug": "merge-k-sorted-lists",
+      "source": "https://leetcode.cn/problems/merge-k-sorted-lists/",
+      "englishSource": "https://leetcode.com/problems/merge-k-sorted-lists/",
+      "contentSha256": "6086732c938506825474834d84b88522254d43ae5d64fcfb7fdc968993b48eb5",
+      "metadata": {
+        "name": "mergeKLists",
+        "params": [
+          {
+            "name": "lists",
+            "type": "ListNode[]",
+            "dealloc": false
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 24,
+      "titleSlug": "swap-nodes-in-pairs",
+      "source": "https://leetcode.cn/problems/swap-nodes-in-pairs/",
+      "englishSource": "https://leetcode.com/problems/swap-nodes-in-pairs/",
+      "contentSha256": "ac73e78125d62ed9965dee86451aeea43216ad847bfc513a2b54258d3d780d6a",
+      "metadata": {
+        "name": "swapPairs",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          }
+        ],
+        "return": {
+          "type": "ListNode"
+        }
+      }
+    },
+    {
+      "id": 25,
+      "titleSlug": "reverse-nodes-in-k-group",
+      "source": "https://leetcode.cn/problems/reverse-nodes-in-k-group/",
+      "englishSource": "https://leetcode.com/problems/reverse-nodes-in-k-group/",
+      "contentSha256": "f126d491c1855d7340d50bac2ec81e2ecf70523380f77fbd8eeed56c976fbb9b",
+      "metadata": {
+        "name": "reverseKGroup",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "ListNode"
+        }
+      }
+    },
+    {
+      "id": 31,
+      "titleSlug": "next-permutation",
+      "source": "https://leetcode.cn/problems/next-permutation/",
+      "englishSource": "https://leetcode.com/problems/next-permutation/",
+      "contentSha256": "b95602aabd96218f5905cb5cf7db2139f19f2c3907ce10a4e27a244980d6f0c8",
+      "metadata": {
+        "name": "nextPermutation",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        }
+      }
+    },
+    {
+      "id": 32,
+      "titleSlug": "longest-valid-parentheses",
+      "source": "https://leetcode.cn/problems/longest-valid-parentheses/",
+      "englishSource": "https://leetcode.com/problems/longest-valid-parentheses/",
+      "contentSha256": "6bd002d044ae467e6cb53b71197dcc4290d497bd3c3448635827480d214b14c2",
+      "metadata": {
+        "name": "longestValidParentheses",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 33,
+      "titleSlug": "search-in-rotated-sorted-array",
+      "source": "https://leetcode.cn/problems/search-in-rotated-sorted-array/",
+      "englishSource": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+      "contentSha256": "e2deefbbabc34c74dacdb61bf8d5f155a53331bcfbbc625483f47b7d2022e5dc",
+      "metadata": {
+        "name": "search",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 34,
+      "titleSlug": "find-first-and-last-position-of-element-in-sorted-array",
+      "source": "https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/",
+      "englishSource": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+      "contentSha256": "9e5c5dabbea884dc572c08885d3f0e1b6cbdb05535e5f7e8f726d293e09344b2",
+      "metadata": {
+        "name": "searchRange",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer[]"
+        }
+      }
+    },
+    {
+      "id": 35,
+      "titleSlug": "search-insert-position",
+      "source": "https://leetcode.cn/problems/search-insert-position/",
+      "englishSource": "https://leetcode.com/problems/search-insert-position/",
+      "contentSha256": "5894e33ec6dd69ccdb0fbcadae6851752f2b8e4e1940480f5d0c5f3b8f371a1c",
+      "metadata": {
+        "name": "searchInsert",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 39,
+      "titleSlug": "combination-sum",
+      "source": "https://leetcode.cn/problems/combination-sum/",
+      "englishSource": "https://leetcode.com/problems/combination-sum/",
+      "contentSha256": "e42f934c75a151e702272f994b0a4c5e036845eca8ae152561cdd84924cecd69",
+      "metadata": {
+        "name": "combinationSum",
+        "params": [
+          {
+            "name": "candidates",
+            "type": "integer[]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 41,
+      "titleSlug": "first-missing-positive",
+      "source": "https://leetcode.cn/problems/first-missing-positive/",
+      "englishSource": "https://leetcode.com/problems/first-missing-positive/",
+      "contentSha256": "ecb118101260ae953f49b91a1901681fef1ae49e7692b75b33913f20eaa25da7",
+      "metadata": {
+        "name": "firstMissingPositive",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 42,
+      "titleSlug": "trapping-rain-water",
+      "source": "https://leetcode.cn/problems/trapping-rain-water/",
+      "englishSource": "https://leetcode.com/problems/trapping-rain-water/",
+      "contentSha256": "bffa570af5d00db21c59af63217cb4d4a053613a60c703e91524af75613d32fa",
+      "metadata": {
+        "name": "trap",
+        "params": [
+          {
+            "name": "height",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 45,
+      "titleSlug": "jump-game-ii",
+      "source": "https://leetcode.cn/problems/jump-game-ii/",
+      "englishSource": "https://leetcode.com/problems/jump-game-ii/",
+      "contentSha256": "8b21b212ede1c30159453ea1c9d4fef9fb8d9da9c28042c485a441854fa37186",
+      "metadata": {
+        "name": "jump",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 46,
+      "titleSlug": "permutations",
+      "source": "https://leetcode.cn/problems/permutations/",
+      "englishSource": "https://leetcode.com/problems/permutations/",
+      "contentSha256": "9ccb8cb1b907dd2dab948916d990652d048fefdf3d79ccb1c9fae7a5a32e172c",
+      "metadata": {
+        "name": "permute",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "colsize": "size_1",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 48,
+      "titleSlug": "rotate-image",
+      "source": "https://leetcode.cn/problems/rotate-image/",
+      "englishSource": "https://leetcode.com/problems/rotate-image/",
+      "contentSha256": "7f1ca4fe4f3b0ddefebf0f8197d0f0a1675bf46e6876008aab2ad973ec6557a8",
+      "metadata": {
+        "name": "rotate",
+        "params": [
+          {
+            "name": "matrix",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        }
+      }
+    },
+    {
+      "id": 49,
+      "titleSlug": "group-anagrams",
+      "source": "https://leetcode.cn/problems/group-anagrams/",
+      "englishSource": "https://leetcode.com/problems/group-anagrams/",
+      "contentSha256": "99554808c896ea62654ab7d74eca6193966d2b73278c41b915b3829048cae8b6",
+      "metadata": {
+        "name": "groupAnagrams",
+        "params": [
+          {
+            "name": "strs",
+            "type": "string[]"
+          }
+        ],
+        "return": {
+          "type": "list<list<string>>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 51,
+      "titleSlug": "n-queens",
+      "source": "https://leetcode.cn/problems/n-queens/",
+      "englishSource": "https://leetcode.com/problems/n-queens/",
+      "contentSha256": "f68e2c0cafee98afc91e9b63d437ae39e383e09eac2e012ed253d96d5b5ea924",
+      "metadata": {
+        "name": "solveNQueens",
+        "params": [
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "list<list<string>>",
+          "colsize": "param_1",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 53,
+      "titleSlug": "maximum-subarray",
+      "source": "https://leetcode.cn/problems/maximum-subarray/",
+      "englishSource": "https://leetcode.com/problems/maximum-subarray/",
+      "contentSha256": "a32cdf15ddb6650f8a8675da40875b7598a2e2ac0b3008bb7109411ad02c1eb9",
+      "metadata": {
+        "name": "maxSubArray",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 54,
+      "titleSlug": "spiral-matrix",
+      "source": "https://leetcode.cn/problems/spiral-matrix/",
+      "englishSource": "https://leetcode.com/problems/spiral-matrix/",
+      "contentSha256": "e801fa586cded0fa634c710980c0d83ef16f6dd42fb035040b4069c59754d1a6",
+      "metadata": {
+        "name": "spiralOrder",
+        "params": [
+          {
+            "name": "matrix",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "list<integer>",
+          "size": "size_1 * col_size_1",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 55,
+      "titleSlug": "jump-game",
+      "source": "https://leetcode.cn/problems/jump-game/",
+      "englishSource": "https://leetcode.com/problems/jump-game/",
+      "contentSha256": "f41392e092cd967693c5abb428f236903c1f6f485f09b803ce319df21944ccf6",
+      "metadata": {
+        "name": "canJump",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 56,
+      "titleSlug": "merge-intervals",
+      "source": "https://leetcode.cn/problems/merge-intervals/",
+      "englishSource": "https://leetcode.com/problems/merge-intervals/",
+      "contentSha256": "466841fc41fec5adb9076e8ef26f72b06dbd33af68752eeb214d42452042c5c5",
+      "metadata": {
+        "name": "merge",
+        "params": [
+          {
+            "name": "intervals",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "integer[][]"
+        }
+      }
+    },
+    {
+      "id": 62,
+      "titleSlug": "unique-paths",
+      "source": "https://leetcode.cn/problems/unique-paths/",
+      "englishSource": "https://leetcode.com/problems/unique-paths/",
+      "contentSha256": "af67b8aa9562e871e7dbe772a4ec236d8a085bfb1fabdd03516fb07972abe96e",
+      "metadata": {
+        "name": "uniquePaths",
+        "params": [
+          {
+            "name": "m",
+            "type": "integer"
+          },
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 64,
+      "titleSlug": "minimum-path-sum",
+      "source": "https://leetcode.cn/problems/minimum-path-sum/",
+      "englishSource": "https://leetcode.com/problems/minimum-path-sum/",
+      "contentSha256": "64c51cf174a1650ae93ed56c14f29cbde591777ba9e984f85b0e581b6ee25197",
+      "metadata": {
+        "name": "minPathSum",
+        "params": [
+          {
+            "name": "grid",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 70,
+      "titleSlug": "climbing-stairs",
+      "source": "https://leetcode.cn/problems/climbing-stairs/",
+      "englishSource": "https://leetcode.com/problems/climbing-stairs/",
+      "contentSha256": "4b9b4d2d973d177fa8d0d02968ababdc17858917c50f7b240741c2a04234e0e0",
+      "metadata": {
+        "name": "climbStairs",
+        "params": [
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 72,
+      "titleSlug": "edit-distance",
+      "source": "https://leetcode.cn/problems/edit-distance/",
+      "englishSource": "https://leetcode.com/problems/edit-distance/",
+      "contentSha256": "a0bc8fe5153b3224a2107387768902cd78c423c4baba1f483d1e9e4001078c8c",
+      "metadata": {
+        "name": "minDistance",
+        "params": [
+          {
+            "name": "word1",
+            "type": "string"
+          },
+          {
+            "name": "word2",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 73,
+      "titleSlug": "set-matrix-zeroes",
+      "source": "https://leetcode.cn/problems/set-matrix-zeroes/",
+      "englishSource": "https://leetcode.com/problems/set-matrix-zeroes/",
+      "contentSha256": "5d561768a8b5e0e14204a87d72267fea9e26eb3dd0855bfd553d3ad12ae68aee",
+      "metadata": {
+        "name": "setZeroes",
+        "params": [
+          {
+            "name": "matrix",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        },
+        "manual": false
+      }
+    },
+    {
+      "id": 74,
+      "titleSlug": "search-a-2d-matrix",
+      "source": "https://leetcode.cn/problems/search-a-2d-matrix/",
+      "englishSource": "https://leetcode.com/problems/search-a-2d-matrix/",
+      "contentSha256": "e52301328483df86bb34d1d97e218570448cb162983a2692695b5f108ec2bbf6",
+      "metadata": {
+        "name": "searchMatrix",
+        "params": [
+          {
+            "name": "matrix",
+            "type": "integer[][]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 75,
+      "titleSlug": "sort-colors",
+      "source": "https://leetcode.cn/problems/sort-colors/",
+      "englishSource": "https://leetcode.com/problems/sort-colors/",
+      "contentSha256": "dffce90f7b01586de1077a5e7fa1754bdf498abf397e8312e72ba3e81e050ab3",
+      "metadata": {
+        "name": "sortColors",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        },
+        "manual": false
+      }
+    },
+    {
+      "id": 76,
+      "titleSlug": "minimum-window-substring",
+      "source": "https://leetcode.cn/problems/minimum-window-substring/",
+      "englishSource": "https://leetcode.com/problems/minimum-window-substring/",
+      "contentSha256": "dd07cca075be32b5aa5b63facf44100d23215cf31fcb36cb21d77531a90a4417",
+      "metadata": {
+        "name": "minWindow",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          },
+          {
+            "name": "t",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "id": 78,
+      "titleSlug": "subsets",
+      "source": "https://leetcode.cn/problems/subsets/",
+      "englishSource": "https://leetcode.com/problems/subsets/",
+      "contentSha256": "3848bc76dd7bdfd38d9e9f8166768c34d105d90ee3d1e69c82d1ee558ff5b95e",
+      "metadata": {
+        "name": "subsets",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 79,
+      "titleSlug": "word-search",
+      "source": "https://leetcode.cn/problems/word-search/",
+      "englishSource": "https://leetcode.com/problems/word-search/",
+      "contentSha256": "d65ac618d2607e43bfc29bcd3efa16b1177662d8f1375422fe576958cd3089e3",
+      "metadata": {
+        "name": "exist",
+        "params": [
+          {
+            "name": "board",
+            "type": "character[][]"
+          },
+          {
+            "name": "word",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 84,
+      "titleSlug": "largest-rectangle-in-histogram",
+      "source": "https://leetcode.cn/problems/largest-rectangle-in-histogram/",
+      "englishSource": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+      "contentSha256": "93712221a55af155aa4e149a8ca5acb628055650bf12d0d4eab89fe83f27e2c7",
+      "metadata": {
+        "name": "largestRectangleArea",
+        "params": [
+          {
+            "name": "heights",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 94,
+      "titleSlug": "binary-tree-inorder-traversal",
+      "source": "https://leetcode.cn/problems/binary-tree-inorder-traversal/",
+      "englishSource": "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+      "contentSha256": "7ef99bb9a642907171b95ee7970bac092ca868908eaa59be1c6525abb01ec8c8",
+      "metadata": {
+        "name": "inorderTraversal",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "list<integer>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 98,
+      "titleSlug": "validate-binary-search-tree",
+      "source": "https://leetcode.cn/problems/validate-binary-search-tree/",
+      "englishSource": "https://leetcode.com/problems/validate-binary-search-tree/",
+      "contentSha256": "048301a072970f272fe170e46984888fe28d6da6ab1d6fc1d80c5581614eee01",
+      "metadata": {
+        "name": "isValidBST",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 101,
+      "titleSlug": "symmetric-tree",
+      "source": "https://leetcode.cn/problems/symmetric-tree/",
+      "englishSource": "https://leetcode.com/problems/symmetric-tree/",
+      "contentSha256": "39e6b81ad8c2b8fafb34fd5159c66581d9af50cc08b0cf421b7b5fec050526d6",
+      "metadata": {
+        "name": "isSymmetric",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 102,
+      "titleSlug": "binary-tree-level-order-traversal",
+      "source": "https://leetcode.cn/problems/binary-tree-level-order-traversal/",
+      "englishSource": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+      "contentSha256": "073e3d9a667174690bc76631dbff2965c9154da5e1571d0bb8ac1955aa9efc7a",
+      "metadata": {
+        "name": "levelOrder",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 104,
+      "titleSlug": "maximum-depth-of-binary-tree",
+      "source": "https://leetcode.cn/problems/maximum-depth-of-binary-tree/",
+      "englishSource": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+      "contentSha256": "0e3d253620d49195aaae3273d97b363b123ab0d029d33aaaf9884ace81d74e32",
+      "metadata": {
+        "name": "maxDepth",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 105,
+      "titleSlug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "source": "https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+      "englishSource": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+      "contentSha256": "b5f1085ba449aa14959b635c1c3c8ef368257d4e4ef49c13ad691a41087eb76b",
+      "metadata": {
+        "name": "buildTree",
+        "params": [
+          {
+            "name": "preorder",
+            "type": "integer[]"
+          },
+          {
+            "name": "inorder",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "TreeNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 108,
+      "titleSlug": "convert-sorted-array-to-binary-search-tree",
+      "source": "https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/",
+      "englishSource": "https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/",
+      "contentSha256": "dec3d12000d3bc50675c8aeab1a2cb240fc7bc048a3b5ea3bc0d3e31ab7749b5",
+      "metadata": {
+        "name": "sortedArrayToBST",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "TreeNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 114,
+      "titleSlug": "flatten-binary-tree-to-linked-list",
+      "source": "https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/",
+      "englishSource": "https://leetcode.com/problems/flatten-binary-tree-to-linked-list/",
+      "contentSha256": "9342ed0d3c405c846a8b45bc3a75546f0de8f021ed6ca3883ba14a71dfaadf12",
+      "metadata": {
+        "name": "flatten",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        }
+      }
+    },
+    {
+      "id": 118,
+      "titleSlug": "pascals-triangle",
+      "source": "https://leetcode.cn/problems/pascals-triangle/",
+      "englishSource": "https://leetcode.com/problems/pascals-triangle/",
+      "contentSha256": "9a0d6a61bcd175aaca5919073edbd7dfb481504af8d834e344e17c3ed6cb45e2",
+      "metadata": {
+        "name": "generate",
+        "params": [
+          {
+            "name": "numRows",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "list<list<integer>>",
+          "dealloc": true,
+          "rowsize": "param_1"
+        }
+      }
+    },
+    {
+      "id": 121,
+      "titleSlug": "best-time-to-buy-and-sell-stock",
+      "source": "https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/",
+      "englishSource": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+      "contentSha256": "fbac1d1612e669d39ef6e998e047318d10a2c8bd191a2924b2ea820d80af7171",
+      "metadata": {
+        "name": "maxProfit",
+        "params": [
+          {
+            "name": "prices",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 124,
+      "titleSlug": "binary-tree-maximum-path-sum",
+      "source": "https://leetcode.cn/problems/binary-tree-maximum-path-sum/",
+      "englishSource": "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
+      "contentSha256": "3f2bd85383fdea82418219a2e6617c91aeccaa5bbbc5c0b90a17ec1701e0bb62",
+      "metadata": {
+        "name": "maxPathSum",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 128,
+      "titleSlug": "longest-consecutive-sequence",
+      "source": "https://leetcode.cn/problems/longest-consecutive-sequence/",
+      "englishSource": "https://leetcode.com/problems/longest-consecutive-sequence/",
+      "contentSha256": "90ca1b590a881b7ead2c7019287edbf53fbb12ee94614736dc2dd7efe56b9009",
+      "metadata": {
+        "name": "longestConsecutive",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 131,
+      "titleSlug": "palindrome-partitioning",
+      "source": "https://leetcode.cn/problems/palindrome-partitioning/",
+      "englishSource": "https://leetcode.com/problems/palindrome-partitioning/",
+      "contentSha256": "bc42c48324195fde8b22b64698266be9529954cd0c0353ca45782ea5f5cc0970",
+      "metadata": {
+        "name": "partition",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "list<list<string>>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 136,
+      "titleSlug": "single-number",
+      "source": "https://leetcode.cn/problems/single-number/",
+      "englishSource": "https://leetcode.com/problems/single-number/",
+      "contentSha256": "e79abfc772e2472ac714164144f4046d18f4c29de83739faf42ea92ef5490187",
+      "metadata": {
+        "name": "singleNumber",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 138,
+      "titleSlug": "copy-list-with-random-pointer",
+      "source": "https://leetcode.cn/problems/copy-list-with-random-pointer/",
+      "englishSource": "https://leetcode.com/problems/copy-list-with-random-pointer/",
+      "contentSha256": "7a0098151f5507debdc2ba7bca569241d569b65d6711f88a3b5641a08db02a4e",
+      "metadata": {
+        "name": "copyRandomList",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          }
+        ],
+        "return": {
+          "type": "ListNode"
+        },
+        "languages": [
+          "cpp",
+          "java",
+          "python",
+          "csharp",
+          "javascript",
+          "python3",
+          "golang",
+          "swift",
+          "kotlin",
+          "ruby",
+          "c",
+          "scala",
+          "php",
+          "typescript"
+        ],
+        "manual": true,
+        "typescriptCustomType": "class _Node {\n    val: number\n    next: _Node | null\n    random: _Node | null\n\n    constructor(val?: number, next?: _Node, random?: _Node) {\n        this.val = (val===undefined ? 0 : val)\n        this.next = (next===undefined ? null : next)\n        this.random = (random===undefined ? null : random)\n    }\n}\n"
+      }
+    },
+    {
+      "id": 139,
+      "titleSlug": "word-break",
+      "source": "https://leetcode.cn/problems/word-break/",
+      "englishSource": "https://leetcode.com/problems/word-break/",
+      "contentSha256": "4382abb58113752eb8f2207e0212bc315d55c13b851f88ca44020f80666e6bbd",
+      "metadata": {
+        "name": "wordBreak",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          },
+          {
+            "name": "wordDict",
+            "type": "list<string>"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 141,
+      "titleSlug": "linked-list-cycle",
+      "source": "https://leetcode.cn/problems/linked-list-cycle/",
+      "englishSource": "https://leetcode.com/problems/linked-list-cycle/",
+      "contentSha256": "5536e7f38eae173efee6068bd3d3560ee74c68d2ead177025ded5686b5b8b332",
+      "metadata": {
+        "name": "hasCycle",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          },
+          {
+            "name": "pos",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        },
+        "manual": true,
+        "languages": [
+          "cpp",
+          "java",
+          "python",
+          "c",
+          "csharp",
+          "javascript",
+          "ruby",
+          "swift",
+          "golang",
+          "python3",
+          "scala",
+          "kotlin",
+          "php",
+          "typescript"
+        ]
+      }
+    },
+    {
+      "id": 142,
+      "titleSlug": "linked-list-cycle-ii",
+      "source": "https://leetcode.cn/problems/linked-list-cycle-ii/",
+      "englishSource": "https://leetcode.com/problems/linked-list-cycle-ii/",
+      "contentSha256": "da334452f915f1db5839cc59d85bc9c5356a42f0e7a0002b097462cdf66b1ef7",
+      "metadata": {
+        "name": "detectCycle",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          },
+          {
+            "name": "pos",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "ListNode"
+        },
+        "languages": [
+          "cpp",
+          "java",
+          "python",
+          "c",
+          "csharp",
+          "javascript",
+          "golang",
+          "python3",
+          "swift",
+          "kotlin",
+          "php",
+          "ruby",
+          "scala",
+          "typescript"
+        ],
+        "manual": true
+      }
+    },
+    {
+      "id": 146,
+      "titleSlug": "lru-cache",
+      "source": "https://leetcode.cn/problems/lru-cache/",
+      "englishSource": "https://leetcode.com/problems/lru-cache/",
+      "contentSha256": "504d91352213e4a90f8a51d0ee28f0f5f1668ef489b09b2f88d5e62e306c7fc8",
+      "metadata": {
+        "classname": "LRUCache",
+        "maxbytesperline": 200000,
+        "constructor": {
+          "params": [
+            {
+              "type": "integer",
+              "name": "capacity"
+            }
+          ]
+        },
+        "methods": [
+          {
+            "name": "get",
+            "params": [
+              {
+                "type": "integer",
+                "name": "key"
+              }
+            ],
+            "return": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "put",
+            "params": [
+              {
+                "type": "integer",
+                "name": "key"
+              },
+              {
+                "type": "integer",
+                "name": "value"
+              }
+            ],
+            "return": {
+              "type": "void"
+            }
+          }
+        ],
+        "systemdesign": true,
+        "params": [
+          {
+            "name": "inputs",
+            "type": "integer[]"
+          },
+          {
+            "name": "inputs",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "list<String>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 148,
+      "titleSlug": "sort-list",
+      "source": "https://leetcode.cn/problems/sort-list/",
+      "englishSource": "https://leetcode.com/problems/sort-list/",
+      "contentSha256": "249deba6e35184ce6a26b8bad67e4d1306a83a49f199e609aabf1cfe5185fc01",
+      "metadata": {
+        "name": "sortList",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode",
+            "dealloc": false
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 152,
+      "titleSlug": "maximum-product-subarray",
+      "source": "https://leetcode.cn/problems/maximum-product-subarray/",
+      "englishSource": "https://leetcode.com/problems/maximum-product-subarray/",
+      "contentSha256": "0f55d3216930bf2e65004fc29ab637ad2eafeb50d940bce5a7c17795cb4a28d4",
+      "metadata": {
+        "name": "maxProduct",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 153,
+      "titleSlug": "find-minimum-in-rotated-sorted-array",
+      "source": "https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/",
+      "englishSource": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+      "contentSha256": "872e82fb831ffde7482b2b7b2d4e95e38a35dbd5da18f1c9674ce5199b1867d0",
+      "metadata": {
+        "name": "findMin",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 155,
+      "titleSlug": "min-stack",
+      "source": "https://leetcode.cn/problems/min-stack/",
+      "englishSource": "https://leetcode.com/problems/min-stack/",
+      "contentSha256": "949507f6f720a7ad7af75599a3760138b888fbed11f74f72987aff42a94d9297",
+      "metadata": {
+        "classname": "MinStack",
+        "constructor": {
+          "params": []
+        },
+        "methods": [
+          {
+            "params": [
+              {
+                "type": "integer",
+                "name": "value"
+              }
+            ],
+            "return": {
+              "type": "void"
+            },
+            "name": "push"
+          },
+          {
+            "params": [],
+            "return": {
+              "type": "void"
+            },
+            "name": "pop"
+          },
+          {
+            "params": [],
+            "return": {
+              "type": "integer"
+            },
+            "name": "top"
+          },
+          {
+            "params": [],
+            "return": {
+              "type": "integer"
+            },
+            "name": "getMin"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        },
+        "systemdesign": true
+      }
+    },
+    {
+      "id": 160,
+      "titleSlug": "intersection-of-two-linked-lists",
+      "source": "https://leetcode.cn/problems/intersection-of-two-linked-lists/",
+      "englishSource": "https://leetcode.com/problems/intersection-of-two-linked-lists/",
+      "contentSha256": "269e3afddce75ac244953b7175276f632410a1b8e30b2fb0b4c11d9e0f89d73a",
+      "metadata": {
+        "name": "getIntersectionNode",
+        "params": [
+          {
+            "name": "intersectVal",
+            "type": "integer"
+          },
+          {
+            "name": "listA",
+            "type": "ListNode"
+          },
+          {
+            "name": "listB",
+            "type": "ListNode"
+          },
+          {
+            "name": "skipA",
+            "type": "integer"
+          },
+          {
+            "name": "skipB",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "ListNode"
+        },
+        "languages": [
+          "cpp",
+          "java",
+          "python",
+          "c",
+          "csharp",
+          "javascript",
+          "golang",
+          "python3",
+          "swift",
+          "ruby",
+          "kotlin",
+          "scala",
+          "php",
+          "typescript"
+        ],
+        "manual": true
+      }
+    },
+    {
+      "id": 169,
+      "titleSlug": "majority-element",
+      "source": "https://leetcode.cn/problems/majority-element/",
+      "englishSource": "https://leetcode.com/problems/majority-element/",
+      "contentSha256": "eeaef09513032568eaec177ca6e2f94d9b9e2479a32424612c893e36fcc4c827",
+      "metadata": {
+        "name": "majorityElement",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 189,
+      "titleSlug": "rotate-array",
+      "source": "https://leetcode.cn/problems/rotate-array/",
+      "englishSource": "https://leetcode.com/problems/rotate-array/",
+      "contentSha256": "1d5cae5d1e5d272a40610c3f5a050eb86dd91f948f9fc4ca0b9a48b9bc13501a",
+      "metadata": {
+        "name": "rotate",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        }
+      }
+    },
+    {
+      "id": 198,
+      "titleSlug": "house-robber",
+      "source": "https://leetcode.cn/problems/house-robber/",
+      "englishSource": "https://leetcode.com/problems/house-robber/",
+      "contentSha256": "1361b0436ed37bef9dad224bf73ae05f3a4aa0e10ec807287f35aedc52941766",
+      "metadata": {
+        "name": "rob",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 199,
+      "titleSlug": "binary-tree-right-side-view",
+      "source": "https://leetcode.cn/problems/binary-tree-right-side-view/",
+      "englishSource": "https://leetcode.com/problems/binary-tree-right-side-view/",
+      "contentSha256": "8a257d358180c225feaacacdd7a2cfe423fa4cbe5aa0593d5e9567cd40cbccd1",
+      "metadata": {
+        "name": "rightSideView",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "list<integer>",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 200,
+      "titleSlug": "number-of-islands",
+      "source": "https://leetcode.cn/problems/number-of-islands/",
+      "englishSource": "https://leetcode.com/problems/number-of-islands/",
+      "contentSha256": "71a78ddce0450d4eab3ed0bdb2a3752c125817284484e8fa119dcec19c6de74a",
+      "metadata": {
+        "name": "numIslands",
+        "params": [
+          {
+            "name": "grid",
+            "type": "character[][]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        },
+        "manual": true
+      }
+    },
+    {
+      "id": 206,
+      "titleSlug": "reverse-linked-list",
+      "source": "https://leetcode.cn/problems/reverse-linked-list/",
+      "englishSource": "https://leetcode.com/problems/reverse-linked-list/",
+      "contentSha256": "11f1ccdfeabbca7d8709b97751a0a127a165c308fbf2477871148070f14699a8",
+      "metadata": {
+        "name": "reverseList",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode",
+            "dealloc": false
+          }
+        ],
+        "return": {
+          "type": "ListNode",
+          "dealloc": true
+        }
+      }
+    },
+    {
+      "id": 207,
+      "titleSlug": "course-schedule",
+      "source": "https://leetcode.cn/problems/course-schedule/",
+      "englishSource": "https://leetcode.com/problems/course-schedule/",
+      "contentSha256": "6056ce365acd0aeabee9a75f1a46d57e360c1166b8aa303983cfe1bb4c7bccf5",
+      "metadata": {
+        "name": "canFinish",
+        "params": [
+          {
+            "name": "numCourses",
+            "type": "integer"
+          },
+          {
+            "name": "prerequisites",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 208,
+      "titleSlug": "implement-trie-prefix-tree",
+      "source": "https://leetcode.cn/problems/implement-trie-prefix-tree/",
+      "englishSource": "https://leetcode.com/problems/implement-trie-prefix-tree/",
+      "contentSha256": "a5edcf3889f34152fd5b1ff56b04ca88a4fd4146508f65c7c6c6af61590c1c77",
+      "metadata": {
+        "classname": "Trie",
+        "constructor": {
+          "params": []
+        },
+        "methods": [
+          {
+            "params": [
+              {
+                "type": "string",
+                "name": "word"
+              }
+            ],
+            "name": "insert",
+            "return": {
+              "type": "void"
+            }
+          },
+          {
+            "params": [
+              {
+                "type": "string",
+                "name": "word"
+              }
+            ],
+            "name": "search",
+            "return": {
+              "type": "boolean"
+            }
+          },
+          {
+            "params": [
+              {
+                "type": "string",
+                "name": "prefix"
+              }
+            ],
+            "name": "startsWith",
+            "return": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        },
+        "systemdesign": true
+      }
+    },
+    {
+      "id": 215,
+      "titleSlug": "kth-largest-element-in-an-array",
+      "source": "https://leetcode.cn/problems/kth-largest-element-in-an-array/",
+      "englishSource": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+      "contentSha256": "35f0aefaa222be2b2944cd0ec7767432454660a0023599f83404c118b2c58195",
+      "metadata": {
+        "name": "findKthLargest",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "titleSlug": "invert-binary-tree",
+      "source": "https://leetcode.cn/problems/invert-binary-tree/",
+      "englishSource": "https://leetcode.com/problems/invert-binary-tree/",
+      "contentSha256": "dd2ed10ac1f6967adcb12d5592cb5b539a05b97530228f7a65304e1c16fd3acc",
+      "metadata": {
+        "name": "invertTree",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "TreeNode"
+        }
+      }
+    },
+    {
+      "id": 230,
+      "titleSlug": "kth-smallest-element-in-a-bst",
+      "source": "https://leetcode.cn/problems/kth-smallest-element-in-a-bst/",
+      "englishSource": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+      "contentSha256": "2843bc19e1b138ba754f3928e03113a3f92e4732c8ffb267c5f9881c1555a7d6",
+      "metadata": {
+        "name": "kthSmallest",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 234,
+      "titleSlug": "palindrome-linked-list",
+      "source": "https://leetcode.cn/problems/palindrome-linked-list/",
+      "englishSource": "https://leetcode.com/problems/palindrome-linked-list/",
+      "contentSha256": "992fb6f3416c5a64382d0e6c8a5681a637d789f11ce0ef069fdf86cb2e2d1784",
+      "metadata": {
+        "name": "isPalindrome",
+        "params": [
+          {
+            "name": "head",
+            "type": "ListNode"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 236,
+      "titleSlug": "lowest-common-ancestor-of-a-binary-tree",
+      "source": "https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/",
+      "englishSource": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+      "contentSha256": "6bd76e69c1271744e0d139ad01713c1d1542c1c6c19457d06bcabe9537c2750b",
+      "metadata": {
+        "name": "lowestCommonAncestor",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          },
+          {
+            "name": "p",
+            "type": "integer"
+          },
+          {
+            "name": "q",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "TreeNode"
+        },
+        "manual": true
+      }
+    },
+    {
+      "id": 238,
+      "titleSlug": "product-of-array-except-self",
+      "source": "https://leetcode.cn/problems/product-of-array-except-self/",
+      "englishSource": "https://leetcode.com/problems/product-of-array-except-self/",
+      "contentSha256": "f648667ff9097d0d86709a1e7cac317aa873fe2d29ae50c806966a4571576798",
+      "metadata": {
+        "name": "productExceptSelf",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer[]"
+        }
+      }
+    },
+    {
+      "id": 239,
+      "titleSlug": "sliding-window-maximum",
+      "source": "https://leetcode.cn/problems/sliding-window-maximum/",
+      "englishSource": "https://leetcode.com/problems/sliding-window-maximum/",
+      "contentSha256": "23c14ebad3e9b9d8cdaee368ad6ae99bee11f812126d30469abfe988ddabebaf",
+      "metadata": {
+        "name": "maxSlidingWindow",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer[]"
+        }
+      }
+    },
+    {
+      "id": 240,
+      "titleSlug": "search-a-2d-matrix-ii",
+      "source": "https://leetcode.cn/problems/search-a-2d-matrix-ii/",
+      "englishSource": "https://leetcode.com/problems/search-a-2d-matrix-ii/",
+      "contentSha256": "35976f01fbee81926b9b1179f0cc4ba2b244dbef903518eb9bfde65375cd57a1",
+      "metadata": {
+        "name": "searchMatrix",
+        "params": [
+          {
+            "name": "matrix",
+            "type": "integer[][]"
+          },
+          {
+            "name": "target",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        },
+        "manual": true
+      }
+    },
+    {
+      "id": 279,
+      "titleSlug": "perfect-squares",
+      "source": "https://leetcode.cn/problems/perfect-squares/",
+      "englishSource": "https://leetcode.com/problems/perfect-squares/",
+      "contentSha256": "c596df0f103d039e03e583c4338cc9859c61ca2705cae733e70c2591be8e3a9d",
+      "metadata": {
+        "name": "numSquares",
+        "params": [
+          {
+            "name": "n",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 283,
+      "titleSlug": "move-zeroes",
+      "source": "https://leetcode.cn/problems/move-zeroes/",
+      "englishSource": "https://leetcode.com/problems/move-zeroes/",
+      "contentSha256": "ab81a1cba477b7b63cf46293b5848de2fc0533aef75993d3f1fdd81a6d60f1fa",
+      "metadata": {
+        "name": "moveZeroes",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "void"
+        },
+        "output": {
+          "paramindex": 0
+        }
+      }
+    },
+    {
+      "id": 287,
+      "titleSlug": "find-the-duplicate-number",
+      "source": "https://leetcode.cn/problems/find-the-duplicate-number/",
+      "englishSource": "https://leetcode.com/problems/find-the-duplicate-number/",
+      "contentSha256": "c028672cfeb07cd1c3cd5251fdb260c62bd2157190b08143f69fb9b9fbb3ea05",
+      "metadata": {
+        "name": "findDuplicate",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 295,
+      "titleSlug": "find-median-from-data-stream",
+      "source": "https://leetcode.cn/problems/find-median-from-data-stream/",
+      "englishSource": "https://leetcode.com/problems/find-median-from-data-stream/",
+      "contentSha256": "0999c0f77b136846ceec19a74af251e3d265ac2ed70e57502f0266c0e0ba58b1",
+      "metadata": {
+        "classname": "MedianFinder",
+        "constructor": {
+          "params": []
+        },
+        "methods": [
+          {
+            "params": [
+              {
+                "type": "integer",
+                "name": "num"
+              }
+            ],
+            "name": "addNum",
+            "return": {
+              "type": "void"
+            }
+          },
+          {
+            "params": [],
+            "name": "findMedian",
+            "return": {
+              "type": "double"
+            }
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        },
+        "systemdesign": true
+      }
+    },
+    {
+      "id": 300,
+      "titleSlug": "longest-increasing-subsequence",
+      "source": "https://leetcode.cn/problems/longest-increasing-subsequence/",
+      "englishSource": "https://leetcode.com/problems/longest-increasing-subsequence/",
+      "contentSha256": "671191eb69912892f8f5ae44c79acb303cc7ca8f1da6a8f0edaafbc00878ebab",
+      "metadata": {
+        "name": "lengthOfLIS",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 322,
+      "titleSlug": "coin-change",
+      "source": "https://leetcode.cn/problems/coin-change/",
+      "englishSource": "https://leetcode.com/problems/coin-change/",
+      "contentSha256": "e7f881e12c7a6d6b778dfb62cf13407fb5a5efaa78c703949fd1264c660b5124",
+      "metadata": {
+        "name": "coinChange",
+        "params": [
+          {
+            "name": "coins",
+            "type": "integer[]"
+          },
+          {
+            "name": "amount",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 347,
+      "titleSlug": "top-k-frequent-elements",
+      "source": "https://leetcode.cn/problems/top-k-frequent-elements/",
+      "englishSource": "https://leetcode.com/problems/top-k-frequent-elements/",
+      "contentSha256": "6dedfcf3030799c9c162e7ae58a9eac1013af8ed694230150a112523e5b3646d",
+      "metadata": {
+        "name": "topKFrequent",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer[]"
+        }
+      }
+    },
+    {
+      "id": 394,
+      "titleSlug": "decode-string",
+      "source": "https://leetcode.cn/problems/decode-string/",
+      "englishSource": "https://leetcode.com/problems/decode-string/",
+      "contentSha256": "8641889e2cf2a8e8256947581a60bcaffe0898a0d6de820f7012008624c83842",
+      "metadata": {
+        "name": "decodeString",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "id": 416,
+      "titleSlug": "partition-equal-subset-sum",
+      "source": "https://leetcode.cn/problems/partition-equal-subset-sum/",
+      "englishSource": "https://leetcode.com/problems/partition-equal-subset-sum/",
+      "contentSha256": "1097eb64291e0ef210d6a700171a36323acd40d2fcf4814b15e9ec5f3c537f8f",
+      "metadata": {
+        "name": "canPartition",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": 437,
+      "titleSlug": "path-sum-iii",
+      "source": "https://leetcode.cn/problems/path-sum-iii/",
+      "englishSource": "https://leetcode.com/problems/path-sum-iii/",
+      "contentSha256": "1db2c7d6a869ae63e80fe40e3a42e67237aad7a96e8ca892739e413c19513bad",
+      "metadata": {
+        "name": "pathSum",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          },
+          {
+            "name": "targetSum",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 438,
+      "titleSlug": "find-all-anagrams-in-a-string",
+      "source": "https://leetcode.cn/problems/find-all-anagrams-in-a-string/",
+      "englishSource": "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
+      "contentSha256": "3aa57c190589f29af94b0d8c22ec1e1493c9421975902183f1b7311459bbeefc",
+      "metadata": {
+        "name": "findAnagrams",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          },
+          {
+            "name": "p",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "list<integer>"
+        }
+      }
+    },
+    {
+      "id": 543,
+      "titleSlug": "diameter-of-binary-tree",
+      "source": "https://leetcode.cn/problems/diameter-of-binary-tree/",
+      "englishSource": "https://leetcode.com/problems/diameter-of-binary-tree/",
+      "contentSha256": "65688ab938873315c10aa8c9cf2d83b4737ee3df9a1b5e8caabb089a0168a434",
+      "metadata": {
+        "name": "diameterOfBinaryTree",
+        "params": [
+          {
+            "name": "root",
+            "type": "TreeNode"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 560,
+      "titleSlug": "subarray-sum-equals-k",
+      "source": "https://leetcode.cn/problems/subarray-sum-equals-k/",
+      "englishSource": "https://leetcode.com/problems/subarray-sum-equals-k/",
+      "contentSha256": "e941354bb8e02f82f8ffb26a2407ab9e9285ba1921045a4f4dd9e808057c57d9",
+      "metadata": {
+        "name": "subarraySum",
+        "params": [
+          {
+            "name": "nums",
+            "type": "integer[]"
+          },
+          {
+            "name": "k",
+            "type": "integer"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 739,
+      "titleSlug": "daily-temperatures",
+      "source": "https://leetcode.cn/problems/daily-temperatures/",
+      "englishSource": "https://leetcode.com/problems/daily-temperatures/",
+      "contentSha256": "f1a931045a045cb0e7b5b77303c28291dfd0a85a990491e6ab07a7f963f73e9b",
+      "metadata": {
+        "name": "dailyTemperatures",
+        "params": [
+          {
+            "name": "temperatures",
+            "type": "integer[]"
+          }
+        ],
+        "return": {
+          "type": "integer[]"
+        }
+      }
+    },
+    {
+      "id": 763,
+      "titleSlug": "partition-labels",
+      "source": "https://leetcode.cn/problems/partition-labels/",
+      "englishSource": "https://leetcode.com/problems/partition-labels/",
+      "contentSha256": "ec08dbae8f06b155b9f3fb9535fbe4ee62444955b8afdbdc9176b35d23fb6d3b",
+      "metadata": {
+        "name": "partitionLabels",
+        "params": [
+          {
+            "name": "s",
+            "type": "string"
+          }
+        ],
+        "return": {
+          "type": "list<integer>"
+        }
+      }
+    },
+    {
+      "id": 994,
+      "titleSlug": "rotting-oranges",
+      "source": "https://leetcode.cn/problems/rotting-oranges/",
+      "englishSource": "https://leetcode.com/problems/rotting-oranges/",
+      "contentSha256": "ece21aa34c5eb806de9473208f2daa9628de31fc8064161ba103066738ca30f0",
+      "metadata": {
+        "name": "orangesRotting",
+        "params": [
+          {
+            "name": "grid",
+            "type": "integer[][]"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "id": 1143,
+      "titleSlug": "longest-common-subsequence",
+      "source": "https://leetcode.cn/problems/longest-common-subsequence/",
+      "englishSource": "https://leetcode.com/problems/longest-common-subsequence/",
+      "contentSha256": "b8a804c1747271743d0fe8bd6924441d65d79a5b96375d5b0d2b30fe2388eed9",
+      "metadata": {
+        "name": "longestCommonSubsequence",
+        "params": [
+          {
+            "name": "text1",
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "name": "text2"
+          }
+        ],
+        "return": {
+          "type": "integer"
+        }
+      }
+    }
+  ]
+}

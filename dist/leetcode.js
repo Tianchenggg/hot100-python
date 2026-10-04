@@ -1,5 +1,5 @@
-import data from './data/leetcode.js';
-import { checkOutput } from './checker.js';
+import data from './data/leetcode.js?v=7';
+import { checkOutput } from './checker.js?v=7';
 
 export function getLeetCodeProblem(problem) {
   const entry = data[problem.id];
@@ -117,12 +117,30 @@ def _lc_random_output(head):
 
 def _lc_serialize(value, kind):
     if kind == 'list':
-        return _lc_list_output(value)
-    if kind == 'tree':
-        return _lc_tree_output(value)
-    if kind == 'randomList':
-        return _lc_random_output(value)
+        value, kind = _lc_list_output(value), 'int[]'
+    elif kind == 'tree':
+        value, kind = _lc_tree_output(value), 'nullable-int[]'
+    elif kind == 'randomList':
+        value, kind = _lc_random_output(value), 'nullable-int[][]'
+    _lc_validate(value, kind)
     return value
+
+def _lc_validate(value, kind):
+    if kind.endswith('[]'):
+        if not isinstance(value, (list, tuple)):
+            raise TypeError('返回值需要符合类型 ' + kind)
+        for item in value:
+            _lc_validate(item, kind[:-2])
+    elif kind == 'nullable-int' and value is None:
+        return
+    elif kind in ('int', 'nullable-int') and type(value) is not int:
+        raise TypeError('返回值需要是整数，不能使用布尔值或浮点数代替')
+    elif kind == 'bool' and type(value) is not bool:
+        raise TypeError('返回值需要是 bool')
+    elif kind == 'string' and not isinstance(value, str):
+        raise TypeError('返回值需要是字符串')
+    elif kind == 'double' and type(value) not in (int, float):
+        raise TypeError('返回值需要是数值')
 
 def _lc_nodes(root):
     result, stack = [], [root] if root is not None else []
@@ -139,6 +157,9 @@ _lc_random_protected = []
 _lc_shared = None
 _lc_node_positions = {}
 _lc_tree_nodes = {}
+_lc_reordered_nodes = []
+_lc_preserved_values = []
+_lc_lca_expected = None
 _lc_args = []
 if _lc_spec['kind'] != 'ops':
     if _lc_id in (141, 142):
@@ -187,6 +208,35 @@ if _lc_spec['kind'] != 'ops':
                         _lc_original_nodes.add(id(_lc_cursor))
                         _lc_random_protected.append((_lc_cursor, _lc_cursor.val, _lc_cursor.next, _lc_cursor.random))
                         _lc_cursor = _lc_cursor.next
+    if _lc_id in (24, 25):
+        _lc_cursor = _lc_args[0]
+        while _lc_cursor is not None:
+            _lc_preserved_values.append((_lc_cursor, _lc_cursor.val))
+            _lc_cursor = _lc_cursor.next
+        _lc_group_size = 2 if _lc_id == 24 else _lc_input['k']
+        if type(_lc_group_size) is not int or _lc_group_size < 1:
+            raise ValueError('k 必须为正整数')
+        for _lc_start in range(0, len(_lc_preserved_values), _lc_group_size):
+            _lc_group = _lc_preserved_values[_lc_start:_lc_start + _lc_group_size]
+            if len(_lc_group) == _lc_group_size:
+                _lc_group = _lc_group[::-1]
+            _lc_reordered_nodes.extend(node for node, _ in _lc_group)
+    if _lc_id == 287:
+        _lc_array_before = [(type(item), item) for item in _lc_args[0]]
+    if _lc_id == 236:
+        _lc_parent = {id(_lc_args[0]): None}
+        for _lc_node in _lc_tree_nodes.values():
+            for _lc_child in (_lc_node.left, _lc_node.right):
+                if _lc_child is not None:
+                    _lc_parent[id(_lc_child)] = _lc_node
+        _lc_ancestors = set()
+        _lc_cursor = _lc_args[1]
+        while _lc_cursor is not None:
+            _lc_ancestors.add(id(_lc_cursor))
+            _lc_cursor = _lc_parent[id(_lc_cursor)]
+        _lc_lca_expected = _lc_args[2]
+        while id(_lc_lca_expected) not in _lc_ancestors:
+            _lc_lca_expected = _lc_parent[id(_lc_lca_expected)]
 `;
 
 const PYTHON_INVOKE = String.raw`
@@ -201,14 +251,28 @@ if _lc_spec['kind'] == 'ops':
         if _lc_op not in _lc_allowed:
             raise ValueError('未知操作：' + str(_lc_op))
         _lc_return = getattr(_lc_object, _lc_op)(*_lc_a)
-        _lc_value.append(None if _lc_allowed[_lc_op]['ret'] == 'void' else _lc_return)
+        _lc_value.append(None if _lc_allowed[_lc_op]['ret'] == 'void'
+                         else _lc_serialize(_lc_return, _lc_allowed[_lc_op]['ret']))
 else:
     _lc_return = getattr(Solution(), _lc_spec['method'])(*_lc_args)
+    if _lc_id in (24, 25):
+        for _lc_node, _lc_oldval in _lc_preserved_values:
+            if type(_lc_node.val) is not int or _lc_node.val != _lc_oldval:
+                raise ValueError('此题只能交换节点，不能修改节点值')
+        _lc_cursor = _lc_return
+        for _lc_node in _lc_reordered_nodes:
+            if _lc_cursor is not _lc_node:
+                raise ValueError('必须按要求交换原链表中的节点，不能替换为新节点')
+            _lc_cursor = _lc_cursor.next
+        if _lc_cursor is not None:
+            raise ValueError('返回链表中存在多余节点或环')
+    if _lc_id == 287 and [(type(item), item) for item in _lc_args[0]] != _lc_array_before:
+        raise ValueError('此题不得修改输入数组 nums')
     for _lc_node, _lc_oldval, _lc_oldnext in _lc_protected:
-        if _lc_node.val != _lc_oldval or _lc_node.next is not _lc_oldnext:
+        if type(_lc_node.val) is not type(_lc_oldval) or _lc_node.val != _lc_oldval or _lc_node.next is not _lc_oldnext:
             raise ValueError('此题不得修改原有链表')
     for _lc_node, _lc_oldval, _lc_oldnext, _lc_oldrandom in _lc_random_protected:
-        if _lc_node.val != _lc_oldval or _lc_node.next is not _lc_oldnext or _lc_node.random is not _lc_oldrandom:
+        if type(_lc_node.val) is not type(_lc_oldval) or _lc_node.val != _lc_oldval or _lc_node.next is not _lc_oldnext or _lc_node.random is not _lc_oldrandom:
             raise ValueError('复制后必须保留原有链表结构')
     if _lc_id == 142:
         if _lc_return is not None and id(_lc_return) not in _lc_node_positions:
@@ -219,9 +283,10 @@ else:
             raise ValueError('必须返回两条链表实际共享的节点；无交点时返回 None')
         _lc_value = None if _lc_return is None else _lc_return.val
     elif _lc_id == 236:
-        if _lc_return is None or id(_lc_return) not in _lc_tree_nodes:
-            raise ValueError('必须返回输入二叉树中的节点')
+        if _lc_return is not _lc_lca_expected:
+            raise ValueError('必须返回输入二叉树中实际的最近公共祖先节点')
         _lc_value = _lc_return.val
+        _lc_validate(_lc_value, 'int')
     elif _lc_spec.get('mutates', -1) >= 0:
         _lc_index = _lc_spec['mutates']
         _lc_value = _lc_serialize(_lc_args[_lc_index], _lc_spec['params'][_lc_index]['type'])
@@ -259,7 +324,8 @@ function sameValue(left, right, floats = false) {
       && left.every((value, index) => sameValue(value, right[index], floats));
   }
   if (left !== null && typeof left === 'object') return false;
-  if (typeof left === 'number' && floats) return Math.abs(left - right) <= 1e-6 * Math.max(1, Math.abs(left), Math.abs(right));
+  if (typeof left === 'number' && floats) return Number.isFinite(left) && Number.isFinite(right)
+    && Math.abs(left - right) <= 1e-5;
   return left === right;
 }
 
@@ -297,7 +363,7 @@ export function checkLeetCodeOutput(problem, input, expected, actual) {
       return checkOutput(problem, `${params.nums.length} ${params.k}\n${params.nums.join(' ')}\n`, '', got.join(' '));
     }
     if ([15, 39, 78, 49].includes(id)) return sameValue(canonical(wanted, true), canonical(got, true));
-    if ([17, 22, 46, 51, 56, 131].includes(id)) return sameValue(canonical(wanted), canonical(got));
+    if ([17, 22, 46, 51, 56, 131, 438].includes(id)) return sameValue(canonical(wanted), canonical(got));
     return sameValue(wanted, got, id === 4 || id === 295);
   } catch {
     return false;

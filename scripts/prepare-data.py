@@ -73,6 +73,18 @@ def main():
         exported.append(entry)
     assert len(exported) == 100, len(exported)
     assert sum(len(problem["tests"]) for problem in exported) == 478
+    corrections = json.loads((project / "scripts" / "problem-corrections.json").read_text(encoding="utf-8"))
+    for entry in exported:
+        patch = corrections[str(entry["id"])]
+        entry.update(patch["shared"])
+        specific = patch["acm"]
+        for field, value in specific.items():
+            if field not in ("examplesReplacements", "testsReplacements", "additionalTests"):
+                entry[field] = value
+        for field in ("examples", "tests"):
+            for index, value in specific.get(field + "Replacements", {}).items():
+                entry[field][int(index)] = value
+        entry["tests"].extend(specific.get("additionalTests", []))
     output = project / "dist" / "data" / "problems.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(exported, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

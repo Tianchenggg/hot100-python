@@ -1,60 +1,108 @@
-<div align="center">
+<p align="center">
+  <img src="docs/banner.svg" alt="Hot 100 Python" width="100%">
+</p>
 
-# Hot 100
+<p align="center"><strong>支持 ACM 与 LeetCode 双模式的 Python Hot 100 在线刷题网站，打开浏览器即可写题、调试与判题。</strong></p>
 
-专注题目、代码与结果的 Python 在线刷题台。
+<p align="center">
+  <a href="https://github.com/Tianchenggg/hot100-python/actions/workflows/tests.yml"><img src="https://github.com/Tianchenggg/hot100-python/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Tianchenggg/hot100-python?color=22a06b" alt="MIT License"></a>
+  <a href="https://github.com/Tianchenggg/hot100-python/commits/main"><img src="https://img.shields.io/github/last-commit/Tianchenggg/hot100-python?color=7961c4" alt="Last commit"></a>
+  <a href="https://github.com/Tianchenggg/hot100-python/stargazers"><img src="https://img.shields.io/github/stars/Tianchenggg/hot100-python?style=social" alt="GitHub stars"></a>
+</p>
 
-[![Python 3](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-![ACM + LeetCode](https://img.shields.io/badge/Mode-ACM%20%2B%20LeetCode-52525B?style=flat-square)
-[![Browser runtime](https://img.shields.io/badge/Runtime-Browser-52525B?style=flat-square)](https://pyodide.org/)
-[![ChatGPT Sites](https://img.shields.io/badge/Hosted_on-ChatGPT_Sites-18181B?style=flat-square)](https://hot100-python.htcafasfadf.chatgpt.site)
-[![MIT License](https://img.shields.io/badge/License-MIT-52525B?style=flat-square)](LICENSE)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3-3776AB?logo=python&amp;logoColor=white" alt="Python 3">
+  <img src="https://img.shields.io/badge/Problems-100-e4a12a" alt="100 problems">
+  <img src="https://img.shields.io/badge/Modes-ACM%20%2B%20LeetCode-5865c3" alt="ACM and LeetCode">
+  <a href="https://pyodide.org/"><img src="https://img.shields.io/badge/Runtime-Pyodide-8b5cc4" alt="Pyodide"></a>
+  <a href="https://hot100-python.htcafasfadf.chatgpt.site"><img src="https://img.shields.io/badge/Hosted_on-ChatGPT_Sites-18181B" alt="ChatGPT Sites"></a>
+</p>
 
-**[开始刷题 ↗](https://hot100-python.htcafasfadf.chatgpt.site)**
+<p align="center">
+  <a href="https://hot100-python.htcafasfadf.chatgpt.site"><strong>开始刷题 ↗</strong></a> ·
+  <a href="#功能">功能</a> ·
+  <a href="#记录保存">记录保存</a> ·
+  <a href="docs/problem-audit.md">题库核查</a> ·
+  <a href="docs/judge-audit.md">判题说明</a> ·
+  <a href="https://github.com/Tianchenggg/hot100-python/issues">反馈问题</a>
+</p>
 
-100 道题 · ACM 478 / LeetCode 481 个用例 · 无需安装
-
-</div>
-
-[![Hot 100 网站预览](docs/preview.jpg)](https://hot100-python.htcafasfadf.chatgpt.site)
+[![网站真实界面：知识点目录、题面、Python 编辑器与测试结果](docs/preview.jpg)](https://hot100-python.htcafasfadf.chatgpt.site)
 
 ## 功能
 
-- **知识点目录** — 17 个可折叠文件夹，按知识点顺序浏览与切题。
-- **双模式切换** — ACM 编写标准输入输出程序；LeetCode 模式提供 `Solution` 函数或类模板，自动构造链表与树。
-- **手动运行与提交** — 点击后执行代码；输入过程中不运行或检查语法。
-- **调试与判题** — 自定义输入，对比期望与实际结果，定位报错行；LeetCode 模式的 `print` 输出单独显示。
-- **编辑器显示** — LeetCode 模式可调节字号、切换自动换行，并记住显示偏好。
-- **自由布局** — 拖动分隔线调整目录、题面和代码区宽度，自动记住布局；双击恢复默认。
-- **独立保存** — 两种模式的代码、自定义用例和通过进度分别保存在当前浏览器。
+| 📂 按知识点练习 | ⌨️ 专注写题 | 🧪 运行与调试 |
+| --- | --- | --- |
+| 100 道题，17 个可折叠目录<br>支持题号、标题、知识点搜索 | Python 语法高亮<br>LeetCode 模式支持字号与自动换行 | 自定义输入、输出对比<br>报错定位、停止运行 |
+| **🔀 两种作答方式** | **↔️ 自由调整布局** | **💾 自动保存** |
+| ACM 标准输入输出<br>LeetCode 函数与类模板 | 拖动调整目录、题面和代码区<br>双击恢复默认宽度 | 代码与通过进度保存在浏览器<br>两种模式分别保存 |
 
-网站托管在 ChatGPT Sites。Python 在访问者的浏览器中执行，无需本地 Python 或常驻电脑；首次运行会加载运行时。
+只在点击 **运行** 或 **提交** 时执行代码，输入过程中不会编译或判题。
+
+## 开始使用
+
+打开 **[在线网站](https://hot100-python.htcafasfadf.chatgpt.site)**，选择题目和模式，写代码后运行或提交。无需安装 Python，也不需要让自己的电脑常驻运行网站。
+
+| | ACM 模式 | LeetCode 模式 |
+| --- | --- | --- |
+| 编写方式 | 完整 Python 程序 | `Solution` 方法或指定类 |
+| 输入 | 按题面读取标准输入 | 按模板接收参数，测试区使用 JSON |
+| 判定对象 | 标准输出 | 返回值或指定的原地修改结果 |
+| 调试输出 | 会影响答案比较 | `print` 输出单独展示 |
+
+## 判题与性能
+
+Python 通过 Pyodide 在访问者的浏览器里执行。首次运行需要加载运行环境；提交使用有限并行，每个用例仍使用独立的 Python 环境。已执行的环境会销毁，下一次可使用提前准备好的干净环境。
+
+- **比较符合题意**：区分精确整数、浮点容差、无序集合、多种合法答案，以及链表和树的节点语义。
+- **执行有边界**：单个用例限时 5 秒，输出上限 64 KiB，支持主动停止。
+- **核查可追溯**：[题库核查记录](docs/problem-audit.md) · [判题回归与限制](docs/judge-audit.md) · [性能实测](docs/performance.md)。
+
+本项目是独立练习判题器，测试集不等同于 LeetCode 官方隐藏测试集；通过站内用例不代表所有输入都正确。浏览器判题也不用于可信比赛成绩。时间、空间复杂度要求需要结合代码分析。
+
+## 记录保存
+
+**关闭网页后，在同一浏览器、同一网站地址重新打开，可以继续之前的练习。**
+
+| 自动保留 | 保存范围 |
+| --- | --- |
+| 每道题最新代码、自定义输入与期望输出 | ACM、LeetCode 分开保存 |
+| 已通过题目、上次打开的题目与模式 | 当前浏览器 |
+| 展开的知识点目录、面板宽度、代码字号与换行设置 | 当前浏览器 |
+
+使用浏览器本地存储，不上传代码，也不跨设备同步。清除网站数据、更换浏览器或结束无痕会话可能丢失记录。目前保留最新代码和通过状态，**不保留每次提交的历史版本、结果或耗时**。
 
 <details>
-<summary><strong>源码与开发</strong></summary>
+<summary><strong>开发与验证</strong></summary>
 
-`dist/` 是可部署的静态网站。交互使用原生 JavaScript 与 CodeMirror 5，执行层使用 Pyodide 0.27.7，在独立 Web Worker 中运行 Python。单次执行限时 5 秒，输出上限 64 KiB，支持中止。
-
-| 文件 | 用途 |
-| --- | --- |
-| `dist/app.js` | 页面交互与本地保存 |
-| `dist/runner.js` · `dist/python-worker.js` | Python 执行与输入输出 |
-| `dist/checker.js` | 输出比较 |
-| `dist/leetcode.js` | 函数调用、数据结构与返回值处理 |
-| `dist/data/` | 题面、模板与两种模式的测试数据 |
+前端使用原生 JavaScript、CodeMirror 5 和 Pyodide 0.27.7。`dist/` 可直接部署，线上由 ChatGPT Sites 托管。
 
 ```sh
-npm install
-npm test
+git clone https://github.com/Tianchenggg/hot100-python.git
+cd hot100-python
+npm ci
 npm run check
+npm test
+python3 -m http.server 8000 --directory dist
 ```
 
-GitHub 保存源码，线上网站由 Sites 托管。`.openai/hosting.json` 记录当前 Sites 项目；发布到新 Site 时需使用自己的项目标识。
+打开 `http://localhost:8000`。测试通过 GitHub Actions 持续运行。
+
+| 路径 | 内容 |
+| --- | --- |
+| `dist/app.js` · `dist/layout.js` | 页面交互、布局、本地保存 |
+| `dist/runner.js` · `dist/python-worker.js` | Python 执行、并行调度、输入输出 |
+| `dist/checker.js` · `dist/leetcode.js` | 答案比较、函数调用与数据结构转换 |
+| `dist/data/` | 题面、模板、两种模式的测试数据 |
+| `scripts/` | 数据验证与判题回归测试 |
+
+`.openai/hosting.json` 记录当前 Sites 项目；部署为自己的 Site 时使用自己的项目标识。
 
 </details>
 
 ## 来源与许可
 
-题库、测试数据、核心模式元数据及部分 Python 驱动与比较逻辑改编自 [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge)，保留原 [MIT 许可与版权声明](LICENSE)。完整来源见 [SOURCES.md](SOURCES.md)。编辑器与执行环境分别使用 [CodeMirror](https://codemirror.net/5/) 和 [Pyodide](https://pyodide.org/)。
+题库、测试数据、模式元数据与部分驱动逻辑改编自 [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge)，保留 [MIT 许可与版权声明](LICENSE)。官方题意来源为 [LeetCode 热题 100](https://leetcode.cn/studyplan/top-100-liked/)，完整说明见 [SOURCES.md](SOURCES.md)。
 
-测试集不等同于 LeetCode 官方完整测试集。用例在前端公开，运行耗时取决于设备，适合日常练习，不用于可信比赛成绩。
+感谢 [CodeMirror](https://codemirror.net/5/) 和 [Pyodide](https://pyodide.org/)。本项目与 LeetCode、OpenAI 及上游作者不存在官方隶属关系。

@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Python ACM and LeetCode practice, hosted on ChatGPT Sites",
+  "description": "支持 ACM 与 LeetCode 双模式的 Python Hot 100 在线刷题网站，打开浏览器即可写题、调试与判题。",
   "scripts": {
-    "check": "node --check dist/app.js && node --check dist/layout.js && node --check dist/runner.js && node --check dist/python-worker.js && node --check dist/leetcode.js && node --check dist/data/leetcode.js && node scripts/check-data.mjs",
+    "check": "node --check dist/app.js && node --check dist/layout.js && node --check dist/runner.js && node --check dist/python-worker.js && node --check dist/leetcode.js && node --check dist/data/leetcode.js && node scripts/check-data.mjs && node scripts/problem-data-test.mjs",
     "test": "node scripts/checker-test.mjs && node scripts/runner-test.mjs && node scripts/leetcode-test.mjs"
   },
   "devDependencies": {

@@ -5,12 +5,17 @@ core-mode metadata, and Python class templates
 were adapted from [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge),
 commit `b9fda30362e5bad229cad8dede99ab6c1fd0609c`.
 
-The dataset contains 100 problems, 478 ACM test cases, and 481 LeetCode-mode test
+The dataset contains 100 problems, 484 ACM test cases, and 488 LeetCode-mode test
 cases. It excludes company metadata and reference solutions. Each problem retains
-its original LeetCode source link. ACM test cases retain the supplied input and
-output. The output-order wording for problems 15, 49, 131, and 347 was corrected to
-allow equivalent answers instead of requiring the reference solution's order.
-Full original constraints are not present in the source dataset.
+its original LeetCode source link.
+
+On 2026-10-04, all 100 problems were checked against official LeetCode problem
+content, constraints, and method metadata. Concise input constraints were added;
+incorrect tree examples, array-length formats, output-order restrictions, and
+out-of-domain fixtures were corrected. Additional boundary cases were included.
+See [the problem audit](docs/problem-audit.md) for the per-problem record and
+[source fingerprints](docs/problem-audit-sources.json) for official links,
+metadata, and content hashes. Full official statements are not redistributed.
 
 The 17 knowledge groups and navigation order in `dist/data/groups.js` follow
 the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. Only group names and problem
@@ -38,3 +43,6 @@ To regenerate the dataset from a local upstream checkout:
 python3 scripts/prepare-data.py /path/to/hot100-judge
 node scripts/prepare-leetcode.mjs /path/to/hot100-judge
 ```
+
+Both generators apply `scripts/problem-corrections.json` after importing upstream
+data so that regeneration preserves the audited corrections and added cases.
