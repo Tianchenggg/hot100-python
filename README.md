@@ -5,7 +5,7 @@
 <p align="center"><strong>支持 ACM 与 LeetCode 双模式的 Python Hot 100 在线刷题网站，打开浏览器即可写题、调试与判题。</strong></p>
 
 <p align="center">
-  <a href="https://github.com/Tianchenggg/hot100-python/actions/workflows/tests.yml"><img src="https://github.com/Tianchenggg/hot100-python/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="docs/problem-audit.md"><img src="https://img.shields.io/badge/Audited-100_Problems-22a06b" alt="100 problems audited"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Tianchenggg/hot100-python?color=22a06b" alt="MIT License"></a>
   <a href="https://github.com/Tianchenggg/hot100-python/commits/main"><img src="https://img.shields.io/github/last-commit/Tianchenggg/hot100-python?color=7961c4" alt="Last commit"></a>
   <a href="https://github.com/Tianchenggg/hot100-python/stargazers"><img src="https://img.shields.io/github/stars/Tianchenggg/hot100-python?style=social" alt="GitHub stars"></a>
@@ -87,7 +87,7 @@ npm test
 python3 -m http.server 8000 --directory dist
 ```
 
-打开 `http://localhost:8000`。测试通过 GitHub Actions 持续运行。
+打开 `http://localhost:8000`。上述命令可复现数据检查与判题回归测试。
 
 | 路径 | 内容 |
 | --- | --- |
