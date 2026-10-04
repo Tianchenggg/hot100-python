@@ -126,6 +126,16 @@ const harnessCases = await runner.runCases('class Solution:\n    def double(self
   compare: (test, result) => test.output === result.value,
 });
 assert.equal(harnessCases.allPassed, true);
+const invalidCustom = await runner.runCases('class Solution:\n    def double(self, value):\n        return value * 2', [
+  { input: '2', output: '4' }, { input: '{broken', output: '' }, { input: '3', output: '6' },
+], {
+  buildHarness: test => ({ setup: '', invoke: `_leetcode_result = str(Solution().double(${JSON.parse(test.input)}))` }),
+  compare: (test, result) => test.output === result.value,
+  stopOnError: false,
+});
+assert.deepEqual(invalidCustom.results.map(r => [r.index, r.status, r.ok]), [[0, 'ok', true], [1, 'error', false], [2, 'ok', true]]);
+assert.match(invalidCustom.results[1].error, /JSON|property|Unexpected/i);
+assert.equal(invalidCustom.results[1].line, null);
 const orderedProgress = [];
 const ordered = await runner.runCases('import time\nn = int(input())\ntime.sleep(0.1 if n == 0 else 0)\nprint(n)', [0, 1, 2, 3].map(n => ({ input: String(n), output: String(n) })), {
   onProgress: entry => orderedProgress.push(entry.result.index),

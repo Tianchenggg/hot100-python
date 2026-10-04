@@ -158,8 +158,13 @@ export class PythonRunner {
       while (isCurrent() && nextIndex < cases.length) {
         const index = nextIndex++;
         const test = cases[index];
-        const harness = buildHarness?.(test, index) ?? test.harness;
-        const result = await this.execute(String(code ?? ''), String(test.input ?? ''), onStatus, harness);
+        let result;
+        try {
+          const harness = buildHarness?.(test, index) ?? test.harness;
+          result = await this.execute(String(code ?? ''), String(test.input ?? ''), onStatus, harness);
+        } catch (error) {
+          result = { status: 'error', error: String(error.message || error), stdout: '', stderr: '', line: null, ms: 0 };
+        }
         if (!isCurrent()) return;
         completed[index] = {
           ...result, index, input: String(test.input ?? ''),

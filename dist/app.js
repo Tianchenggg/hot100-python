@@ -1,8 +1,9 @@
-import { PythonRunner } from './runner.js?v=7';
+import { PythonRunner } from './runner.js?v=10';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
 import { checkOutput } from './checker.js?v=7';
 import problemGroups from './data/groups.js';
 import { initLayout } from './layout.js?v=5';
+import { installPythonEnhancements, smartIndentBackspace } from './editor-enhancements.js?v=10';
 
 const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
@@ -27,11 +28,13 @@ function loadProgress() {
 }
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const codeBlock = value => `<pre>${escapeHtml(value || '（空）')}</pre>`;
+installPythonEnhancements(CodeMirror);
 const editor = CodeMirror.fromTextArea($('codeEditor'), {
-  mode: 'python', lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false,
+  mode: 'hot100-python', lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false,
   matchBrackets: true, lineWrapping: false, autofocus: false,
   gutters: ['CodeMirror-linenumbers', 'errors'],
   extraKeys: {
+    Backspace: cm => smartIndentBackspace(cm, CodeMirror),
     Tab: cm => cm.somethingSelected() ? cm.indentSelection('add') : cm.replaceSelection(' '.repeat(4 - cm.getCursor().ch % 4)),
     'Shift-Tab': cm => cm.indentSelection('subtract'),
     'Ctrl-Enter': () => execute(false), 'Cmd-Enter': () => execute(false),
@@ -181,7 +184,7 @@ function renderList() {
     const header = document.createElement('button'); header.type = 'button'; header.className = 'group-header';
     header.id = `group-${group.id}-toggle`; header.setAttribute('aria-controls', `group-${group.id}-content`);
     header.setAttribute('aria-label', `${group.name}，${list.length} 题`);
-    header.innerHTML = `<svg class="group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><svg class="group-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 7v12a2 2 0 0 0 2 2h13l4-12H8l-3 3"/></svg><span class="group-name">${escapeHtml(group.name)}</span><span class="group-count">${list.length}</span>`;
+    header.innerHTML = `<svg class="group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><svg class="group-icon skin-icon-codex" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v2M3 7v12a2 2 0 0 0 2 2h13l4-12H8l-3 3"/></svg><svg class="group-icon skin-icon-claude" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h6l2 2h10v13H3ZM3 10h18"/></svg><span class="group-name">${escapeHtml(group.name)}</span><span class="group-count">${list.length}</span>`;
     const content = document.createElement('div'); content.className = 'group-content'; content.id = `group-${group.id}-content`;
     const items = document.createElement('div'); items.className = 'group-items';
     for (const p of list) {
@@ -252,6 +255,7 @@ function selectProblem(id, force = false) {
   requestAnimationFrame(() => { editor.refresh(); revealCurrentProblem(); });
 }
 function renderCaseTabs() {
+  $('expectedOptional').hidden = state.caseIndex < state.current.examples.length;
   $('caseTabs').replaceChildren();
   const names = [...state.current.examples.map((_, i) => `样例 ${i + 1}`), '自定义'];
   names.forEach((name, i) => {
@@ -301,20 +305,37 @@ function getLabel(r) {
   if (r.status !== 'ok') return r.error?.includes('SyntaxError') || r.error?.includes('IndentationError') ? '语法错误' : '运行错误';
   return r.compared ? (r.passed ? '通过' : '答案错误') : '运行完成';
 }
+function resultTone(r) {
+  if (r.status !== 'ok' || (r.compared && !r.passed)) return 'failure';
+  return r.compared ? 'success' : '';
+}
 function renderResults(submit) {
   const results = state.results;
   if (!results.length) return;
-  const passed = results.filter(r => r.passed).length;
-  const all = submit ? passed === state.current.tests.length : results[0].passed;
+  const checked = results.filter(r => r.compared);
+  const passed = checked.filter(r => r.passed).length;
+  const failed = results.some(r => resultTone(r) === 'failure');
   const r = results[state.resultIndex];
-  const label = submit ? `${passed} / ${state.current.tests.length} 通过` : getLabel(r);
-  const tone = all ? 'success' : (r.status === 'ok' && !r.compared && !submit ? '' : 'failure');
+  const total = submit ? state.current.tests.length : checked.length;
+  const label = submit ? `${passed} / ${total} 通过` : failed ? '存在未通过用例' : checked.length ? `${passed} / ${total} 通过${results.some(x => !x.compared) ? ' · 自定义已运行' : ''}` : '运行完成';
+  const tone = failed ? 'failure' : checked.length ? 'success' : '';
   const elapsed = state.elapsedMs >= 1000 ? `${(state.elapsedMs / 1000).toFixed(2)} s` : `${Math.round(state.elapsedMs || 0)} ms`;
   const pythonMs = Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0));
   const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
+  const caseName = (x, i) => submit ? `用例 ${i + 1}` : x.name;
+  const tabs = results.map((x, i) => {
+    const color = resultTone(x);
+    const symbol = color === 'success' ? '✓' : color === 'failure' ? '×' : '·';
+    return `<button class="result-case ${color === 'success' ? 'passed' : color === 'failure' ? 'failed' : ''}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-pressed="${i === state.resultIndex}" aria-label="${escapeHtml(caseName(x, i))}，${getLabel(x)}">${symbol} ${submit ? i + 1 : escapeHtml(x.name)}</button>`;
+  }).join('');
+  const selectedTone = resultTone(r);
   $('resultIndicator').className = tone;
-  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time" title="总耗时（含环境准备与判题）；Python 执行合计 ${pythonMs} ms">${elapsed}</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
-  $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => { state.resultIndex = Number(button.dataset.case); renderResults(submit); }));
+  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time" title="总耗时（含环境准备与判题）；Python 执行合计 ${pythonMs} ms">${elapsed}</span></div><div class="result-cases">${tabs}</div><div class="case-status">${escapeHtml(caseName(r, state.resultIndex))}<span class="${selectedTone}">${escapeHtml(getLabel(r))}</span></div><div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${selectedTone === 'success' ? 'output-passed' : selectedTone === 'failure' ? 'output-failed' : ''}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
+  $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => {
+    state.resultIndex = Number(button.dataset.case);
+    renderResults(submit);
+    $('resultView').querySelector(`[data-case="${state.resultIndex}"]`).focus({ preventScroll: true });
+  }));
   $('resultView').querySelector('[data-line]')?.addEventListener('click', () => { editor.setCursor(r.line - 1, 0); editor.scrollIntoView({ line: r.line - 1, ch: 0 }, 60); editor.focus(); });
   if (editor.getValue() === state.submittedCode) markError(r.line);
   else $('resultTab').firstChild.textContent = '上次结果';
@@ -329,36 +350,27 @@ async function execute(submit) {
   const isLeetCode = state.mode === 'leetcode';
   const startedAt = performance.now();
   const compare = isLeetCode ? checkLeetCodeOutput : checkOutput;
-  const cases = submit ? p.tests : [{ input: $('testInput').value, output: $('expectedOutput').value }];
+  const cases = submit ? p.tests : p.examples.map((c, i) => ({ ...c, name: `样例 ${i + 1}`, compared: true }));
+  if (!submit && (state.custom.input !== '' || state.custom.output !== '')) {
+    cases.push({ ...state.custom, name: '自定义', compared: state.custom.output !== '' });
+  }
   const asResult = (r, c) => {
-    const compared = submit || c.output !== '';
+    const compared = submit || c.compared;
     const actual = isLeetCode ? r.value ?? '' : r.stdout;
-    const passed = r.status === 'ok' && (!compared || (submit ? r.ok : compare(p, c.input, c.output, actual)));
-    return { ...r, actual, input: c.input, expected: c.output, compared, passed };
+    return { ...r, actual, input: c.input, expected: c.output, name: c.name, compared, passed: r.ok };
   };
   try {
     renderWorking('准备 Python…');
-    if (submit) {
-      let completed = 0;
-      const batch = await runner.runCases(code, cases, {
-        buildHarness: isLeetCode ? c => buildLeetCodeHarness(p, c.input) : undefined,
-        compare: (c, r) => compare(p, c.input, c.output, isLeetCode ? r.value ?? '' : r.stdout),
-        stopOnError: true,
-        onStatus: status => { if (token === state.token && status === 'running') renderWorking(`评测 ${completed} / ${cases.length}…`); },
-        onProgress: ({ index }) => { completed = index; if (token === state.token) renderWorking(`评测 ${index} / ${cases.length}…`); },
-      });
-      if (token !== state.token) return;
-      state.results = batch.results.map(r => asResult(r, cases[r.index]));
-    } else {
-      const c = cases[0];
-      const harness = isLeetCode ? buildLeetCodeHarness(p, c.input) : undefined;
-      const r = await runner.run(code, c.input, { harness, onStatus: status => {
-        if (token === state.token) renderWorking(status === 'running' ? '运行中…' : '准备 Python…');
-      } });
-      if (token !== state.token) return;
-      state.results = [asResult(r, c)];
-    }
+    let completed = 0;
+    const batch = await runner.runCases(code, cases, {
+      buildHarness: isLeetCode ? c => buildLeetCodeHarness(p, c.input) : undefined,
+      compare: (c, r) => !submit && !c.compared ? true : compare(p, c.input, c.output, isLeetCode ? r.value ?? '' : r.stdout),
+      stopOnError: submit,
+      onStatus: status => { if (token === state.token && status === 'running') renderWorking(`${submit ? '评测' : '运行'} ${completed} / ${cases.length}…`); },
+      onProgress: ({ index }) => { completed = index; if (token === state.token) renderWorking(`${submit ? '评测' : '运行'} ${index} / ${cases.length}…`); },
+    });
     if (token !== state.token) return;
+    state.results = batch.results.map(r => asResult(r, cases[r.index]));
     state.elapsedMs = performance.now() - startedAt;
     state.resultIndex = Math.max(0, state.results.findIndex(r => !r.passed));
     if (submit && state.results.length === cases.length && state.results.every(r => r.passed)) {
