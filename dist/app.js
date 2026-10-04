@@ -1,13 +1,20 @@
-import { PythonRunner } from './runner.js';
+import { PythonRunner } from './runner.js?v=3';
+import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=3';
 import { checkOutput } from './checker.js';
 
 const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
 const prefix = 'hot100-python:v1:';
-const state = { problems: [], current: null, results: [], resultIndex: 0, busy: false, token: 0, caseIndex: 0, errorLine: null, restoring: false, passed: new Set(), custom: { input: '', output: '' } };
+const state = { mode: 'acm', problems: [], current: null, results: [], resultIndex: 0, busy: false, token: 0, caseIndex: 0, errorLine: null, restoring: false, passed: new Set(), custom: { input: '', output: '' } };
 function read(key, fallback = '') { try { return localStorage.getItem(prefix + key) ?? fallback; } catch { return fallback; } }
 function save(key, value) { try { localStorage.setItem(prefix + key, value); return true; } catch { return false; } }
-try { state.passed = new Set(JSON.parse(read('passed', '[]'))); } catch {}
+const initialMode = new URL(location.href).searchParams.get('mode') || read('mode', 'acm');
+state.mode = initialMode === 'leetcode' ? 'leetcode' : 'acm';
+const modeKey = key => state.mode === 'leetcode' ? `leetcode:${key}` : key;
+function loadProgress() {
+  try { state.passed = new Set(JSON.parse(read(modeKey('passed'), '[]'))); } catch { state.passed = new Set(); }
+  state.passed = new Set([...state.passed].filter(id => state.problems.some(p => p.id === id)));
+}
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const codeBlock = value => `<pre>${escapeHtml(value || '（空）')}</pre>`;
 const editor = CodeMirror.fromTextArea($('codeEditor'), {
@@ -30,7 +37,57 @@ editor.on('cursorActivity', () => {
 
 function persistCode() {
   if (!state.current) return;
-  $('saveStatus').textContent = save(`code:${state.current.id}`, editor.getValue()) ? '已保存到此浏览器' : '保存失败，请复制代码';
+  $('saveStatus').textContent = save(modeKey(`code:${state.current.id}`), editor.getValue()) ? '已保存到此浏览器' : '保存失败，请复制代码';
+}
+function updateModeControl() {
+  const label = state.mode === 'leetcode' ? 'LeetCode 模式' : 'ACM 模式';
+  $('modeLabel').textContent = label;
+  $('modeButton').setAttribute('aria-label', `切换刷题模式，当前 ${label}`);
+  $('modeMenu').querySelectorAll('[data-mode]').forEach(option => option.setAttribute('aria-checked', String(option.dataset.mode === state.mode)));
+}
+function closeModeMenu(restoreFocus = false) {
+  const wasOpen = !$('modeMenu').hidden;
+  $('modeMenu').hidden = true;
+  $('modeButton').setAttribute('aria-expanded', 'false');
+  if (restoreFocus && wasOpen) $('modeButton').focus();
+}
+function openModeMenu(focusOption = false) {
+  $('modeMenu').hidden = false;
+  $('modeButton').setAttribute('aria-expanded', 'true');
+  if (focusOption) $('modeMenu').querySelector('[aria-checked="true"]').focus();
+}
+function changeMode(mode) {
+  if (!['acm', 'leetcode'].includes(mode)) return;
+  closeModeMenu(true);
+  if (state.mode === mode) return;
+  persistCode();
+  if (state.busy) stop();
+  const id = state.current?.id;
+  state.current = null;
+  state.mode = mode;
+  save('mode', mode);
+  loadProgress(); updateModeControl();
+  if (id) selectProblem(id, true);
+}
+const mobileLayout = matchMedia('(max-width: 800px)');
+function syncSidebar() {
+  const open = mobileLayout.matches ? $('appShell').classList.contains('sidebar-open') : !$('appShell').classList.contains('sidebar-collapsed');
+  const sidebar = $('sidebar');
+  if (!open && sidebar.contains(document.activeElement)) (mobileLayout.matches ? $('openSidebar') : $('railToggle')).focus();
+  sidebar.inert = !open;
+  sidebar.setAttribute('aria-hidden', String(!open));
+  $('railToggle').setAttribute('aria-expanded', String(open));
+  $('openSidebar').setAttribute('aria-expanded', String(open));
+  if (!open) closeModeMenu();
+}
+function setSidebar(open) {
+  if (mobileLayout.matches) $('appShell').classList.toggle('sidebar-open', open);
+  else {
+    $('appShell').classList.toggle('sidebar-collapsed', !open);
+    $('appShell').classList.remove('sidebar-open');
+  }
+  syncSidebar();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) editor.refresh();
 }
 function clearErrorLine() {
   if (state.errorLine !== null) editor.removeLineClass(state.errorLine, 'background', 'code-error-line');
@@ -64,15 +121,16 @@ function renderList() {
   }
   $('progressText').textContent = `${state.passed.size} / ${state.problems.length} 已通过`;
 }
-function selectProblem(id) {
-  const p = state.problems.find(x => x.id === Number(id)); if (!p || state.current?.id === p.id) return;
+function selectProblem(id, force = false) {
+  const base = state.problems.find(x => x.id === Number(id)); if (!base || (!force && state.current?.id === base.id)) return;
+  const p = state.mode === 'leetcode' ? getLeetCodeProblem(base) : base;
   if (state.current) persistCode();
   if (state.busy) stop();
   state.current = p; state.results = []; state.resultIndex = 0; state.caseIndex = 0; state.custom = { input: '', output: '' };
-  try { state.custom = JSON.parse(read(`input:${p.id}`, '{"input":"","output":""}')); } catch {}
-  state.restoring = true; editor.setValue(read(`code:${p.id}`)); state.restoring = false; clearErrorLine();
+  try { state.custom = JSON.parse(read(modeKey(`input:${p.id}`), '{"input":"","output":""}')); } catch {}
+  state.restoring = true; editor.setValue(read(modeKey(`code:${p.id}`), p.template || '')); state.restoring = false; clearErrorLine();
   editor.clearHistory(); $('saveStatus').textContent = '已保存到此浏览器';
-  const index = state.problems.indexOf(p);
+  const index = state.problems.findIndex(item => item.id === p.id);
   $('prevProblem').disabled = index === 0; $('nextProblem').disabled = index === state.problems.length - 1;
   $('statementContent').innerHTML = `<div class="problem-meta"><span class="difficulty">${escapeHtml(p.difficulty)}</span></div><h1>${p.id}. ${escapeHtml(p.title)}</h1><p class="description">${escapeHtml(p.desc)}</p><h2>输入</h2><p class="spec-text">${escapeHtml(p.inputSpec)}</p><h2>输出</h2><p class="spec-text">${escapeHtml(p.outputSpec)}</p>${p.examples.map((e, i) => `<section class="example-block"><h2>样例 ${i + 1}</h2><div class="example-label">输入</div><pre class="example-code">${escapeHtml(e.input)}</pre><div class="example-label">输出</div><pre class="example-code">${escapeHtml(e.output)}</pre></section>`).join('')}`;
   $('statementContent').scrollTop = 0;
@@ -80,10 +138,10 @@ function selectProblem(id) {
   $('resultTab').firstChild.textContent = '结果'; $('resultIndicator').className = '';
   selectCase(0); setTab('input'); renderList();
   save('current', String(p.id));
-  const url = new URL(location.href); url.searchParams.set('problem', p.id); history.replaceState(null, '', url);
+  const url = new URL(location.href); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode); history.replaceState(null, '', url);
   document.title = `${p.title} · Hot 100`;
   $('workspaceTitle').textContent = p.title;
-  $('appShell').classList.remove('sidebar-open');
+  if (!force && mobileLayout.matches) setSidebar(false);
   requestAnimationFrame(() => editor.refresh());
 }
 function renderCaseTabs() {
@@ -103,7 +161,7 @@ function updateCustom() {
   if (!state.current) return;
   state.caseIndex = state.current.examples.length;
   state.custom = { input: $('testInput').value, output: $('expectedOutput').value };
-  save(`input:${state.current.id}`, JSON.stringify(state.custom)); renderCaseTabs();
+  save(modeKey(`input:${state.current.id}`), JSON.stringify(state.custom)); renderCaseTabs();
 }
 function setTab(tab) {
   const input = tab === 'input';
@@ -145,7 +203,7 @@ function renderResults(submit) {
   const tone = all ? 'success' : (r.status === 'ok' && !r.compared && !submit ? '' : 'failure');
   const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
   $('resultIndicator').className = tone;
-  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time">${Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0))} ms</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>实际输出</label>${codeBlock(r.stdout)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
+  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time">${Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0))} ms</span></div>${submit ? `<div class="result-cases">${results.map((x, i) => `<button class="result-case ${x.passed ? 'passed' : 'failed'}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-label="用例 ${i + 1}，${getLabel(x)}">${x.passed ? '✓' : '×'} ${i + 1}</button>`).join('')}</div>` : ''}${submit ? `<div class="case-status">用例 ${state.resultIndex + 1}<span class="${r.passed ? 'success' : 'failure'}">${escapeHtml(getLabel(r))}</span></div>` : ''}<div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${r.passed ? 'output-passed' : 'output-failed'}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
   $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => { state.resultIndex = Number(button.dataset.case); renderResults(submit); }));
   $('resultView').querySelector('[data-line]')?.addEventListener('click', () => { editor.setCursor(r.line - 1, 0); editor.scrollIntoView({ line: r.line - 1, ch: 0 }, 60); editor.focus(); });
   if (editor.getValue() === state.submittedCode) markError(r.line);
@@ -164,21 +222,24 @@ async function execute(submit) {
       if (token !== state.token) return;
       renderWorking(submit ? `评测 ${i + 1} / ${cases.length}…` : '准备 Python…');
       const c = cases[i];
-      const r = await runner.run(code, c.input, { onStatus: status => {
+      const harness = state.mode === 'leetcode' ? buildLeetCodeHarness(p, c.input) : undefined;
+      const r = await runner.run(code, c.input, { harness, onStatus: status => {
         if (token !== state.token) return;
         const text = typeof status === 'string' ? status : status?.status;
         renderWorking(submit ? `评测 ${i + 1} / ${cases.length}…` : (text === 'running' ? '运行中…' : '准备 Python…'));
       } });
       if (token !== state.token) return;
       const compared = submit || c.output !== '';
-      const passed = r.status === 'ok' && (!compared || checkOutput(p, c.input, c.output, r.stdout));
-      state.results.push({ ...r, input: c.input, expected: c.output, compared, passed });
+      const actual = state.mode === 'leetcode' ? r.value ?? '' : r.stdout;
+      const compare = state.mode === 'leetcode' ? checkLeetCodeOutput : checkOutput;
+      const passed = r.status === 'ok' && (!compared || compare(p, c.input, c.output, actual));
+      state.results.push({ ...r, actual, input: c.input, expected: c.output, compared, passed });
       if (r.status !== 'ok') break;
     }
     if (token !== state.token) return;
     state.resultIndex = Math.max(0, state.results.findIndex(r => !r.passed));
     if (submit && state.results.length === cases.length && state.results.every(r => r.passed)) {
-      state.passed.add(p.id); save('passed', JSON.stringify([...state.passed])); renderList();
+      state.passed.add(p.id); save(modeKey('passed'), JSON.stringify([...state.passed])); renderList();
     }
     renderResults(submit);
   } catch (error) {
@@ -187,14 +248,35 @@ async function execute(submit) {
 }
 
 $('searchInput').addEventListener('input', renderList);
+$('modeButton').addEventListener('click', () => $('modeMenu').hidden ? openModeMenu() : closeModeMenu());
+$('modeButton').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openModeMenu(true); }
+});
+$('modeMenu').addEventListener('click', e => {
+  const option = e.target.closest('[data-mode]');
+  if (option) changeMode(option.dataset.mode);
+});
+$('modeMenu').addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeModeMenu(true); return; }
+  const options = [...$('modeMenu').querySelectorAll('[data-mode]')];
+  const index = options.indexOf(document.activeElement);
+  if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+    e.preventDefault();
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? options.length - 1 : (index + (e.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+    options[next].focus();
+  }
+  if (e.key === 'Tab') closeModeMenu();
+});
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.mode-switch')) closeModeMenu(); });
 $('testInput').addEventListener('input', updateCustom); $('expectedOutput').addEventListener('input', updateCustom);
 $('runButton').addEventListener('click', () => execute(false)); $('submitButton').addEventListener('click', () => execute(true)); $('stopButton').addEventListener('click', stop);
 $('inputTab').addEventListener('click', () => { setTab('input'); expandPanel(); }); $('resultTab').addEventListener('click', () => { setTab('result'); expandPanel(); });
-$('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.indexOf(state.current) - 1]?.id));
-$('nextProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.indexOf(state.current) + 1]?.id));
-$('railToggle').addEventListener('click', () => { $('appShell').classList.toggle('sidebar-collapsed'); editor.refresh(); });
-$('closeSidebar').addEventListener('click', () => { $('appShell').classList.add('sidebar-collapsed'); $('appShell').classList.remove('sidebar-open'); editor.refresh(); });
-$('openSidebar').addEventListener('click', () => { $('appShell').classList.remove('sidebar-collapsed'); $('appShell').classList.toggle('sidebar-open'); editor.refresh(); });
+$('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) - 1]?.id));
+$('nextProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) + 1]?.id));
+$('railToggle').addEventListener('click', () => setSidebar($('appShell').classList.contains('sidebar-collapsed')));
+$('closeSidebar').addEventListener('click', () => setSidebar(false));
+$('openSidebar').addEventListener('click', () => setSidebar(true));
+$('sidebarBackdrop').addEventListener('click', () => setSidebar(false));
 $('panelToggle').addEventListener('click', () => {
   const collapsed = $('testPanel').classList.toggle('collapsed');
   $('panelToggle').setAttribute('aria-expanded', String(!collapsed)); $('panelToggle').setAttribute('aria-label', collapsed ? '展开测试面板' : '收起测试面板'); editor.refresh();
@@ -206,13 +288,14 @@ $('panelResizer').addEventListener('pointerup', () => { drag = null; });
 $('panelResizer').addEventListener('pointercancel', () => { drag = null; });
 $('panelResizer').addEventListener('keydown', e => { if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); expandPanel(); setPanelHeight($('testPanel').getBoundingClientRect().height + (e.key === 'ArrowUp' ? 24 : -24)); } });
 function setPanelHeight(value) { const height = Math.max(180, Math.min(value, Math.max(200, innerHeight - 240))); $('testPanel').style.setProperty('--panel-height', `${height}px`); editor.refresh(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') $('appShell').classList.remove('sidebar-open'); if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); persistCode(); } });
-window.addEventListener('resize', () => editor.refresh());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModeMenu(true); if (mobileLayout.matches) setSidebar(false); } if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); persistCode(); } });
+window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
+$('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {
   const response = await fetch('./data/problems.json'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
   state.problems = await response.json();
-  state.passed = new Set([...state.passed].filter(id => state.problems.some(p => p.id === id)));
+  loadProgress(); updateModeControl(); syncSidebar();
   const requested = Number(new URL(location.href).searchParams.get('problem') || read('current', '1'));
   selectProblem(state.problems.some(p => p.id === requested) ? requested : state.problems[0].id);
 } catch (error) { $('statementContent').innerHTML = `<div class="empty-result">${escapeHtml(error.message)}</div>`; $('problemList').textContent = '加载失败'; $('runButton').disabled = true; $('submitButton').disabled = true; }

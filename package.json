@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Minimal Python ACM practice, hosted on ChatGPT Sites",
-  "scripts": { "check": "node --check dist/app.js && node --check dist/runner.js && node --check dist/python-worker.js && node scripts/check-data.mjs", "test": "node scripts/checker-test.mjs && node scripts/runner-test.mjs" },
-  "devDependencies": { "pyodide": "0.27.7" },
+  "description": "Python ACM and LeetCode practice, hosted on ChatGPT Sites",
+  "scripts": {
+    "check": "node --check dist/app.js && node --check dist/runner.js && node --check dist/python-worker.js && node --check dist/leetcode.js && node --check dist/data/leetcode.js && node scripts/check-data.mjs",
+    "test": "node scripts/checker-test.mjs && node scripts/runner-test.mjs && node scripts/leetcode-test.mjs"
+  },
+  "devDependencies": {
+    "pyodide": "0.27.7"
+  },
   "license": "MIT"
 }

@@ -37,10 +37,11 @@ const runner = new PythonRunner();
 const timings = [];
 let assertions = 0;
 
-async function run(code, input = '', expected = {}) {
+async function run(code, input = '', expected = {}, options = {}) {
   const started = performance.now();
   let readyAt;
   const result = await runner.run(code, input, {
+    ...options,
     onStatus(status) { if (status === 'running') readyAt = performance.now(); },
   });
   if (readyAt) timings.push(Math.round(readyAt - started));
@@ -93,6 +94,17 @@ const cancelled = await runner.run('while True: pass', '', {
 });
 assert.equal(cancelled.status, 'cancelled');
 await run('print("after cancel")', '', { status: 'ok', stdout: 'after cancel\n' });
+
+const harness = { setup: 'from typing import *', invoke: '_leetcode_result = __import__("json").dumps(Solution().double(3))' };
+await run('class Solution:\n    def double(self, value: int) -> int:\n        print("debug")\n        return value * 2', '', {
+  status: 'ok', value: '6', stdout: 'debug\n', line: null,
+}, { harness });
+const functionError = await run('class Solution:\n    def double(self, value):\n        return value / 0', '', { status: 'error', line: 3 }, { harness });
+assert.match(functionError.error, /File "main.py", line 3/);
+assert.doesNotMatch(functionError.error, /__leetcode__|__runner__/);
+await run('class Solution:\n    def double(self, value)\n        return value', '', { status: 'error', line: 2 }, { harness });
+await run('class Solution:\n    def double(self, value):\n        return "x" * 65537', '', { status: 'output_limit' }, { harness });
+await run('print("ACM still isolated")', '', { status: 'ok', stdout: 'ACM still isolated\n', value: undefined });
 
 const cases = [{ input: '2\n', output: '4\n' }, { input: '3\n', output: '6\n' }];
 const progress = [];

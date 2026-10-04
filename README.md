@@ -5,14 +5,14 @@
 专注题目、代码与结果的 Python 在线刷题台。
 
 [![Python 3](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-![ACM](https://img.shields.io/badge/Mode-ACM-52525B?style=flat-square)
+![ACM + LeetCode](https://img.shields.io/badge/Mode-ACM%20%2B%20LeetCode-52525B?style=flat-square)
 [![Browser runtime](https://img.shields.io/badge/Runtime-Browser-52525B?style=flat-square)](https://pyodide.org/)
 [![ChatGPT Sites](https://img.shields.io/badge/Hosted_on-ChatGPT_Sites-18181B?style=flat-square)](https://hot100-python.htcafasfadf.chatgpt.site)
 [![MIT License](https://img.shields.io/badge/License-MIT-52525B?style=flat-square)](LICENSE)
 
 **[开始刷题 ↗](https://hot100-python.htcafasfadf.chatgpt.site)**
 
-100 道题 · 478 个测试用例 · 无需安装
+100 道题 · ACM 478 / LeetCode 481 个用例 · 无需安装
 
 </div>
 
@@ -20,10 +20,10 @@
 
 ## 功能
 
-- **Python · ACM** — 阅读题面，编写完整程序，使用标准输入输出。
+- **双模式切换** — ACM 编写标准输入输出程序；LeetCode 模式提供 `Solution` 函数或类模板，自动构造链表与树。
 - **手动运行与提交** — 点击后执行代码；输入过程中不运行或检查语法。
-- **调试与判题** — 自定义输入，查看期望与实际输出，定位报错行。
-- **自动保存** — 代码与通过状态保存在当前浏览器，各访客互不影响。
+- **调试与判题** — 自定义输入，对比期望与实际结果，定位报错行；LeetCode 模式的 `print` 输出单独显示。
+- **独立保存** — 两种模式的代码、自定义用例和通过进度分别保存在当前浏览器。
 
 网站托管在 ChatGPT Sites。Python 在访问者的浏览器中执行，无需本地 Python 或常驻电脑；首次运行会加载运行时。
 
@@ -37,7 +37,8 @@
 | `dist/app.js` | 页面交互与本地保存 |
 | `dist/runner.js` · `dist/python-worker.js` | Python 执行与输入输出 |
 | `dist/checker.js` | 输出比较 |
-| `dist/data/problems.json` | 题面与测试数据 |
+| `dist/leetcode.js` | 函数调用、数据结构与返回值处理 |
+| `dist/data/` | 题面、模板与两种模式的测试数据 |
 
 ```sh
 npm install
@@ -51,6 +52,6 @@ GitHub 保存源码，线上网站由 Sites 托管。`.openai/hosting.json` 记�
 
 ## 来源与许可
 
-题库、测试数据及部分比较规则改编自 [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge)，保留原 [MIT 许可与版权声明](LICENSE)。完整来源见 [SOURCES.md](SOURCES.md)。编辑器与执行环境分别使用 [CodeMirror](https://codemirror.net/5/) 和 [Pyodide](https://pyodide.org/)。
+题库、测试数据、核心模式元数据及部分 Python 驱动与比较逻辑改编自 [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge)，保留原 [MIT 许可与版权声明](LICENSE)。完整来源见 [SOURCES.md](SOURCES.md)。编辑器与执行环境分别使用 [CodeMirror](https://codemirror.net/5/) 和 [Pyodide](https://pyodide.org/)。
 
 测试集不等同于 LeetCode 官方完整测试集。用例在前端公开，运行耗时取决于设备，适合日常练习，不用于可信比赛成绩。

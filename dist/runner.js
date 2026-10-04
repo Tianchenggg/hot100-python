@@ -27,7 +27,7 @@ function notify(callback, value) {
 
 export class PythonRunner {
   constructor({
-    workerURL = new URL('./python-worker.js', import.meta.url),
+    workerURL = new URL('./python-worker.js?v=3', import.meta.url),
     loadTimeoutMs = LOAD_TIMEOUT_MS,
     runTimeoutMs = RUN_TIMEOUT_MS,
   } = {}) {
@@ -43,9 +43,9 @@ export class PythonRunner {
     this.active?.finish({ status: 'cancelled', error: '已停止运行' });
   }
 
-  async run(code, input = '', { onStatus } = {}) {
+  async run(code, input = '', { onStatus, harness } = {}) {
     this.cancel();
-    return this.execute(String(code ?? ''), String(input ?? ''), onStatus);
+    return this.execute(String(code ?? ''), String(input ?? ''), onStatus, harness);
   }
 
   async runCases(code, cases, { onProgress, onStatus } = {}) {
@@ -74,7 +74,7 @@ export class PythonRunner {
     };
   }
 
-  execute(code, input, onStatus) {
+  execute(code, input, onStatus, harness) {
     return new Promise((resolve) => {
       let worker;
       let timer;
@@ -124,7 +124,7 @@ export class PythonRunner {
             status: 'timeout', error: `运行超时（${this.runTimeoutMs / 1000} 秒）`,
           }), this.runTimeoutMs);
           notify(onStatus, 'running');
-          if (!settled) worker.postMessage({ type: 'run', code, input, outputLimit: OUTPUT_LIMIT_BYTES });
+          if (!settled) worker.postMessage({ type: 'run', code, input, harness, outputLimit: OUTPUT_LIMIT_BYTES });
         } else if (data.type === 'output') {
           const value = String(data.text ?? '');
           const bytes = encoder.encode(value);
@@ -144,6 +144,7 @@ export class PythonRunner {
             status: data.status === 'ok' ? 'ok' : 'error',
             error: String(data.error ?? ''),
             line: Number.isInteger(data.line) && data.line > 0 ? data.line : null,
+            value: typeof data.value === 'string' ? data.value : undefined,
             ms: Number.isFinite(data.ms) ? Math.max(0, Math.round(data.ms)) : undefined,
           });
         } else if (data.type === 'load_error') {

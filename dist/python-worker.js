@@ -11,12 +11,19 @@ def _runner_execute(source):
     namespace = {"__name__": "__main__", "__file__": "main.py", "__builtins__": __builtins__}
     _runner_linecache.cache["main.py"] = (len(source), None, source.splitlines(True), "main.py")
     format_exception = _runner_traceback.format_exception
+    exception_formatter = _runner_traceback.TracebackException
+    stack_summary = _runner_traceback.StackSummary
     dumps = _runner_json.dumps
     stdout_flush = _runner_sys.stdout.flush
     stderr_flush = _runner_sys.stderr.flush
     result = {"status": "ok", "error": "", "line": None}
     try:
+        if _runner_setup:
+            exec(compile(_runner_setup, "__leetcode__.py", "exec"), namespace, namespace)
         exec(compile(source, "main.py", "exec"), namespace, namespace)
+        if _runner_invoke:
+            exec(compile(_runner_invoke, "__leetcode__.py", "exec"), namespace, namespace)
+            result["value"] = namespace.get("_leetcode_result", "null")
     except SystemExit as error:
         if error.code is not None and error.code != 0:
             result = {"status": "error", "error": "SystemExit: " + str(error.code), "line": None}
@@ -35,7 +42,13 @@ def _runner_execute(source):
             if cursor.tb_frame.f_code.co_filename == "main.py":
                 line = cursor.tb_lineno
             cursor = cursor.tb_next
-        result = {"status": "error", "error": "".join(format_exception(type(error), error, tb)), "line": line}
+        if _runner_invoke:
+            formatted = exception_formatter(type(error), error, tb)
+            formatted.stack = stack_summary.from_list([frame for frame in formatted.stack if frame.filename not in ("__leetcode__.py", "__runner__.py")])
+            error_text = "".join(formatted.format())
+        else:
+            error_text = "".join(format_exception(type(error), error, tb))
+        result = {"status": "error", "error": error_text, "line": line}
     finally:
         for flush in (stdout_flush, stderr_flush):
             try:
@@ -83,7 +96,7 @@ function createOutput(pyodide, limit) {
   };
   pyodide.setStdout({ write: (buffer) => write('stdout', buffer) });
   pyodide.setStderr({ write: (buffer) => write('stderr', buffer) });
-  return { flushAll, isExceeded: () => exceeded };
+  return { flushAll, isExceeded: () => exceeded, remaining: () => limit - byteCount };
 }
 
 async function initialize() {
@@ -112,12 +125,18 @@ async function initialize() {
       try {
         pyodide.FS.writeFile('main.py', source);
         pyodide.globals.set('_runner_source', source);
+        pyodide.globals.set('_runner_setup', String(data.harness?.setup ?? ''));
+        pyodide.globals.set('_runner_invoke', String(data.harness?.invoke ?? ''));
         result = JSON.parse(pyodide.runPython(DRIVER, { filename: '__runner__.py' }));
       } catch (error) {
         result = { status: 'error', error: String(error.message || error), line: null };
       }
       output.flushAll(true);
       if (output.isExceeded()) return;
+      if (result.value && new TextEncoder().encode(result.value).byteLength > output.remaining()) {
+        self.postMessage({ type: 'output_limit' });
+        return;
+      }
       self.postMessage({ type: 'result', ...result, ms: performance.now() - startedAt });
     };
     self.postMessage({ type: 'ready' });
