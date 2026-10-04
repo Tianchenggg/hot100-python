@@ -1,6 +1,7 @@
 .skin-icon-claude { display: none; }
 html[data-skin="claude"] .skin-icon-codex { display: none; }
 html[data-skin="claude"] .skin-icon-claude { display: inline-block; stroke-linecap: square; stroke-linejoin: miter; }
+html[data-skin="claude"] .app-rail .rail-home .skin-icon-claude { fill: none; stroke: currentColor; stroke-width: 1.6; }
 .skin-trigger[aria-expanded="true"] { color: var(--text); background: var(--selected); }
 .skin-mobile-trigger { display: none; }
 .skin-status { position: fixed; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
@@ -31,19 +32,10 @@ html[data-skin="claude"] .skin-icon-claude { display: inline-block; stroke-linec
 .skin-option-label { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 8px 4px 3px; font-size: 12px; line-height: 18px; white-space: nowrap; }
 .skin-option .skin-check { flex: none; width: 14px; height: 14px; color: var(--text); visibility: hidden; stroke-width: 1.9; }
 .skin-option[aria-checked="true"] .skin-check { visibility: visible; }
-.skin-preview { display: grid; grid-template-columns: 27% 35% 38%; height: 75px; overflow: hidden; border: 1px solid var(--preview-line); border-radius: 6px; background: var(--preview-canvas); pointer-events: none; }
-.preview-codex { --preview-canvas: #fff; --preview-sidebar: #f5f5f5; --preview-line: #e5e5e5; --preview-ink: #747474; --preview-highlight: #dedede; --preview-accent: #7c3bb5; --preview-string: #25733f; }
-.preview-claude { --preview-canvas: #faf9f5; --preview-sidebar: #f0eee6; --preview-line: #e3dfd3; --preview-ink: #797569; --preview-highlight: #e6e3da; --preview-accent: #c06443; --preview-string: #557a46; }
-.preview-nav, .preview-sheet, .preview-code { min-width: 0; padding: 10px 5px; }
-.preview-nav { background: var(--preview-sidebar); border-right: 1px solid var(--preview-line); }
-.preview-sheet { border-right: 1px solid var(--preview-line); }
-.skin-preview i { display: block; width: 100%; height: 3px; margin-bottom: 5px; border-radius: 1px; background: var(--preview-ink); opacity: .4; }
-.skin-preview i:nth-child(2n) { width: 72%; }
-.preview-nav i:first-child { height: 5px; margin-bottom: 8px; background: var(--preview-highlight); opacity: 1; }
-.preview-sheet i:first-child { width: 82%; height: 4px; margin-bottom: 10px; opacity: .8; }
-.preview-code i { background: var(--preview-accent); opacity: .8; }
-.preview-code i:nth-child(2n) { margin-left: 4px; background: var(--preview-string); }
-.preview-code i:nth-child(3n) { width: 56%; margin-left: 8px; }
+.skin-logo { display: grid; place-items: center; height: 75px; color: var(--text); pointer-events: none; }
+.skin-logo svg { width: 52px; height: 52px; fill: currentColor; stroke: none; }
+.skin-logo svg * { stroke: none; }
+.logo-claude svg { width: 46px; height: 46px; }
 
 html[data-skin="claude"] {
   --canvas: #faf9f5;
@@ -95,8 +87,7 @@ html[data-skin="claude"] .field textarea,
 html[data-skin="claude"] .result-case,
 html[data-skin="claude"] .result-block pre,
 html[data-skin="claude"] .status-badge,
-html[data-skin="claude"] .error-details,
-html[data-skin="claude"] .skin-preview { border-radius: 3px; }
+html[data-skin="claude"] .error-details { border-radius: 3px; }
 html[data-skin="claude"] .button-run { font-family: var(--mono); border-color: var(--line-strong); }
 html[data-skin="claude"] .button-primary { font-family: var(--mono); }
 html[data-skin="claude"] .problem-item.active { box-shadow: inset 2px 0 var(--skin-accent); }
@@ -154,8 +145,6 @@ html[data-skin="claude"] .editor-wrap .code-error-line { background: var(--red-b
 
 @media (prefers-color-scheme: dark) {
   .skin-panel { box-shadow: 0 12px 36px #00000040, 0 2px 8px #00000028; }
-  .preview-codex { --preview-canvas: #212121; --preview-sidebar: #1b1b1b; --preview-line: #363636; --preview-ink: #b8b8b8; --preview-highlight: #494949; --preview-accent: #d0a2f5; --preview-string: #94cda4; }
-  .preview-claude { --preview-canvas: #262624; --preview-sidebar: #1f1f1e; --preview-line: #3a3a37; --preview-ink: #b9b9b1; --preview-highlight: #353532; --preview-accent: #e49a7e; --preview-string: #a4c38e; }
   html[data-skin="claude"] {
     --canvas: #262624;
     --frame: #141413;

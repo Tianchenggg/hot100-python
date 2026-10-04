@@ -20,7 +20,7 @@
         option.setAttribute('aria-checked', String(selected));
         option.tabIndex = selected ? 0 : -1;
       });
-      triggers.forEach(trigger => { trigger.title = `皮肤：${names[skin]}`; });
+      triggers.forEach(trigger => { trigger.title = `设置 · ${names[skin]}`; });
     }
 
     function select(value) {
