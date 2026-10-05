@@ -1,0 +1,91 @@
+.recitation-app { display: grid; grid-template-columns: 48px 220px minmax(0, 1fr); width: 100%; height: 100dvh; padding: 8px 8px 8px 0; overflow: hidden; }
+.recite-sidebar { display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--line); border-right: 0; border-radius: 14px 0 0 14px; background: var(--sidebar); }
+.recite-sidebar-title { display: flex; align-items: center; min-height: 60px; padding: 0 20px; font-size: 16px; font-weight: 600; letter-spacing: -.3px; }
+.recite-sidebar-label { display: flex; justify-content: space-between; padding: 10px 20px 8px; color: var(--secondary); font-size: 11px; }
+.recite-groups { flex: 1; min-height: 0; overflow-y: scroll; scrollbar-gutter: stable; padding: 0 10px 16px; }
+.recite-group-link { display: flex; align-items: center; gap: 9px; min-height: 36px; margin: 2px 0; padding: 7px 10px; border-radius: 7px; color: var(--secondary); text-decoration: none; transition: background 120ms, color 120ms; }
+.recite-group-link svg { width: 16px; height: 16px; stroke-width: 1.5; flex: none; }
+.recite-group-link:hover { background: var(--hover); color: var(--text); }
+.recite-group-link[aria-current="location"] { color: var(--text); background: var(--selected); }
+.recite-group-link span:last-child { margin-left: auto; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.back-to-practice { display: flex; align-items: center; gap: 9px; min-height: 50px; padding: 12px 20px; color: var(--secondary); text-decoration: none; border-top: 1px solid var(--line); }
+.back-to-practice:hover { color: var(--text); }
+.back-to-practice svg { width: 16px; height: 16px; stroke-width: 1.6; }
+.recite-main { min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 0 14px 14px 0; background: var(--canvas); overflow: hidden; }
+.recite-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; padding: 10px 28px; border-bottom: 1px solid var(--line); }
+.recite-heading { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.recite-heading h1 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.2px; }
+.recite-heading > span { color: var(--secondary); font-size: 12px; }
+.recite-random { height: 34px; padding: 0 13px; gap: 8px; font-size: 13px; }
+.recite-random svg { width: 15px; height: 15px; }
+.recite-mobile-nav { display: none; }
+.recite-scroll { flex: 1; min-height: 0; overflow-y: scroll; scrollbar-gutter: stable; outline-offset: -3px; }
+.recite-content { max-width: 1440px; margin: 0 auto; padding: 30px 32px 64px; }
+.recite-section { scroll-margin-top: 24px; }
+.recite-section + .recite-section { margin-top: 32px; }
+.recite-section-heading { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+.recite-section-heading svg { width: 17px; height: 17px; stroke-width: 1.5; color: var(--secondary); }
+.recite-section-heading h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.recite-section-heading > span { margin-left: 2px; font-size: 12px; color: var(--muted); }
+.recite-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.recite-card { min-width: 0; padding: 19px 20px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--canvas); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.recite-card:hover { border-color: var(--line-strong); box-shadow: 0 3px 12px #00000005; }
+.recite-card-meta { display: flex; align-items: center; gap: 9px; color: var(--secondary); font-size: 11px; line-height: 18px; }
+.recite-number { font-family: var(--mono); font-size: 11px; letter-spacing: .3px; }
+.recite-level { margin-left: auto; }
+.recite-level[data-level="简单"] { color: var(--green); }
+.recite-level[data-level="困难"] { color: var(--red); }
+.recite-card h3 { margin: 8px 0 9px; font-size: 16px; line-height: 1.5; font-weight: 600; letter-spacing: -.25px; }
+.recite-card-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; width: 100%; padding: 0; border: 0; text-align: left; background: transparent; font: inherit; }
+.recite-card-title svg { width: 13px; height: 13px; color: var(--muted); flex: none; }
+.recite-description { margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.85; overflow-wrap: anywhere; }
+.recite-card > .recite-description { min-height: 48px; margin-bottom: 17px; }
+.recite-examples { border-top: 1px solid var(--line); }
+.recite-examples summary { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; color: var(--secondary); font-size: 12px; cursor: pointer; list-style: none; }
+.recite-examples summary::-webkit-details-marker { display: none; }
+.recite-examples summary:hover { color: var(--text); }
+.recite-examples summary svg { width: 13px; height: 13px; stroke-width: 1.6; transition: transform 150ms ease; }
+.recite-examples[open] summary svg { transform: rotate(180deg); }
+.recite-example-body { padding-bottom: 16px; }
+.recite-example-label { display: block; margin: 0 0 6px; color: var(--secondary); font-size: 11px; }
+.recite-example-body pre { margin: 0; padding: 10px 12px; border-radius: 7px; background: var(--surface); color: var(--text); font-family: var(--mono); font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.recite-example-body pre + .recite-example-label { margin-top: 12px; }
+.recite-loading { padding: 28px 0; color: var(--secondary); font-size: 14px; }
+.recite-error { display: flex; align-items: center; gap: 16px; }
+.recite-dialog { width: min(560px, calc(100vw - 32px)); max-height: min(760px, calc(100dvh - 48px)); margin: auto; padding: 0; border: 1px solid var(--line); border-radius: 16px; color: var(--text); background: var(--canvas); box-shadow: 0 24px 100px #00000026; overflow: auto; }
+.recite-dialog::backdrop { background: #00000040; backdrop-filter: blur(3px); }
+.recite-dialog[open] { animation: recite-appear 160ms ease-out; }
+.recite-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; color: var(--secondary); font-size: 12px; }
+.recite-dialog-head .icon-button { width: 32px; height: 32px; margin-right: -6px; }
+.recite-dialog-content { padding: 20px 28px 26px; }
+.recite-dialog-content h2 { margin: 11px 0 16px; font-size: 24px; line-height: 1.45; letter-spacing: -.5px; }
+.recite-dialog-content .recite-description { font-size: 15px; line-height: 1.9; color: var(--text); }
+.recite-dialog-content .recite-examples { margin-top: 28px; }
+.recite-dialog-content .recite-example-body pre { font-size: 13px; padding: 12px 14px; }
+.recite-dialog-footer { display: flex; justify-content: flex-end; padding: 16px 28px; border-top: 1px solid var(--line); }
+.recite-dialog-footer .button { height: 34px; padding: 0 12px; font-size: 13px; gap: 9px; }
+@keyframes recite-appear { from { opacity: 0; transform: translateY(6px) scale(.99); } to { opacity: 1; transform: none; } }
+@media (min-width: 1200px) { .recite-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1020px) { .recitation-app { grid-template-columns: 48px 190px minmax(0, 1fr); } .recite-content { padding: 24px 22px 48px; } .recite-card { padding: 17px 16px 0; } }
+@media (max-width: 800px) {
+  .recitation-app { grid-template-columns: 48px minmax(0, 1fr); }
+  .recitation-app .app-rail { display: flex; }
+  .recite-sidebar { display: none; }
+  .recite-main { border-radius: 14px; }
+  .recite-header { padding: 10px 18px; }
+  .recite-mobile-nav { display: flex; padding: 10px 18px; border-bottom: 1px solid var(--line); }
+  .recite-mobile-nav select { max-width: 100%; padding: 6px 24px 6px 0; border: 0; color: var(--secondary); background: var(--canvas); font: inherit; }
+}
+@media (max-width: 580px) {
+  .recitation-app { padding-right: 6px; }
+  .recite-heading { gap: 0; }
+  .recite-heading > span { display: none; }
+  .recite-random { padding: 0 10px; font-size: 12px; }
+  .recite-header { padding: 10px 14px; }
+  .recite-content { padding: 22px 14px 36px; }
+  .recite-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .recite-card > .recite-description { min-height: 0; }
+  .recite-dialog-content { padding: 18px 22px 22px; }
+  .recite-dialog-content h2 { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) { .recitation-app *, .recite-dialog[open] { animation: none; transition: none; } }

@@ -18,8 +18,16 @@ See [the problem audit](docs/problem-audit.md) for the per-problem record and
 metadata, and content hashes. Full official statements are not redistributed.
 
 The 17 knowledge groups and navigation order in `dist/data/groups.js` follow
-the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. Only group names and problem
-IDs are included; the document itself is not distributed.
+the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. The recitation cards in
+`dist/data/recitation.json` reproduce its 100 problem titles, difficulty labels,
+short task descriptions, and input/output examples in the same order. They
+contain no solutions. The source document itself is not distributed.
+
+To regenerate the recitation cards from the supplied Markdown:
+
+```sh
+python3 scripts/prepare-recitation.py /path/to/recitation.md dist/data/recitation.json --groups dist/data/groups.js
+```
 
 LeetCode mode reuses the upstream `core` metadata for function signatures, argument
 types, return types, in-place changes, and class operations. Function templates are

@@ -433,3 +433,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
 }
+
+.app-rail .rail-recite[aria-current="page"] { color: var(--text); background: var(--selected); }
+.sidebar-footer .mobile-recite-link { display: none; }
+@media (max-width: 800px) { .sidebar-footer .mobile-recite-link { display: inline-flex; width: auto; padding: 0 6px; } }
