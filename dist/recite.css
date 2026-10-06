@@ -91,8 +91,8 @@
 @media (prefers-reduced-motion: reduce) { .recitation-app *, .recite-dialog[open] { animation: none; transition: none; } }
 
 .recite-draw-stage { display: none; position: absolute; inset: 62px 24px 64px; z-index: 2; place-items: center; pointer-events: none; perspective: 700px; }
-.recite-dialog.is-random { min-height: 360px; }
-.recite-dialog.is-drawing { overflow: hidden; animation: none; }
+.recite-dialog.is-random { min-height: 360px; animation: none; }
+.recite-dialog.is-drawing { overflow: hidden; }
 .is-drawing .recite-draw-stage { display: grid; animation: draw-stage 780ms ease both; }
 .draw-card { position: absolute; width: 126px; height: 156px; border: 1px solid var(--line-strong); border-radius: 13px; background: var(--canvas); box-shadow: 0 8px 22px #00000008; transform-origin: 50% 100%; }
 .draw-back { animation: draw-back 780ms cubic-bezier(.22,1,.36,1) both; }

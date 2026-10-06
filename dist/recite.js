@@ -7,7 +7,6 @@ let problems = [];
 let lastProblemId = null;
 let drawBag = [];
 let scrollFrame = 0;
-let randomSession = false;
 let drawTimer = null;
 let dialogResizeAnimation;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -30,8 +29,6 @@ function showProblem(problem, random = false) {
   const previousHeight = dialog.open ? dialog.getBoundingClientRect().height : 0;
   dialogResizeAnimation?.cancel();
   dialog.classList.toggle('is-random', random);
-  randomSession = random;
-  $('closeDialog').hidden = random;
   $('dialogFooter').hidden = !random;
   lastProblemId = problem.id;
   $('dialogGroup').textContent = problem.groupName;
@@ -51,6 +48,12 @@ function finishDraw() {
   $('problemDialog').removeAttribute('aria-busy');
   $('randomProblem').disabled = !problems.length;
   $('nextRandom').disabled = false;
+}
+
+function closeProblem() {
+  dialogResizeAnimation?.cancel();
+  finishDraw();
+  $('problemDialog').close();
 }
 
 function randomProblem() {
@@ -115,16 +118,17 @@ async function loadProblems() {
 
 $('randomProblem').addEventListener('click', randomProblem);
 $('nextRandom').addEventListener('click', randomProblem);
-$('closeDialog').addEventListener('click', () => $('problemDialog').close());
+$('closeDialog').addEventListener('click', closeProblem);
 $('problemDialog').addEventListener('cancel', (event) => {
-  if (randomSession) event.preventDefault();
+  event.preventDefault();
+  closeProblem();
 });
 let backdropDown = false;
 $('problemDialog').addEventListener('pointerdown', (event) => { backdropDown = event.target === event.currentTarget; });
 $('problemDialog').addEventListener('click', (event) => {
-  if (!randomSession && backdropDown && event.target === event.currentTarget) {
+  if (backdropDown && event.target === event.currentTarget) {
     const rect = event.currentTarget.getBoundingClientRect();
-    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.currentTarget.close();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeProblem();
   }
 });
 $('reciteContent').addEventListener('click', (event) => {
@@ -151,5 +155,5 @@ $('reciteScroll').addEventListener('scroll', () => {
 window.addEventListener('hashchange', (event) => {
   if (!document.querySelector('.recitation-app').hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
 });
-export function deactivate() { dialogResizeAnimation?.cancel(); finishDraw(); $('problemDialog').close(); }
+export function deactivate() { closeProblem(); }
 await loadProblems();
