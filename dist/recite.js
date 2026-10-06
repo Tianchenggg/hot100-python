@@ -7,6 +7,7 @@ let problems = [];
 let lastProblemId = null;
 let drawBag = [];
 let scrollFrame = 0;
+let randomSession = false;
 
 function metadata(problem) {
   return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span><span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
@@ -20,13 +21,18 @@ function card(problem) {
   return `<article class="recite-card">${metadata(problem)}<h3><button class="recite-card-title" data-problem="${problem.id}" aria-label="查看题目：${escape(problem.title)}"><span>${escape(problem.title)}</span>${arrow}</button></h3><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}</article>`;
 }
 
-function showProblem(problem) {
+function showProblem(problem, random = false) {
+  if (!problem) return;
+  randomSession = random;
+  $('closeDialog').hidden = random;
+  $('dialogFooter').hidden = !random;
   lastProblemId = problem.id;
   $('dialogGroup').textContent = problem.groupName;
   $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}`;
   const dialog = $('problemDialog');
   if (!dialog.open) dialog.showModal();
   dialog.scrollTop = 0;
+  (random ? $('nextRandom') : $('closeDialog')).focus({ preventScroll: true });
 }
 
 function randomProblem() {
@@ -41,7 +47,7 @@ function randomProblem() {
   if (drawBag.length > 1 && drawBag.at(-1).id === lastProblemId) {
     [drawBag[0], drawBag[drawBag.length - 1]] = [drawBag.at(-1), drawBag[0]];
   }
-  showProblem(drawBag.pop());
+  showProblem(drawBag.pop(), true);
 }
 
 function activeGroup(id) {
@@ -57,7 +63,7 @@ function jumpToGroup(id) {
   if (!section?.classList.contains('recite-section')) return;
   section.scrollIntoView({ block: 'start', behavior: 'instant' });
   activeGroup(id);
-  history.replaceState(null, '', `#${id}`);
+  if (!document.querySelector('.recitation-app').hidden) history.replaceState(history.state, '', `#${id}`);
 }
 
 async function loadProblems() {
@@ -84,10 +90,13 @@ async function loadProblems() {
 $('randomProblem').addEventListener('click', randomProblem);
 $('nextRandom').addEventListener('click', randomProblem);
 $('closeDialog').addEventListener('click', () => $('problemDialog').close());
+$('problemDialog').addEventListener('cancel', (event) => {
+  if (randomSession) event.preventDefault();
+});
 let backdropDown = false;
 $('problemDialog').addEventListener('pointerdown', (event) => { backdropDown = event.target === event.currentTarget; });
 $('problemDialog').addEventListener('click', (event) => {
-  if (backdropDown && event.target === event.currentTarget) {
+  if (!randomSession && backdropDown && event.target === event.currentTarget) {
     const rect = event.currentTarget.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.currentTarget.close();
   }
@@ -113,5 +122,8 @@ $('reciteScroll').addEventListener('scroll', () => {
     if (current) activeGroup(current.id);
   });
 }, { passive: true });
-window.addEventListener('hashchange', () => jumpToGroup(location.hash.slice(1)));
-loadProblems();
+window.addEventListener('hashchange', (event) => {
+  if (!document.querySelector('.recitation-app').hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
+});
+export function deactivate() { $('problemDialog').close(); }
+await loadProblems();

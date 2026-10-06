@@ -245,8 +245,13 @@ function selectProblem(id, force = false) {
   if (groupId) { expandedGroups.add(groupId); searchCollapsedGroups.delete(groupId); save('expandedGroups', JSON.stringify([...expandedGroups])); }
   selectCase(0); setTab('input'); renderList();
   save('current', String(p.id));
-  const url = new URL(location.href); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode); history.replaceState(null, '', url);
-  document.title = `${p.title} · Hot 100`;
+  const url = new URL('./', import.meta.url); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode);
+  $('appShell').dataset.url = url.href;
+  $('appShell').dataset.title = `${p.title} · Hot 100`;
+  if (!$('appShell').hidden) {
+    history.replaceState(history.state, '', url);
+    document.title = $('appShell').dataset.title;
+  }
   $('workspaceTitle').textContent = p.title;
   if (!force) {
     setSearchOpen(false);
@@ -435,6 +440,7 @@ $('panelResizer').addEventListener('pointercancel', () => { drag = null; });
 $('panelResizer').addEventListener('keydown', e => { if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); expandPanel(); setPanelHeight($('testPanel').getBoundingClientRect().height + (e.key === 'ArrowUp' ? 24 : -24)); } });
 function setPanelHeight(value) { const height = Math.max(180, Math.min(value, Math.max(200, innerHeight - 240))); $('testPanel').style.setProperty('--panel-height', `${height}px`); editor.refresh(); }
 document.addEventListener('keydown', e => {
+  if ($('appShell').hidden) return;
   if (e.key === 'Escape') {
     if (!$('modeMenu').hidden) closeModeMenu(true);
     else if (!$('searchField').hidden) setSearchOpen(false, true);
@@ -444,6 +450,8 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
 window.addEventListener('pagehide', () => { persistCode(); if (state.busy) stop(); else runner.cancel(); });
+export function activate() { syncSidebar(); editor.refresh(); }
+export function deactivate() { persistCode(); closeModeMenu(); }
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {

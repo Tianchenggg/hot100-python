@@ -7,21 +7,20 @@
   <meta name="description" content="按知识点浏览 100 张题目卡片，随机抽取一题，复习题意与输入输出。">
   <title>背诵模式 · Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=13">
+  <link rel="stylesheet" href="./styles.css?v=14">
   <link rel="stylesheet" href="./recite.css?v=1">
 </head>
 <body>
   <div class="recitation-app">
     <nav class="app-rail" aria-label="导航">
-      <a class="icon-button rail-home" href="./" aria-label="主页" title="返回写题"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.8 2.8a2 2 0 0 1 2.4 0l8 6.2a1.25 1.25 0 0 1-.77 2.24H20V20a1 1 0 0 1-1 1h-5v-6a2 2 0 0 0-4 0v6H5a1 1 0 0 1-1-1v-8.76h-.43A1.25 1.25 0 0 1 2.8 9Z"/></svg></a>
-      <a class="icon-button rail-recite" href="./recite.html" aria-label="背诵模式" aria-current="page" title="背诵模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5C9 3.5 5.5 3.5 3 4.5v15c2.5-1 6-1 9 1 3-2 6.5-2 9-1v-15c-2.5-1-6-1-9 1Zm0 0v15"/></svg></a>
-      <a class="rail-github" href="https://github.com/Tianchenggg/hot100-python" target="_blank" rel="noreferrer" aria-label="GitHub 源码" title="GitHub 源码"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 5v-4a3.5 3.5 0 0 0-1-3c3 0 6-1.5 6-6a4.6 4.6 0 0 0-1-3c.4-1 .4-2-.1-3 0 0-1.1-.3-3.4 1a12 12 0 0 0-7 0C6.2 2.7 5 3 5 3c-.5 1-.5 2-.1 3a4.6 4.6 0 0 0-1 3c0 4.5 3 6 6 6a3.5 3.5 0 0 0-1 3v4"/></svg></a>
+      <a class="icon-button rail-home" href="./" aria-label="主页" data-tooltip="主页" data-page="practice"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.8 2.8a2 2 0 0 1 2.4 0l8 6.2a1.25 1.25 0 0 1-.77 2.24H20V20a1 1 0 0 1-1 1h-5v-6a2 2 0 0 0-4 0v6H5a1 1 0 0 1-1-1v-8.76h-.43A1.25 1.25 0 0 1 2.8 9Z"/></svg></a>
+      <a class="icon-button rail-recite" href="./recite.html" aria-label="背诵模式" aria-current="page" data-tooltip="背诵模式" data-page="recite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5C9 3.5 5.5 3.5 3 4.5v15c2.5-1 6-1 9 1 3-2 6.5-2 9-1v-15c-2.5-1-6-1-9 1Zm0 0v15"/></svg></a>
+      <a class="rail-github" href="https://github.com/Tianchenggg/hot100-python" target="_blank" rel="noreferrer" aria-label="GitHub 源码" data-tooltip="GitHub 源码"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 5v-4a3.5 3.5 0 0 0-1-3c3 0 6-1.5 6-6a4.6 4.6 0 0 0-1-3c.4-1 .4-2-.1-3 0 0-1.1-.3-3.4 1a12 12 0 0 0-7 0C6.2 2.7 5 3 5 3c-.5 1-.5 2-.1 3a4.6 4.6 0 0 0-1 3c0 4.5 3 6 6 6a3.5 3.5 0 0 0-1 3v4"/></svg></a>
     </nav>
     <aside class="recite-sidebar" aria-label="背诵目录">
       <div class="recite-sidebar-title">背诵模式</div>
       <div class="recite-sidebar-label">知识点<span id="groupCount"></span></div>
       <nav id="reciteGroups" class="recite-groups" aria-label="知识点"></nav>
-      <a class="back-to-practice" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6-6 6 6 6M4 12h16"/></svg>返回写题</a>
     </aside>
     <main class="recite-main">
       <header class="recite-header">
@@ -37,8 +36,8 @@
   <dialog class="recite-dialog" id="problemDialog" aria-labelledby="dialogTitle">
     <div class="recite-dialog-head"><span id="dialogGroup"></span><button class="icon-button" id="closeDialog" aria-label="关闭题目" autofocus><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
     <div class="recite-dialog-content" id="dialogContent" aria-live="polite"></div>
-    <div class="recite-dialog-footer"><button class="button" id="nextRandom">再抽一题<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div>
+    <div class="recite-dialog-footer" id="dialogFooter" hidden><button class="button" id="nextRandom">再出一题<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div>
   </dialog>
-  <script type="module" src="./recite.js?v=1"></script>
+  <script type="module" src="./navigation.js?v=14"></script>
 </body>
 </html>
