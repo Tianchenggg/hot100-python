@@ -61,7 +61,11 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .app-rail .icon-button svg, .rail-github svg { width: 19px; height: 19px; stroke-width: 1.65; }
 .app-rail .icon-button:hover, .rail-github:hover { color: var(--text); background: var(--hover); }
 .app-rail .rail-home[aria-current="page"] { color: var(--text); background: var(--selected); }
-.app-rail .rail-home svg { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+.app-rail .rail-home svg { width: 22px; height: 22px; }
+.app-rail .rail-icon-outline { fill: none; stroke: currentColor; }
+.app-rail .rail-icon-solid { display: none; fill: currentColor; stroke: none; }
+.app-rail [aria-current="page"] .rail-icon-outline { display: none; }
+.app-rail [aria-current="page"] .rail-icon-solid { display: block; }
 .rail-github { margin-top: auto; }
 .sidebar { position: relative; min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--sidebar); border: 1px solid var(--line); border-right: 0; border-radius: 14px 0 0 14px; }
 .sidebar > * { flex-shrink: 0; transition: opacity 180ms ease, transform var(--sidebar-duration) var(--sidebar-easing); }
