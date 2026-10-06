@@ -8,7 +8,7 @@
   <title>Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css">
-  <link rel="stylesheet" href="./styles.css?v=14">
+  <link rel="stylesheet" href="./styles.css?v=15">
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -47,7 +47,7 @@
       </section>
       <div id="statementResizer" class="layout-resizer statement-resizer" role="separator" aria-label="调整题目与代码区宽度" aria-controls="statementPane codingPane" aria-orientation="vertical" tabindex="0" title="拖动调整宽度，双击恢复"></div>
       <section class="coding-pane" id="codingPane" aria-label="Python 代码">
-        <header class="pane-header"><span class="pane-title filename"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5"/></svg>main.py</span><div class="editor-tools" id="editorTools" hidden><div class="font-size-control" role="group" aria-label="代码字号"><button id="fontDecrease" aria-label="减小代码字号" title="减小字号">A−</button><output id="fontSizeValue" aria-label="代码字号" aria-live="polite">14</output><button id="fontIncrease" aria-label="增大代码字号" title="增大字号">A+</button></div><button id="wrapCode" class="wrap-button" aria-label="自动换行" title="自动换行" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 11h12a4 4 0 0 1 0 8h-5m3-3-3 3 3 3M4 16h3"/></svg><span>换行</span></button></div><span class="runtime-label">Python 3</span></header>
+        <header class="pane-header"><button class="history-button" id="historyButton" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.5 7M3 4v7h7m2-4v5l3 2"/></svg><span>历史作答</span></button><div class="editor-tools" id="editorTools" hidden><div class="font-size-control" role="group" aria-label="代码字号"><button id="fontDecrease" aria-label="减小代码字号" title="减小字号">A−</button><output id="fontSizeValue" aria-label="代码字号" aria-live="polite">14</output><button id="fontIncrease" aria-label="增大代码字号" title="增大字号">A+</button></div><button id="wrapCode" class="wrap-button" aria-label="自动换行" title="自动换行" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 11h12a4 4 0 0 1 0 8h-5m3-3-3 3 3 3M4 16h3"/></svg><span>换行</span></button></div><span class="runtime-label">Python 3</span></header>
         <div class="editor-wrap"><textarea id="codeEditor" aria-label="Python 代码编辑器" spellcheck="false"></textarea></div>
         <div class="editor-footer"><span id="cursorPosition">第 1 行，第 1 列</span><span class="saved-label" id="saveStatus" role="status">已保存到此浏览器</span></div>
         <section class="test-panel" id="testPanel" aria-label="测试与结果">
@@ -65,6 +65,6 @@
   <script src="./vendor/codemirror/lib/codemirror.js"></script>
   <script src="./vendor/codemirror/mode/python/python.js"></script>
   <script src="./vendor/codemirror/addon/edit/matchbrackets.js"></script>
-  <script type="module" src="./navigation.js?v=14"></script>
+  <script type="module" src="./navigation.js?v=15"></script>
 </body>
 </html>

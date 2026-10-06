@@ -28,7 +28,7 @@ function notify(callback, value) {
 
 export class PythonRunner {
   constructor({
-    workerURL = new URL('./python-worker.js?v=7', import.meta.url),
+    workerURL = new URL('./python-worker.js?v=15', import.meta.url),
     loadTimeoutMs = LOAD_TIMEOUT_MS,
     runTimeoutMs = RUN_TIMEOUT_MS,
     maxConcurrency = 2,
@@ -163,7 +163,7 @@ export class PythonRunner {
           const harness = buildHarness?.(test, index) ?? test.harness;
           result = await this.execute(String(code ?? ''), String(test.input ?? ''), onStatus, harness);
         } catch (error) {
-          result = { status: 'error', error: String(error.message || error), stdout: '', stderr: '', line: null, ms: 0 };
+          result = { status: 'error', errorKind: 'input', error: String(error.message || error), stdout: '', stderr: '', line: null, ms: 0 };
         }
         if (!isCurrent()) return;
         completed[index] = {
@@ -239,16 +239,18 @@ export class PythonRunner {
           task.finish({
             status: data.status === 'ok' ? 'ok' : 'error', error: String(data.error ?? ''),
             line: Number.isInteger(data.line) && data.line > 0 ? data.line : null,
+            errorKind: data.errorKind === 'compile' ? 'compile' : 'runtime',
+            errorName: typeof data.errorName === 'string' ? data.errorName : '',
             value: typeof data.value === 'string' ? data.value : undefined,
             ms: Number.isFinite(data.ms) ? Math.max(0, Math.round(data.ms)) : Math.round(performance.now() - startedAt),
           });
         } else if (data.type === 'load_error') {
-          task.finish({ status: 'error', error: String(data.error) });
+          task.finish({ status: 'error', errorKind: 'environment', error: String(data.error) });
         }
       };
       slot.ready.then(error => {
         if (settled) return;
-        if (error) { task.finish(error); return; }
+        if (error) { task.finish({ ...error, errorKind: 'environment' }); return; }
         startedAt = performance.now();
         timer = setTimeout(() => task.finish({
           status: 'timeout', error: `运行超时（${this.runTimeoutMs / 1000} 秒）`,

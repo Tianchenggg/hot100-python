@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { getResultLabel, buildResultsView } from '../dist/result-view.js';
+
+const successful = { status: 'ok', compared: true, passed: true, actual: '2', expected: '2', input: '1', name: '样例 1' };
+const wrong = { ...successful, passed: false, actual: '3' };
+const compile = { ...successful, status: 'error', passed: false, errorKind: 'compile', error: 'SyntaxError: invalid syntax', line: 2 };
+assert.equal(getResultLabel(compile), '编译错误');
+assert.equal(getResultLabel(wrong), '答案错误');
+assert.equal(getResultLabel({ ...compile, errorKind: 'runtime' }), '运行错误');
+assert.equal(getResultLabel({ ...compile, errorKind: 'input' }), '输入错误');
+assert.equal(getResultLabel({ ...compile, errorKind: 'environment' }), '环境加载失败');
+assert.equal(getResultLabel({ ...successful, compared: false }), '运行完成');
+assert.equal(getResultLabel({ status: 'timeout' }), '运行超时');
+const render = results => buildResultsView({ results, index: 0, submit: false, total: results.filter(x => x.compared).length, mode: 'acm', elapsedMs: 42 });
+assert.match(render([compile]), /verdict-title failure">编译错误/);
+assert.doesNotMatch(render([compile]), /<label>实际输出|<label>期望输出/);
+assert.match(render([wrong]), /verdict-title failure">答案错误/);
+assert.match(render([successful]), /verdict-title success">样例通过/);
+assert.doesNotMatch(render([{ ...successful, compared: false }]), /<label>期望输出/);
+assert.match(render([{ ...compile, error: '<script>evil</script>' }]), /&lt;script&gt;evil&lt;\/script&gt;/);
+console.log('Result verdicts, comparison visibility and escaping verified.');

@@ -1,8 +1,8 @@
 // Keep both screens alive: editor, input, scroll and question data load only once.
 const base = new URL('./', import.meta.url);
 const pages = {
-  practice: { selector: '.app-shell', path: './', module: './app.js?v=14', title: 'Hot 100' },
-  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=14', title: '背诵模式 · Hot 100' },
+  practice: { selector: '.app-shell', path: './', module: './app.js?v=15', title: 'Hot 100' },
+  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=15', title: '背诵模式 · Hot 100' },
 };
 let current = document.querySelector('.recitation-app') ? 'recite' : 'practice';
 let sequence = 0;

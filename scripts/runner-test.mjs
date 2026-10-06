@@ -64,9 +64,14 @@ await run('import sys\nprint(sys.stdin.buffer.read().decode())', '中文输入',
 await run('import sys\nsys.stderr.write("stderr\\n")\nprint("stdout")', '', {
   status: 'ok', stdout: 'stdout\n', stderr: 'stderr\n',
 });
-const syntax = await run('x = 1\nif True print(x)', '', { status: 'error', line: 2 });
+const syntax = await run('x = 1\nif True print(x)', '', { status: 'error', line: 2, errorKind: 'compile', errorName: 'SyntaxError' });
 assert.match(syntax.error, /File "main.py", line 2/);
 assert.match(syntax.error, /SyntaxError/);
+await run('if True:\nprint(1)', '', { status: 'error', line: 2, errorKind: 'compile', errorName: 'IndentationError' });
+await run('if True:\n\tprint(1)\n        print(2)', '', { status: 'error', line: 3, errorKind: 'compile', errorName: 'TabError' });
+await run('raise ValueError("SyntaxError")', '', { status: 'error', line: 1, errorKind: 'runtime', errorName: 'ValueError' });
+await run('raise SyntaxError("raised at runtime")', '', { status: 'error', line: 1, errorKind: 'runtime', errorName: 'SyntaxError' });
+await run('eval("if True")', '', { status: 'error', line: 1, errorKind: 'runtime', errorName: 'SyntaxError' });
 const runtime = await run('def fail():\n    return 1 / 0\nfail()', '', { status: 'error', line: 2 });
 assert.match(runtime.error, /ZeroDivisionError/);
 assert.doesNotMatch(runtime.error, /__runner__\.py/);
@@ -100,10 +105,10 @@ const harness = { setup: 'from typing import *', invoke: '_leetcode_result = __i
 await run('class Solution:\n    def double(self, value: int) -> int:\n        print("debug")\n        return value * 2', '', {
   status: 'ok', value: '6', stdout: 'debug\n', line: null,
 }, { harness });
-const functionError = await run('class Solution:\n    def double(self, value):\n        return value / 0', '', { status: 'error', line: 3 }, { harness });
+const functionError = await run('class Solution:\n    def double(self, value):\n        return value / 0', '', { status: 'error', line: 3, errorKind: 'runtime' }, { harness });
 assert.match(functionError.error, /File "main.py", line 3/);
 assert.doesNotMatch(functionError.error, /__leetcode__|__runner__/);
-await run('class Solution:\n    def double(self, value)\n        return value', '', { status: 'error', line: 2 }, { harness });
+await run('class Solution:\n    def double(self, value)\n        return value', '', { status: 'error', line: 2, errorKind: 'compile' }, { harness });
 await run('class Solution:\n    def double(self, value):\n        return "x" * 65537', '', { status: 'output_limit' }, { harness });
 await run('print("ACM still isolated")', '', { status: 'ok', stdout: 'ACM still isolated\n', value: undefined });
 

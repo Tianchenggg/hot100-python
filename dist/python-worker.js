@@ -17,16 +17,20 @@ def _runner_execute(source):
     stdout_flush = _runner_sys.stdout.flush
     stderr_flush = _runner_sys.stderr.flush
     result = {"status": "ok", "error": "", "line": None}
+    phase = "setup"
     try:
         if _runner_setup:
             exec(compile(_runner_setup, "__leetcode__.py", "exec"), namespace, namespace)
-        exec(compile(source, "main.py", "exec"), namespace, namespace)
+        phase = "compile"
+        compiled = compile(source, "main.py", "exec")
+        phase = "run"
+        exec(compiled, namespace, namespace)
         if _runner_invoke:
             exec(compile(_runner_invoke, "__leetcode__.py", "exec"), namespace, namespace)
             result["value"] = namespace.get("_leetcode_result", "null")
     except SystemExit as error:
         if error.code is not None and error.code != 0:
-            result = {"status": "error", "error": "SystemExit: " + str(error.code), "line": None}
+            result = {"status": "error", "error": "SystemExit: " + str(error.code), "line": None, "errorKind": "runtime", "errorName": "SystemExit"}
             tb = error.__traceback__
             while tb:
                 if tb.tb_frame.f_code.co_filename == "main.py":
@@ -48,7 +52,7 @@ def _runner_execute(source):
             error_text = "".join(formatted.format())
         else:
             error_text = "".join(format_exception(type(error), error, tb))
-        result = {"status": "error", "error": error_text, "line": line}
+        result = {"status": "error", "error": error_text, "line": line, "errorKind": "compile" if phase == "compile" else "runtime", "errorName": type(error).__name__}
     finally:
         for flush in (stdout_flush, stderr_flush):
             try:

@@ -8,6 +8,9 @@ let lastProblemId = null;
 let drawBag = [];
 let scrollFrame = 0;
 let randomSession = false;
+let drawTimer = null;
+let dialogResizeAnimation;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function metadata(problem) {
   return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span><span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
@@ -23,20 +26,35 @@ function card(problem) {
 
 function showProblem(problem, random = false) {
   if (!problem) return;
+  const dialog = $('problemDialog');
+  const previousHeight = dialog.open ? dialog.getBoundingClientRect().height : 0;
+  dialogResizeAnimation?.cancel();
+  dialog.classList.toggle('is-random', random);
   randomSession = random;
   $('closeDialog').hidden = random;
   $('dialogFooter').hidden = !random;
   lastProblemId = problem.id;
   $('dialogGroup').textContent = problem.groupName;
   $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}`;
-  const dialog = $('problemDialog');
   if (!dialog.open) dialog.showModal();
+  if (random && previousHeight && !reducedMotion.matches) {
+    const height = dialog.getBoundingClientRect().height;
+    dialogResizeAnimation = dialog.animate([{ height: `${previousHeight}px` }, { height: `${height}px` }], { duration: 360, easing: 'cubic-bezier(.22,1,.36,1)' });
+  }
   dialog.scrollTop = 0;
   (random ? $('nextRandom') : $('closeDialog')).focus({ preventScroll: true });
 }
 
+function finishDraw() {
+  clearTimeout(drawTimer); drawTimer = null;
+  $('problemDialog').classList.remove('is-drawing');
+  $('problemDialog').removeAttribute('aria-busy');
+  $('randomProblem').disabled = !problems.length;
+  $('nextRandom').disabled = false;
+}
+
 function randomProblem() {
-  if (!problems.length) return;
+  if (!problems.length || drawTimer !== null) return;
   if (!drawBag.length) {
     drawBag = [...problems];
     for (let i = drawBag.length - 1; i > 0; i--) {
@@ -48,6 +66,14 @@ function randomProblem() {
     [drawBag[0], drawBag[drawBag.length - 1]] = [drawBag.at(-1), drawBag[0]];
   }
   showProblem(drawBag.pop(), true);
+  if (!reducedMotion.matches) {
+    const dialog = $('problemDialog');
+    dialog.classList.add('is-drawing');
+    dialog.setAttribute('aria-busy', 'true');
+    $('randomProblem').disabled = true;
+    $('nextRandom').disabled = true;
+    drawTimer = setTimeout(() => { finishDraw(); $('nextRandom').focus({ preventScroll: true }); }, 800);
+  }
 }
 
 function activeGroup(id) {
@@ -125,5 +151,5 @@ $('reciteScroll').addEventListener('scroll', () => {
 window.addEventListener('hashchange', (event) => {
   if (!document.querySelector('.recitation-app').hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
 });
-export function deactivate() { $('problemDialog').close(); }
+export function deactivate() { dialogResizeAnimation?.cancel(); finishDraw(); $('problemDialog').close(); }
 await loadProblems();

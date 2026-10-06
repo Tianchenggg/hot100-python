@@ -1,6 +1,8 @@
-import { PythonRunner } from './runner.js?v=10';
+import { PythonRunner } from './runner.js?v=15';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
 import { checkOutput } from './checker.js?v=7';
+import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=15';
+import { celebrateAcceptance, clearCelebration } from './celebration.js?v=15';
 import problemGroups from './data/groups.js';
 import { initLayout } from './layout.js?v=5';
 import { installPythonEnhancements, smartIndentBackspace } from './editor-enhancements.js?v=10';
@@ -8,7 +10,7 @@ import { installPythonEnhancements, smartIndentBackspace } from './editor-enhanc
 const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
 const prefix = 'hot100-python:v1:';
-const state = { mode: 'acm', problems: [], current: null, results: [], resultIndex: 0, busy: false, token: 0, caseIndex: 0, errorLine: null, restoring: false, passed: new Set(), custom: { input: '', output: '' } };
+const state = { mode: 'acm', problems: [], current: null, results: [], resultIndex: 0, busy: false, token: 0, caseIndex: 0, errorLine: null, restoring: false, codeAuthored: false, historyCode: null, passed: new Set(), custom: { input: '', output: '' } };
 function read(key, fallback = '') { try { return localStorage.getItem(prefix + key) ?? fallback; } catch { return fallback; } }
 function save(key, value) { try { localStorage.setItem(prefix + key, value); return true; } catch { return false; } }
 const initialMode = new URL(location.href).searchParams.get('mode') || read('mode', 'acm');
@@ -27,7 +29,6 @@ function loadProgress() {
   state.passed = new Set([...state.passed].filter(id => state.problems.some(p => p.id === id)));
 }
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const codeBlock = value => `<pre>${escapeHtml(value || '（空）')}</pre>`;
 installPythonEnhancements(CodeMirror);
 const editor = CodeMirror.fromTextArea($('codeEditor'), {
   mode: 'hot100-python', lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false,
@@ -56,8 +57,22 @@ editor.on('cursorActivity', () => {
 });
 
 function persistCode() {
-  if (!state.current) return;
+  if (!state.current || !state.codeAuthored) return;
   $('saveStatus').textContent = save(modeKey(`code:${state.current.id}`), editor.getValue()) ? '已保存到此浏览器' : '保存失败，请复制代码';
+}
+function loadHistory() {
+  if (state.busy || state.historyCode === null) return;
+  state.restoring = true;
+  editor.replaceRange(state.historyCode, { line: 0, ch: 0 }, { line: editor.lastLine(), ch: editor.getLine(editor.lastLine()).length }, 'restore-history');
+  state.restoring = false;
+  state.codeAuthored = true;
+  persistCode(); clearErrorLine();
+  if (state.results.length) $('resultTab').firstChild.textContent = '上次结果';
+  editor.setCursor(0, 0); editor.focus();
+}
+function updateHistoryButton() {
+  $('historyButton').disabled = state.busy || state.historyCode === null;
+  $('historyButton').title = state.historyCode === null ? '暂无历史作答' : '载入上次保存的代码，可撤销';
 }
 function updateModeControl() {
   const label = state.mode === 'leetcode' ? 'LeetCode 模式' : 'ACM 模式';
@@ -157,6 +172,7 @@ function markError(line) {
 }
 editor.on('change', () => {
   if (state.restoring) return;
+  state.codeAuthored = true;
   persistCode(); clearErrorLine();
   if (state.results.length) $('resultTab').firstChild.textContent = '上次结果';
 });
@@ -227,13 +243,18 @@ function selectProblem(id, force = false) {
     if (mobileLayout.matches) setSidebar(false);
     return;
   }
+  clearCelebration();
   const p = state.mode === 'leetcode' ? getLeetCodeProblem(base) : base;
   if (state.current) persistCode();
   if (state.busy) stop();
   state.current = p; state.results = []; state.resultIndex = 0; state.caseIndex = 0; state.custom = { input: '', output: '' };
   try { state.custom = JSON.parse(read(modeKey(`input:${p.id}`), '{"input":"","output":""}')); } catch {}
-  state.restoring = true; editor.setValue(read(modeKey(`code:${p.id}`), p.template || '')); state.restoring = false; clearErrorLine();
-  editor.clearHistory(); $('saveStatus').textContent = '已保存到此浏览器';
+  const previousCode = read(modeKey(`code:${p.id}`), null);
+  state.historyCode = previousCode !== null && previousCode !== (p.template || '') ? previousCode : null;
+  state.codeAuthored = false;
+  state.restoring = true; editor.setValue(p.template || ''); state.restoring = false; clearErrorLine();
+  editor.clearHistory(); updateHistoryButton();
+  $('saveStatus').textContent = state.historyCode === null ? '尚未作答' : '历史作答已保留';
   const index = state.problems.findIndex(item => item.id === p.id);
   $('prevProblem').disabled = index === 0; $('nextProblem').disabled = index === state.problems.length - 1;
   const constraints = p.constraints?.length ? `<details class="problem-constraints"><summary>数据范围</summary><ul>${p.constraints.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul></details>` : '';
@@ -289,7 +310,7 @@ function expandPanel() {
   $('testPanel').classList.remove('collapsed'); $('panelToggle').setAttribute('aria-expanded', 'true'); $('panelToggle').setAttribute('aria-label', '收起测试面板'); editor.refresh();
 }
 function setBusy(busy) {
-  state.busy = busy;
+  state.busy = busy; updateHistoryButton();
   $('runButton').hidden = busy; $('submitButton').hidden = busy; $('stopButton').hidden = !busy;
   $('codingPane')?.setAttribute('aria-busy', String(busy));
 }
@@ -299,43 +320,17 @@ function renderWorking(message) {
   $('resultIndicator').className = 'working';
 }
 function stop() {
+  clearCelebration();
   state.token++; runner.cancel(); setBusy(false);
   $('resultView').innerHTML = '<div class="result-summary"><span class="status-badge">已停止</span></div>';
   $('resultIndicator').className = ''; clearErrorLine();
 }
-function getLabel(r) {
-  if (r.status === 'timeout') return '运行超时';
-  if (r.status === 'output_limit') return '输出超限';
-  if (r.status === 'cancelled') return '已停止';
-  if (r.status !== 'ok') return r.error?.includes('SyntaxError') || r.error?.includes('IndentationError') ? '语法错误' : '运行错误';
-  return r.compared ? (r.passed ? '通过' : '答案错误') : '运行完成';
-}
-function resultTone(r) {
-  if (r.status !== 'ok' || (r.compared && !r.passed)) return 'failure';
-  return r.compared ? 'success' : '';
-}
 function renderResults(submit) {
   const results = state.results;
   if (!results.length) return;
-  const checked = results.filter(r => r.compared);
-  const passed = checked.filter(r => r.passed).length;
-  const failed = results.some(r => resultTone(r) === 'failure');
   const r = results[state.resultIndex];
-  const total = submit ? state.current.tests.length : checked.length;
-  const label = submit ? `${passed} / ${total} 通过` : failed ? '存在未通过用例' : checked.length ? `${passed} / ${total} 通过${results.some(x => !x.compared) ? ' · 自定义已运行' : ''}` : '运行完成';
-  const tone = failed ? 'failure' : checked.length ? 'success' : '';
-  const elapsed = state.elapsedMs >= 1000 ? `${(state.elapsedMs / 1000).toFixed(2)} s` : `${Math.round(state.elapsedMs || 0)} ms`;
-  const pythonMs = Math.round(results.reduce((sum, x) => sum + (x.ms || 0), 0));
-  const statusIcon = tone ? `<svg class="status-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/>${tone === 'success' ? '<path d="m8 12 3 3 5-6"/>' : '<path d="m9 9 6 6m0-6-6 6"/>'}</svg>` : '';
-  const caseName = (x, i) => submit ? `用例 ${i + 1}` : x.name;
-  const tabs = results.map((x, i) => {
-    const color = resultTone(x);
-    const symbol = color === 'success' ? '✓' : color === 'failure' ? '×' : '·';
-    return `<button class="result-case ${color === 'success' ? 'passed' : color === 'failure' ? 'failed' : ''}${i === state.resultIndex ? ' selected' : ''}" data-case="${i}" aria-pressed="${i === state.resultIndex}" aria-label="${escapeHtml(caseName(x, i))}，${getLabel(x)}">${symbol} ${submit ? i + 1 : escapeHtml(x.name)}</button>`;
-  }).join('');
-  const selectedTone = resultTone(r);
-  $('resultIndicator').className = tone;
-  $('resultView').innerHTML = `<div class="result-summary" role="status"><span class="status-badge ${tone}">${statusIcon}${escapeHtml(label)}</span><span class="result-time" title="总耗时（含环境准备与判题）；Python 执行合计 ${pythonMs} ms">${elapsed}</span></div><div class="result-cases">${tabs}</div><div class="case-status">${escapeHtml(caseName(r, state.resultIndex))}<span class="${selectedTone}">${escapeHtml(getLabel(r))}</span></div><div class="result-grid"><div class="result-block"><label>输入</label>${codeBlock(r.input)}</div><div class="result-block ${selectedTone === 'success' ? 'output-passed' : selectedTone === 'failure' ? 'output-failed' : ''}"><label>${state.mode === 'leetcode' ? '返回值' : '实际输出'}</label>${codeBlock(r.actual)}</div><div class="result-block"><label>期望输出</label>${codeBlock(r.compared ? r.expected : '未设置')}</div></div>${state.mode === 'leetcode' && r.stdout ? `<div class="result-block debug-output"><label>标准输出</label>${codeBlock(r.stdout)}</div>` : ''}${r.error || r.stderr ? `<div class="error-details"><div class="error-heading">${r.status === 'ok' ? '标准错误输出' : '错误'}${r.line ? `<button class="error-link" data-line="${r.line}">第 ${r.line} 行 ↗</button>` : ''}</div><pre>${escapeHtml(r.error || r.stderr)}</pre></div>` : ''}`;
+  $('resultIndicator').className = results.some(item => resultTone(item) === 'failure') ? 'failure' : results.some(item => item.compared) ? 'success' : '';
+  $('resultView').innerHTML = buildResultsView({ results, index: state.resultIndex, submit, total: submit ? state.current.tests.length : results.filter(item => item.compared).length, mode: state.mode, elapsedMs: state.elapsedMs });
   $('resultView').querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => {
     state.resultIndex = Number(button.dataset.case);
     renderResults(submit);
@@ -347,6 +342,7 @@ function renderResults(submit) {
 }
 async function execute(submit) {
   if (state.busy || !state.current) return;
+  clearCelebration();
   const code = editor.getValue();
   expandPanel(); setTab('result'); clearErrorLine(); $('resultTab').firstChild.textContent = '结果';
   if (!code.trim()) { $('resultView').innerHTML = '<div class="empty-result">请先写入代码</div>'; editor.focus(); return; }
@@ -380,6 +376,7 @@ async function execute(submit) {
     state.resultIndex = Math.max(0, state.results.findIndex(r => !r.passed));
     if (submit && state.results.length === cases.length && state.results.every(r => r.passed)) {
       state.passed.add(p.id); save(modeKey('passed'), JSON.stringify([...state.passed])); renderList();
+      celebrateAcceptance($('codingPane'), cases.length);
     }
     renderResults(submit);
   } catch (error) {
@@ -422,6 +419,7 @@ $('modeMenu').addEventListener('keydown', e => {
 });
 document.addEventListener('pointerdown', e => { if (!e.target.closest('.mode-switch')) closeModeMenu(); });
 $('testInput').addEventListener('input', updateCustom); $('expectedOutput').addEventListener('input', updateCustom);
+$('historyButton').addEventListener('click', loadHistory);
 $('runButton').addEventListener('click', () => execute(false)); $('submitButton').addEventListener('click', () => execute(true)); $('stopButton').addEventListener('click', stop);
 $('inputTab').addEventListener('click', () => { setTab('input'); expandPanel(); }); $('resultTab').addEventListener('click', () => { setTab('result'); expandPanel(); });
 $('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) - 1]?.id));
@@ -451,7 +449,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
 window.addEventListener('pagehide', () => { persistCode(); if (state.busy) stop(); else runner.cancel(); });
 export function activate() { syncSidebar(); editor.refresh(); }
-export function deactivate() { persistCode(); closeModeMenu(); }
+export function deactivate() { persistCode(); closeModeMenu(); clearCelebration(); }
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {

@@ -89,3 +89,21 @@
   .recite-dialog-content h2 { font-size: 21px; }
 }
 @media (prefers-reduced-motion: reduce) { .recitation-app *, .recite-dialog[open] { animation: none; transition: none; } }
+
+.recite-draw-stage { display: none; position: absolute; inset: 62px 24px 64px; z-index: 2; place-items: center; pointer-events: none; perspective: 700px; }
+.recite-dialog.is-random { min-height: 360px; }
+.recite-dialog.is-drawing { overflow: hidden; animation: none; }
+.is-drawing .recite-draw-stage { display: grid; animation: draw-stage 780ms ease both; }
+.draw-card { position: absolute; width: 126px; height: 156px; border: 1px solid var(--line-strong); border-radius: 13px; background: var(--canvas); box-shadow: 0 8px 22px #00000008; transform-origin: 50% 100%; }
+.draw-back { animation: draw-back 780ms cubic-bezier(.22,1,.36,1) both; }
+.draw-middle { animation: draw-middle 780ms cubic-bezier(.22,1,.36,1) both; }
+.draw-front { display: grid; place-items: center; animation: draw-front 780ms cubic-bezier(.22,1,.36,1) both; }
+.draw-front svg { width: 25px; height: 25px; stroke-width: 1.25; color: var(--secondary); }
+.is-drawing .recite-dialog-content, .is-drawing .recite-dialog-head > span { animation: draw-reveal 780ms cubic-bezier(.22,1,.36,1) both; }
+.is-drawing .recite-dialog-footer { opacity: .4; }
+@keyframes draw-stage { 0% { opacity: 0; transform: translateY(12px) scale(.92); } 16%, 48% { opacity: 1; } 72%, 100% { opacity: 0; transform: translateY(-6px) scale(1.04); } }
+@keyframes draw-back { 0%, 15% { transform: rotate(-3deg); } 38% { transform: translateX(-16px) rotate(-12deg); } 70%, 100% { transform: rotate(0deg); } }
+@keyframes draw-middle { 0%, 15% { transform: rotate(3deg); } 38% { transform: translateX(16px) rotate(12deg); } 70%, 100% { transform: rotate(0deg); } }
+@keyframes draw-front { 0% { transform: translateY(4px); } 38% { transform: translateY(-8px) rotate(-2deg); } 70%, 100% { transform: translateY(-12px) rotate(0deg); } }
+@keyframes draw-reveal { 0%, 53% { opacity: 0; transform: translateY(12px) scale(.98); filter: blur(3px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@media (prefers-reduced-motion: reduce) { .is-drawing .recite-draw-stage { display: none; } .is-drawing .recite-dialog-content, .is-drawing .recite-dialog-head > span { animation: none; } }
