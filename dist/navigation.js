@@ -2,7 +2,7 @@
 const base = new URL('./', import.meta.url);
 const pages = {
   practice: { selector: '.app-shell', path: './', module: './app.js?v=19', title: 'Hot 100' },
-  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=16', title: '背诵模式 · Hot 100' },
+  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=20', title: '背诵模式 · Hot 100' },
 };
 let current = document.querySelector('.recitation-app') ? 'recite' : 'practice';
 let sequence = 0;

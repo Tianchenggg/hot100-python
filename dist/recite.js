@@ -15,8 +15,8 @@ function metadata(problem) {
   return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span><span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
 }
 
-function examples(problem) {
-  return `<details class="recite-examples"><summary>查看样例${chevron}</summary><div class="recite-example-body"><span class="recite-example-label">输入</span><pre>${escape(problem.input)}</pre><span class="recite-example-label">输出</span><pre>${escape(problem.output)}</pre></div></details>`;
+function examples(problem, expanded = false) {
+  return `<details class="recite-examples"${expanded ? ' open' : ''}><summary>${expanded ? '样例' : '查看样例'}${chevron}</summary><div class="recite-example-body"><span class="recite-example-label">输入</span><pre>${escape(problem.input)}</pre><span class="recite-example-label">输出</span><pre>${escape(problem.output)}</pre></div></details>`;
 }
 
 function card(problem) {
@@ -32,7 +32,7 @@ function showProblem(problem, random = false) {
   $('dialogFooter').hidden = !random;
   lastProblemId = problem.id;
   $('dialogGroup').textContent = problem.groupName;
-  $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}`;
+  $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem, true)}`;
   if (!dialog.open) dialog.showModal();
   if (random && previousHeight && !reducedMotion.matches) {
     const height = dialog.getBoundingClientRect().height;
