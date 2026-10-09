@@ -122,11 +122,15 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .problem-item { display: flex; align-items: center; gap: 7px; width: 100%; height: 31px; min-height: 31px; padding: 0 9px; margin: 1px 0; border: 0; border-radius: 7px; text-align: left; color: #363636; background: transparent; font-size: 13px; line-height: 20px; transition: background .12s, color .12s; }
 .problem-item:hover { background: var(--hover); color: var(--text); }
 .problem-item.active { background: var(--selected); color: var(--text); }
+.problem-item.is-passed { background: color-mix(in srgb, var(--green-bg) 58%, var(--sidebar)); }
+.problem-item.is-passed:hover { background: var(--green-bg); }
+.problem-item.is-passed.active { background: var(--green-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green-line) 70%, transparent); }
 .problem-name { order: 1; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-.problem-number { order: 3; flex: none; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 400; }
-.problem-check { order: 2; flex: none; display: flex; color: var(--green); font-size: 12px; }
-.problem-check:empty { display: none; }
-.problem-check svg { width: 13px; height: 13px; stroke-width: 2; }
+.problem-number { order: 3; flex: none; width: 4ch; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 400; }
+.bookmark-body { fill: currentColor; stroke: none; }
+.bookmark-detail { fill: none; stroke: var(--canvas); stroke-width: 1.4; opacity: .6; }
+.problem-bookmark { order: 2; flex: none; display: flex; align-items: center; justify-content: center; width: 16px; height: 20px; color: var(--green); }
+.problem-bookmark svg { width: 16px; height: 20px; }
 .sidebar-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 8px 18px; color: var(--secondary); font-size: 11px; }
 .sidebar-footer a { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; color: var(--secondary); text-decoration: none; }
 .sidebar-footer a:hover { color: var(--text); background: var(--hover); }
@@ -272,7 +276,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .spinner { width: 14px; height: 14px; border: 1.5px solid var(--line-strong); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
 #resultIndicator.success, #resultIndicator.failure, #resultIndicator.working { display: inline-block; width: 5px; height: 5px; margin-left: 5px; border-radius: 50%; background: currentColor; }
 .verdict-icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); }
-.verdict-icon.success { background: var(--green-bg); }
+.verdict-icon.success { border-radius: 11px; background: var(--green-bg); }
 .verdict-icon.failure { background: var(--red-bg); }
 .verdict-icon svg { width: 21px; height: 21px; stroke-width: 1.8; }
 .verdict-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
@@ -487,10 +491,10 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .completion-track { stroke: var(--green-bg); stroke-width: 7; }
 .completion-orbit { stroke-width: 7; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 60px 60px; stroke-dasharray: 100; stroke-dashoffset: 0; animation: completion-ring 850ms cubic-bezier(.22,1,.36,1) both; }
 .completion-orbit.inner { stroke-width: 3; opacity: .65; animation-delay: 120ms; }
-.completion-check { stroke: var(--green); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 0; animation: completion-check 400ms 480ms ease-out both; }
+.completion-bookmark { color: var(--green); transform-origin: 12px 12px; animation: completion-bookmark 620ms 300ms cubic-bezier(.22,1,.36,1) both; }
 .completion-medallion strong { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
 .completion-medallion span { margin-top: 7px; color: var(--secondary); font-size: 12px; }
 @keyframes completion-ring { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-@keyframes completion-check { from { stroke-dashoffset: 100; opacity: 0; } to { stroke-dashoffset: 0; opacity: 1; } }
+@keyframes completion-bookmark { from { opacity: 0; transform: translateY(-5px) scale(.88); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes completion-arrive { 0% { opacity: 0; transform: translateY(12px) scale(.85); } 18% { opacity: 1; transform: translateY(0) scale(1.025); } 28%, 78% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-8px) scale(.98); } }
-@media (prefers-reduced-motion: reduce) { .completion-medallion, .completion-orbit, .completion-check, .result-detail { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .completion-medallion, .completion-orbit, .completion-bookmark, .result-detail { animation: none; } }

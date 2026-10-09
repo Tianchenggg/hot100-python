@@ -1,8 +1,9 @@
 import { PythonRunner } from './runner.js?v=15';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
 import { checkOutput } from './checker.js?v=7';
-import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=15';
-import { celebrateAcceptance, clearCelebration } from './celebration.js?v=15';
+import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=21';
+import { celebrateAcceptance, clearCelebration } from './celebration.js?v=21';
+import { bookmarkIcon } from './acceptance-mark.js?v=21';
 import problemGroups from './data/groups.js';
 import { initLayout } from './layout.js?v=5';
 import { installPythonEnhancements, smartIndentBackspace } from './editor-enhancements.js?v=10';
@@ -241,10 +242,10 @@ function renderList() {
     const content = document.createElement('div'); content.className = 'group-content'; content.id = `group-${group.id}-content`;
     const items = document.createElement('div'); items.className = 'group-items';
     for (const p of list) {
-      const button = document.createElement('button'); button.type = 'button'; button.className = `problem-item${state.current?.id === p.id ? ' active' : ''}`;
+      const button = document.createElement('button'); button.type = 'button'; button.className = `problem-item${state.current?.id === p.id ? ' active' : ''}${state.passed.has(p.id) ? ' is-passed' : ''}`;
       button.dataset.problemId = p.id; button.title = `${p.id}. ${p.title}`;
       if (state.current?.id === p.id) button.setAttribute('aria-current', 'true');
-      button.innerHTML = `<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span><span class="problem-check" aria-label="${state.passed.has(p.id) ? '已通过' : '未通过'}">${state.passed.has(p.id) ? '✓' : ''}</span>`;
+      button.innerHTML = `<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span>${state.passed.has(p.id) ? `<span class="problem-bookmark" role="img" aria-label="已通过" title="已通过">${bookmarkIcon}</span>` : ''}`;
       button.addEventListener('click', () => selectProblem(p.id)); items.append(button);
     }
     content.append(items); section.append(header, content);

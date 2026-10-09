@@ -1,6 +1,8 @@
+import { bookmarkIcon } from './acceptance-mark.js?v=21';
+
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const code = value => `<pre>${escape(value || '（空）')}</pre>`;
-const icon = tone => `<svg viewBox="0 0 24 24" aria-hidden="true">${tone === 'success' ? '<path d="m5 12 4.5 4.5L19 7"/>' : tone === 'failure' ? '<path d="m7 7 10 10M7 17 17 7"/>' : '<path d="M8 6v12l10-6Z"/>'}</svg>`;
+const icon = tone => tone === 'success' ? bookmarkIcon : `<svg viewBox="0 0 24 24" aria-hidden="true">${tone === 'failure' ? '<path d="m7 7 10 10M7 17 17 7"/>' : '<path d="M8 6v12l10-6Z"/>'}</svg>`;
 
 export function getResultLabel(result) {
   if (result.status === 'timeout') return '运行超时';
