@@ -11,6 +11,8 @@ const $ = id => document.getElementById(id);
 const runner = new PythonRunner();
 const prefix = 'hot100-python:v1:';
 const state = { mode: 'acm', problems: [], current: null, results: [], resultIndex: 0, busy: false, token: 0, caseIndex: 0, errorLine: null, restoring: false, codeAuthored: false, historyCode: null, passed: new Set(), custom: { input: '', output: '' } };
+let copyRequest = 0;
+let copyTimer;
 function read(key, fallback = '') { try { return localStorage.getItem(prefix + key) ?? fallback; } catch { return fallback; } }
 function save(key, value) { try { localStorage.setItem(prefix + key, value); return true; } catch { return false; } }
 const initialMode = new URL(location.href).searchParams.get('mode') || read('mode', 'acm');
@@ -73,6 +75,41 @@ function loadHistory() {
 function updateHistoryButton() {
   $('historyButton').disabled = state.busy || state.historyCode === null;
   $('historyButton').title = state.historyCode === null ? '暂无历史作答' : '载入上次保存的代码，可撤销';
+}
+function resetCopyFeedback() {
+  copyRequest++;
+  clearTimeout(copyTimer);
+  $('copyProblem').disabled = !state.current;
+  $('copyProblem').classList.remove('is-copied');
+  $('copyProblem').title = '复制题目';
+  $('copyNotice').hidden = true;
+  $('copyNotice').textContent = '';
+}
+async function copyProblem() {
+  const p = state.current;
+  if (!p) return;
+  resetCopyFeedback();
+  const request = copyRequest;
+  const text = [
+    `${p.id}. ${p.title}`,
+    `${p.difficulty} · ${state.mode === 'leetcode' ? 'LeetCode' : 'ACM'} 模式`,
+    p.desc,
+    `输入\n${p.inputSpec}`,
+    `输出\n${p.outputSpec}`,
+    ...(p.constraints?.length ? [`数据范围\n${p.constraints.map(value => `- ${value}`).join('\n')}`] : []),
+    ...p.examples.map((example, index) => `样例 ${index + 1}\n输入\n${example.input}\n输出\n${example.output}`),
+    `原题：${p.url}`
+  ].join('\n\n');
+  $('copyProblem').disabled = true;
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; } catch {}
+  if (request !== copyRequest) return;
+  $('copyProblem').disabled = false;
+  $('copyProblem').classList.toggle('is-copied', copied);
+  $('copyProblem').title = copied ? '已复制' : '复制失败，请重试';
+  $('copyNotice').textContent = copied ? '已复制' : '复制失败，请重试';
+  $('copyNotice').hidden = false;
+  copyTimer = setTimeout(resetCopyFeedback, 2200);
 }
 function updateModeControl() {
   const label = state.mode === 'leetcode' ? 'LeetCode 模式' : 'ACM 模式';
@@ -248,6 +285,7 @@ function selectProblem(id, force = false) {
   if (state.current) persistCode();
   if (state.busy) stop();
   state.current = p; state.results = []; state.resultIndex = 0; state.caseIndex = 0; state.custom = { input: '', output: '' };
+  resetCopyFeedback();
   try { state.custom = JSON.parse(read(modeKey(`input:${p.id}`), '{"input":"","output":""}')); } catch {}
   const previousCode = read(modeKey(`code:${p.id}`), null);
   state.historyCode = previousCode !== null && previousCode !== (p.template || '') ? previousCode : null;
@@ -389,6 +427,7 @@ $('searchInput').addEventListener('input', () => {
   if (!$('searchInput').value.trim()) requestAnimationFrame(revealCurrentProblem);
 });
 $('searchButton').addEventListener('click', () => setSearchOpen($('searchField').hidden, true));
+$('copyProblem').addEventListener('click', copyProblem);
 $('homeButton').addEventListener('click', () => {
   closeModeMenu();
   setSearchOpen(false);
@@ -449,7 +488,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
 window.addEventListener('pagehide', () => { persistCode(); if (state.busy) stop(); else runner.cancel(); });
 export function activate() { syncSidebar(); editor.refresh(); }
-export function deactivate() { persistCode(); closeModeMenu(); clearCelebration(); }
+export function deactivate() { persistCode(); closeModeMenu(); clearCelebration(); resetCopyFeedback(); }
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {

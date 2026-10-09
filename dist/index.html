@@ -8,7 +8,7 @@
   <title>Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css">
-  <link rel="stylesheet" href="./styles.css?v=18">
+  <link rel="stylesheet" href="./styles.css?v=19">
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -42,7 +42,7 @@
       </header>
       <div class="workspace-body">
       <section class="statement-pane" id="statementPane" aria-label="题目">
-        <header class="pane-header"><span class="pane-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l4 4v14H4V3Zm7 0v5h5M8 12h8M8 16h6"/></svg>题目</span><div class="header-actions"><button class="icon-button" id="prevProblem" aria-label="上一题" title="上一题"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><button class="icon-button" id="nextProblem" aria-label="下一题" title="下一题"><svg viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></svg></button></div></header>
+        <header class="pane-header"><span class="pane-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l4 4v14H4V3Zm7 0v5h5M8 12h8M8 16h6"/></svg>题目</span><div class="header-actions"><button class="icon-button copy-problem" id="copyProblem" aria-label="复制题目" title="复制题目" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><g class="copy-glyph"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></g><path class="copy-check" d="m5 12 4 4 10-10"/></svg></button><button class="icon-button" id="prevProblem" aria-label="上一题" title="上一题"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><button class="icon-button" id="nextProblem" aria-label="下一题" title="下一题"><svg viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></svg></button></div></header>
         <div class="statement-content" id="statementContent"><div class="empty-result">正在加载题目…</div></div>
       </section>
       <div id="statementResizer" class="layout-resizer statement-resizer" role="separator" aria-label="调整题目与代码区宽度" aria-controls="statementPane codingPane" aria-orientation="vertical" tabindex="0" title="拖动调整宽度，双击恢复"></div>
@@ -61,10 +61,11 @@
       </section>
       </div>
     </main>
+    <div class="toast" id="copyNotice" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   </div>
   <script src="./vendor/codemirror/lib/codemirror.js"></script>
   <script src="./vendor/codemirror/mode/python/python.js"></script>
   <script src="./vendor/codemirror/addon/edit/matchbrackets.js"></script>
-  <script type="module" src="./navigation.js?v=16"></script>
+  <script type="module" src="./navigation.js?v=19"></script>
 </body>
 </html>

@@ -143,6 +143,10 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .pane-header { height: 42px; min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 18px; }
 .pane-title { display: inline-flex; align-items: center; gap: 7px; color: var(--secondary); font-size: 12px; font-weight: 400; }
 .pane-title svg { width: 14px; height: 14px; stroke-width: 1.55; color: var(--secondary); }
+.copy-problem .copy-check { display: none; }
+.copy-problem.is-copied { color: var(--green); }
+.copy-problem.is-copied .copy-glyph { display: none; }
+.copy-problem.is-copied .copy-check { display: block; }
 .runtime-label { color: var(--muted); font-size: 11px; }
 .muted { color: var(--muted); }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--canvas); color: var(--text); font-size: 12px; font-weight: 500; white-space: nowrap; transition: background .12s, border-color .12s; }
