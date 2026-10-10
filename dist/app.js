@@ -1,9 +1,9 @@
 import { PythonRunner } from './runner.js?v=15';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
 import { checkOutput } from './checker.js?v=7';
-import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=21';
-import { celebrateAcceptance, clearCelebration } from './celebration.js?v=21';
-import { bookmarkIcon } from './acceptance-mark.js?v=21';
+import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=22';
+import { celebrateAcceptance, clearCelebration } from './celebration.js?v=22';
+import { bookmarkIcon } from './acceptance-mark.js?v=22';
 import problemGroups from './data/groups.js';
 import { initLayout } from './layout.js?v=5';
 import { installPythonEnhancements, smartIndentBackspace } from './editor-enhancements.js?v=10';

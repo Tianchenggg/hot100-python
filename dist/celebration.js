@@ -1,4 +1,4 @@
-import { bookmarkShape } from './acceptance-mark.js?v=21';
+import { bookmarkShape } from './acceptance-mark.js?v=22';
 
 let timer;
 let element;

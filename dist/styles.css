@@ -16,6 +16,10 @@
   --green: #16733d;
   --green-bg: #edf8f1;
   --green-line: #badfc8;
+  --passed-mark: #50715d;
+  --passed-bg: #f3f6f4;
+  --problem-selected: #e8ebe9;
+  --problem-hover: #f0f2f1;
   --red: #c5322c;
   --red-bg: #fff0ef;
   --red-line: #f0c1bd;
@@ -120,17 +124,15 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .problem-group.is-open .group-chevron { transform: rotate(90deg); }
 .problem-group .problem-item { padding-left: 31px; }
 .problem-item { display: flex; align-items: center; gap: 7px; width: 100%; height: 31px; min-height: 31px; padding: 0 9px; margin: 1px 0; border: 0; border-radius: 7px; text-align: left; color: #363636; background: transparent; font-size: 13px; line-height: 20px; transition: background .12s, color .12s; }
-.problem-item:hover { background: var(--hover); color: var(--text); }
-.problem-item.active { background: var(--selected); color: var(--text); }
-.problem-item.is-passed { background: color-mix(in srgb, var(--green-bg) 58%, var(--sidebar)); }
-.problem-item.is-passed:hover { background: var(--green-bg); }
-.problem-item.is-passed.active { background: var(--green-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green-line) 70%, transparent); }
+.problem-item.is-passed { background: var(--passed-bg); }
+.problem-item:hover { background: var(--problem-hover); color: var(--text); }
+.problem-item.active { background: var(--problem-selected); color: var(--text); }
 .problem-name { order: 1; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .problem-number { order: 3; flex: none; width: 4ch; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 400; }
-.bookmark-body { fill: currentColor; stroke: none; }
-.bookmark-detail { fill: none; stroke: var(--canvas); stroke-width: 1.4; opacity: .6; }
-.problem-bookmark { order: 2; flex: none; display: flex; align-items: center; justify-content: center; width: 16px; height: 20px; color: var(--green); }
-.problem-bookmark svg { width: 16px; height: 20px; }
+.acceptance-bookmark { color: var(--passed-mark); }
+.bookmark-body { fill: color-mix(in srgb, currentColor 8%, transparent); stroke: currentColor; stroke-width: 1.45; }
+.problem-bookmark { order: 2; flex: none; display: flex; align-items: center; justify-content: center; width: 18px; height: 20px; color: var(--passed-mark); }
+.problem-bookmark svg { width: 14px; height: 16px; }
 .sidebar-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 8px 18px; color: var(--secondary); font-size: 11px; }
 .sidebar-footer a { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; color: var(--secondary); text-decoration: none; }
 .sidebar-footer a:hover { color: var(--text); background: var(--hover); }
@@ -276,7 +278,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .spinner { width: 14px; height: 14px; border: 1.5px solid var(--line-strong); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
 #resultIndicator.success, #resultIndicator.failure, #resultIndicator.working { display: inline-block; width: 5px; height: 5px; margin-left: 5px; border-radius: 50%; background: currentColor; }
 .verdict-icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); }
-.verdict-icon.success { border-radius: 11px; background: var(--green-bg); }
+.verdict-icon.success { border-radius: 11px; background: var(--passed-bg); }
 .verdict-icon.failure { background: var(--red-bg); }
 .verdict-icon svg { width: 21px; height: 21px; stroke-width: 1.8; }
 .verdict-copy { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
@@ -425,6 +427,10 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
     --green: #78d59b;
     --green-bg: #20372a;
     --green-line: #3a624a;
+    --passed-mark: #95b59f;
+    --passed-bg: #202722;
+    --problem-selected: #303632;
+    --problem-hover: #292d2a;
     --red: #ffaaa1;
     --red-bg: #442a29;
     --red-line: #78443f;
@@ -491,7 +497,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .completion-track { stroke: var(--green-bg); stroke-width: 7; }
 .completion-orbit { stroke-width: 7; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 60px 60px; stroke-dasharray: 100; stroke-dashoffset: 0; animation: completion-ring 850ms cubic-bezier(.22,1,.36,1) both; }
 .completion-orbit.inner { stroke-width: 3; opacity: .65; animation-delay: 120ms; }
-.completion-bookmark { color: var(--green); transform-origin: 12px 12px; animation: completion-bookmark 620ms 300ms cubic-bezier(.22,1,.36,1) both; }
+.completion-bookmark { color: var(--passed-mark); transform-origin: 12px 12px; animation: completion-bookmark 620ms 300ms cubic-bezier(.22,1,.36,1) both; }
 .completion-medallion strong { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
 .completion-medallion span { margin-top: 7px; color: var(--secondary); font-size: 12px; }
 @keyframes completion-ring { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }

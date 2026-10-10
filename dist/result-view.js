@@ -1,4 +1,4 @@
-import { bookmarkIcon } from './acceptance-mark.js?v=21';
+import { bookmarkIcon } from './acceptance-mark.js?v=22';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const code = value => `<pre>${escape(value || '（空）')}</pre>`;
