@@ -35,6 +35,19 @@ const loading = window.pageLoading, panel = nodes.get('pageLoader');
 const first = loading.token;
 assert.equal(visible.inert, true);
 assert.equal(panel.hidden, false);
+assert.equal(panel.dataset.sceneReady, 'false');
+loading.stage(first, 'too early', 2, 3);
+assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '0', 'progress cannot start before the complete scene');
+assert.equal(await loading.ready(first), false, 'entry cannot be enabled before the scene');
+async function presentScene(id) {
+  const showing = loading.showScene(id);
+  await new Promise(setImmediate);
+  paint(); paint();
+  return showing;
+}
+assert.equal(await presentScene(first), true);
+assert.equal(panel.dataset.sceneReady, 'true');
+assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '0');
 loading.stage(first, '正在加载题目', 2, 3);
 assert.equal(nodes.get('pageLoadProgress').attrs['aria-valuetext'], '正在加载题目');
 assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '67');
@@ -93,6 +106,7 @@ loading.finish(cancelledToken); loading.fail(cancelledToken);
 assert.equal(panel.hidden, true);
 
 const fallback = loading.start({ entrance: true });
+await presentScene(fallback);
 const fallbackEntry = loading.ready(fallback);
 nodes.get('pageLoadDoor').listeners.click();
 paint(); paint();
@@ -100,25 +114,72 @@ advance(2050);
 assert.equal(await fallbackEntry, true, 'animation fallback must unblock entry');
 reducedMotion.matches = true;
 const reduced = loading.start({ entrance: true });
+await presentScene(reduced);
 const reducedEntry = loading.ready(reduced);
 nodes.get('pageLoadEnter').listeners.click();
 assert.equal(await reducedEntry, true);
 assert.equal(panel.hidden, true, 'reduced motion must enter without animation');
 const abandoned = loading.start({ entrance: true });
+await presentScene(abandoned);
 const abandonedEntry = loading.ready(abandoned);
 loading.start();
 assert.equal(await abandonedEntry, false, 'a replacement must settle the previous entrance');
 loading.finish(loading.token);
 
+// Every image may arrive last, and load completion alone must not bypass decoding.
+for (const delayed of ['sky', 'frame', 'leaf']) {
+  let decodeImage;
+  const images = ['sky', 'frame', 'leaf'].map(name => {
+    const image = element(); image.complete = name !== delayed; image.naturalWidth = image.complete ? 100 : 0;
+    image.decode = () => name === delayed ? new Promise(resolve => { decodeImage = resolve; }) : Promise.resolve();
+    return image;
+  });
+  panel.querySelectorAll = () => images;
+  const id = loading.start({ entrance: true });
+  const scene = loading.showScene(id);
+  await new Promise(setImmediate);
+  assert.equal(panel.dataset.sceneReady, 'false', `${delayed} must hold the whole scene`);
+  const last = images[['sky', 'frame', 'leaf'].indexOf(delayed)];
+  last.complete = true; last.naturalWidth = 100; last.listeners.load();
+  await new Promise(setImmediate);
+  assert.equal(panel.dataset.sceneReady, 'false', 'loaded but not decoded must stay hidden');
+  decodeImage(); await new Promise(setImmediate);
+  assert.equal(panel.dataset.sceneReady, 'true');
+  assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '0');
+  let painted = false; scene.then(() => { painted = true; });
+  paint(); await new Promise(setImmediate);
+  assert.equal(painted, false, 'initial scene must paint before progress begins');
+  paint(); assert.equal(await scene, true);
+  loading.finish(id);
+}
+const broken = element(); broken.complete = true; broken.naturalWidth = 100;
+broken.decode = () => Promise.reject(new Error('decode failed'));
+panel.querySelectorAll = () => [broken];
+const brokenId = loading.start({ entrance: true });
+await assert.rejects(loading.showScene(brokenId), /decode failed/);
+loading.fail(brokenId);
+assert.equal(panel.dataset.sceneReady, 'false');
+assert.equal(nodes.get('pageLoadActions').hidden, false);
+let lateDecode;
+broken.decode = () => new Promise(resolve => { lateDecode = resolve; });
+const lateId = loading.start({ entrance: true });
+const lateScene = loading.showScene(lateId);
+advance(30000); lateDecode();
+assert.equal(await lateScene, false);
+assert.equal(panel.dataset.state, 'error');
+assert.equal(panel.dataset.sceneReady, 'false', 'late images cannot reveal a timed-out scene');
+panel.querySelectorAll = () => [];
 await loading.assets();
 const entrypoints = await Promise.all(['index.html','recite.html'].map(name => readFile(new URL(`../dist/${name}`, import.meta.url),'utf8')));
 for (const html of entrypoints) {
   assert.ok(html.indexOf('id="pageLoader"') < html.indexOf('src="./page-loader.js'));
   assert.ok(html.indexOf('id="pageLoadingStyles"') < html.indexOf('rel="stylesheet"'));
   assert.match(html, /media="print" data-page-style/);
+  assert.match(html, /data-gate="true" data-scene-ready="false"/);
+  assert.match(html, /rel="preload" href="\.\/assets\/celestial-sky.jpg"/);
   assert.match(html, /overflow:clip/, "entry overlay must not scroll when focus changes");
   assert.match(html, /inert aria-busy="true"/);
   assert.match(html, /id="pageLoadEnter" type="button" hidden disabled/);
   assert.match(html, /id="pageLoadDoor" type="button" aria-label="开门进入" disabled/);
 }
-console.log('Entrance progress, explicit entry, opening animation, reduced motion, loading failures and navigation checks passed.');
+console.log('Atomic scene loading, image decoding, first paint, timeout, explicit entry and navigation checks passed.');

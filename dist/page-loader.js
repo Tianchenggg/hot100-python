@@ -29,7 +29,7 @@
     status = 'pending'; gate = entrance; onCancel = cancel; returnFocus = document.activeElement;
     title.textContent = gate ? 'Hot 100' : '正在加载…'; detail.textContent = text;
     progress.setAttribute('aria-valuetext', text); setProgress(0);
-    panel.dataset.gate = String(gate); panel.dataset.state = 'loading';
+    panel.dataset.gate = String(gate); panel.dataset.state = 'loading'; panel.dataset.sceneReady = String(!gate);
     actions.hidden = true; retry.href = href; back.hidden = !cancel;
     enterButton.hidden = true; enterButton.disabled = true; doorButton.disabled = true;
     roots().forEach(root => { if (!root.hidden) { root.inert = true; root.setAttribute('aria-busy', 'true'); } });
@@ -40,7 +40,7 @@
   }
   const pending = id => id === token && status === 'pending';
   function stage(id, text, completed = 0, total = 1) {
-    if (!pending(id)) return;
+    if (!pending(id) || (gate && panel.dataset.sceneReady !== 'true')) return;
     detail.textContent = text; progress.setAttribute('aria-valuetext', text);
     setProgress(Math.min(99, Math.round(completed / total * 100)));
   }
@@ -50,7 +50,7 @@
     document.body.classList.remove('is-booting'); unlock();
   }
   function ready(id, beforeEnter = () => {}) {
-    if (!pending(id)) return Promise.resolve(false);
+    if (!pending(id) || (gate && panel.dataset.sceneReady !== 'true')) return Promise.resolve(false);
     clearTimers(); prepareEntry = beforeEnter; status = 'ready'; panel.hidden = false; panel.dataset.state = 'ready';
     setProgress(100); detail.textContent = '准备就绪';
     enterButton.hidden = false; enterButton.disabled = false; doorButton.disabled = false;
@@ -98,14 +98,22 @@
   back.addEventListener('click', cancel);
   enterButton.addEventListener('click', enter); doorButton.addEventListener('click', enter);
   function assets() {
-    return Promise.all([...panel.querySelectorAll('[data-entrance-asset]')].map(asset => {
-      if (asset.complete) return asset.naturalWidth ? Promise.resolve() : Promise.reject(new Error('Scene failed to load'));
-      return new Promise((resolve, reject) => {
+    return Promise.all([...panel.querySelectorAll('[data-entrance-asset]')].map(async asset => {
+      if (!asset.complete) await new Promise((resolve, reject) => {
         asset.addEventListener('load', resolve, { once: true });
         asset.addEventListener('error', reject, { once: true });
       });
+      if (!asset.naturalWidth) throw new Error('Scene failed to load');
+      if (asset.decode) await asset.decode();
     }));
   }
-  window.pageLoading = { assets, start, stage, finish, ready, fail, cancel, pending, get token() { return token; }, get awaitingEntry() { return gate && status !== 'idle'; } };
+  async function showScene(id) {
+    await assets();
+    if (!pending(id) || !gate) return false;
+    panel.dataset.sceneReady = 'true';
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return pending(id) && gate;
+  }
+  window.pageLoading = { assets, showScene, start, stage, finish, ready, fail, cancel, pending, get token() { return token; }, get awaitingEntry() { return gate && status !== 'idle'; } };
   start({ entrance: true });
 })();

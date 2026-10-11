@@ -139,18 +139,17 @@ window.addEventListener('popstate', () => {
 
 const bootName = current, bootToken = loadingToken, bootTicket = sequence;
 try {
-  const [page] = await Promise.all([
-    prepare(bootName).then(page => { loading.stage(bootToken, '正在准备场景', 3, 4); return page; }),
-    loading.assets(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  if (sequence === bootTicket && loading.pending(bootToken)) {
-    loadingTarget = null;
-    const entered = await loading.ready(bootToken, () => page.controller?.activate?.());
-    if (entered && sequence === bootTicket) {
-      const preload = () => prepare(current === 'practice' ? 'recite' : 'practice').catch(() => {});
-      if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 1000 });
-      else setTimeout(preload, 120);
+  if (await loading.showScene(bootToken) && sequence === bootTicket) {
+    const page = await prepare(bootName);
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    if (sequence === bootTicket && loading.pending(bootToken)) {
+      loadingTarget = null;
+      const entered = await loading.ready(bootToken, () => page.controller?.activate?.());
+      if (entered && sequence === bootTicket) {
+        const preload = () => prepare(current === 'practice' ? 'recite' : 'practice').catch(() => {});
+        if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 1000 });
+        else setTimeout(preload, 120);
+      }
     }
   }
 } catch (error) {
