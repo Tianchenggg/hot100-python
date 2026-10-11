@@ -95,7 +95,7 @@ function jumpToGroup(id) {
   if (!document.querySelector('.recitation-app').hidden) history.replaceState(history.state, '', `#${id}`);
 }
 
-async function loadProblems() {
+async function loadProblems({ reportFailure = false } = {}) {
   try {
     const response = await fetch('./data/recitation.json');
     if (!response.ok) throw new Error('Could not load cards');
@@ -110,9 +110,10 @@ async function loadProblems() {
     $('randomProblem').disabled = false;
     const requested = location.hash.slice(1);
     jumpToGroup(groups.some((group) => group.id === requested) ? requested : groups[0].id);
-  } catch {
+  } catch (error) {
     $('reciteContent').innerHTML = '<div class="recite-error"><p class="recite-loading" role="alert">题目未能加载</p><button class="button" id="retryLoad">重试</button></div>';
     $('retryLoad').addEventListener('click', loadProblems, { once: true });
+    if (reportFailure) throw error;
   }
 }
 
@@ -156,4 +157,4 @@ window.addEventListener('hashchange', (event) => {
   if (!document.querySelector('.recitation-app').hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
 });
 export function deactivate() { closeProblem(); }
-await loadProblems();
+await loadProblems({ reportFailure: true });

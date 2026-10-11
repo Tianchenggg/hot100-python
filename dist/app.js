@@ -501,4 +501,4 @@ try {
   loadProgress(); updateModeControl(); syncSidebar();
   const requested = Number(new URL(location.href).searchParams.get('problem') || read('current', '1'));
   selectProblem(state.problems.some(p => p.id === requested) ? requested : state.problems[0].id);
-} catch (error) { $('statementContent').innerHTML = `<div class="empty-result">${escapeHtml(error.message)}</div>`; $('problemList').textContent = '加载失败'; $('runButton').disabled = true; $('submitButton').disabled = true; }
+} catch (error) { $('statementContent').innerHTML = `<div class="empty-result">${escapeHtml(error.message)}</div>`; $('problemList').textContent = '加载失败'; $('runButton').disabled = true; $('submitButton').disabled = true; throw error; }

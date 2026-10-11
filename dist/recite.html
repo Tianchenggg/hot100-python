@@ -7,11 +7,50 @@
   <meta name="description" content="按知识点浏览 100 张题目卡片，随机抽取一题，复习题意与输入输出。">
   <title>背诵模式 · Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=22">
-  <link rel="stylesheet" href="./recite.css?v=16">
+  <style id="pageLoadingStyles">
+    .site-loading { --load-bg:#fff; --load-ink:#292929; --load-muted:#858585; --load-line:#e6e6e6; position:fixed; inset:0; z-index:1000; display:grid; place-items:center; background:var(--load-bg); color:var(--load-ink); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif; }
+    .site-loading[hidden], .site-loading [hidden] { display:none!important; }
+    body:not(.is-booting) .site-loading { background:color-mix(in srgb,var(--load-bg) 94%,transparent); }
+    .site-loading-inner { display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px; }
+    .site-loading-ring { width:34px; height:34px; box-sizing:border-box; margin-bottom:22px; border:2px solid var(--load-line); border-top-color:var(--load-ink); border-radius:50%; animation:page-loading-spin 900ms linear infinite; }
+    .site-loading-title { margin:0; font-size:14px; line-height:1.5; font-weight:500; letter-spacing:.1px; }
+    .site-loading-detail { margin:8px 0 0; color:var(--load-muted); font-size:12px; line-height:1.6; }
+    .site-loading-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:20px; }
+    .site-loading-actions a, .site-loading-actions button { display:inline-flex; align-items:center; justify-content:center; min-height:34px; padding:0 12px; border:1px solid var(--load-line); border-radius:8px; background:var(--load-bg); color:var(--load-ink); font:12px/1.5 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif; text-decoration:none; cursor:pointer; }
+    .site-loading-actions a { background:var(--load-ink); border-color:var(--load-ink); color:var(--load-bg); }
+    .site-loading-error { display:none; width:34px; height:34px; box-sizing:border-box; margin-bottom:22px; border:1px solid var(--load-line); border-radius:50%; font-size:20px; line-height:32px; }
+    .site-loading[data-state="error"] .site-loading-ring { display:none; }
+    .site-loading[data-state="error"] .site-loading-error { display:block; }
+    .is-booting .app-shell, .is-booting .recitation-app { visibility:hidden; }
+    @keyframes page-loading-spin { to { transform:rotate(360deg); } }
+    @media(prefers-color-scheme:dark) { .site-loading { --load-bg:#212121; --load-ink:#eee; --load-muted:#aaa; --load-line:#3d3d3d; } }
+    @media(prefers-reduced-motion:reduce) { .site-loading-ring { animation:none; } }
+  </style>
 </head>
-<body>
-  <div class="recitation-app">
+<body class="is-booting">
+  <div class="site-loading" id="pageLoader" data-state="loading">
+    <div class="site-loading-inner">
+      <div class="site-loading-ring" id="pageLoadProgress" role="progressbar" aria-label="页面加载" aria-valuetext="正在准备页面"></div>
+      <span class="site-loading-error" aria-hidden="true">!</span>
+      <div role="status" aria-live="polite" aria-atomic="true"><p class="site-loading-title" id="pageLoadTitle">正在加载…</p><p class="site-loading-detail" id="pageLoadDetail">正在准备页面</p></div>
+      <div class="site-loading-actions" id="pageLoadActions" hidden><a id="pageLoadRetry" href="">重新加载</a><button id="pageLoadBack" type="button" hidden>返回当前页</button></div>
+    </div>
+  </div>
+  <script>
+    window.__pageLoadError = () => {
+      if (window.pageLoading) { window.pageLoading.fail(window.pageLoading.token); return; }
+      document.getElementById('pageLoader').dataset.state = 'error';
+      document.getElementById('pageLoadTitle').textContent = '页面未能加载';
+      document.getElementById('pageLoadDetail').textContent = '请检查网络后重新加载';
+      document.getElementById('pageLoadActions').hidden = false;
+    };
+    window.__pageBootTimer = setTimeout(window.__pageLoadError, 30000);
+  </script>
+  <script src="./page-loader.js?v=23" onerror="window.__pageLoadError()"></script>
+  <link rel="stylesheet" href="./styles.css?v=22" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
+  <link rel="stylesheet" href="./recite.css?v=16" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
+
+  <div class="recitation-app" inert aria-busy="true">
     <nav class="app-rail" aria-label="导航">
       <a class="icon-button rail-home" href="./" aria-label="主页" data-tooltip="主页" data-page="practice"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="rail-icon-outline" d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/><path class="rail-icon-solid" d="M10.8 2.8a2 2 0 0 1 2.4 0l8 6.2a1.25 1.25 0 0 1-.77 2.24H20V20a1 1 0 0 1-1 1h-5v-6a2 2 0 0 0-4 0v6H5a1 1 0 0 1-1-1v-8.76h-.43A1.25 1.25 0 0 1 2.8 9Z"/></svg></a>
       <a class="icon-button rail-recite" href="./recite.html" aria-label="背诵模式" aria-current="page" data-tooltip="背诵模式" data-page="recite"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="rail-icon-outline" d="M12 5.5C9 3.5 5.5 3.5 3 4.5v15c2.5-1 6-1 9 1 3-2 6.5-2 9-1v-15c-2.5-1-6-1-9 1Zm0 0v15"/><path class="rail-icon-solid" d="M11 5.6C8.4 4 5.3 3.9 3 4.8v14.7c2.5-.9 5.5-.8 8 1V5.6Zm2 0C15.6 4 18.7 3.9 21 4.8v14.7c-2.5-.9-5.5-.8-8 1V5.6Z"/></svg></a>
@@ -39,6 +78,6 @@
     <div class="recite-dialog-content" id="dialogContent" aria-live="polite"></div>
     <div class="recite-dialog-footer" id="dialogFooter" hidden><button class="button" id="nextRandom">再出一题<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div>
   </dialog>
-  <script type="module" src="./navigation.js?v=22"></script>
+  <script type="module" src="./navigation.js?v=23" onerror="window.__pageLoadError()"></script>
 </body>
 </html>
