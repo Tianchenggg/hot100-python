@@ -5,8 +5,8 @@ core-mode metadata, and Python class templates
 were adapted from [Hubert-hwk/hot100-judge](https://github.com/Hubert-hwk/hot100-judge),
 commit `b9fda30362e5bad229cad8dede99ab6c1fd0609c`.
 
-The dataset contains 100 problems, 484 ACM test cases, and 488 LeetCode-mode test
-cases. It excludes company metadata and reference solutions. Each problem retains
+The dataset contains the original Hot 100 plus 3 Hot 20 extensions, with 543 ACM
+test cases and 547 LeetCode-mode test cases. It excludes company metadata and reference solutions. Each problem retains
 its original LeetCode source link.
 
 On 2026-10-04, all 100 problems were checked against official LeetCode problem
@@ -17,10 +17,16 @@ See [the problem audit](docs/problem-audit.md) for the per-problem record and
 [source fingerprints](docs/problem-audit-sources.json) for official links,
 metadata, and content hashes. Full official statements are not redistributed.
 
+On 2026-10-11, stock problems II (122), III (123), and IV (188) were added to the
+user-supplied Hot 20 list. This list has 23 individual problems; 20 are in the
+original Hot 100. Their concise statements, constraints, examples, and independent
+boundary tests are maintained in `scripts/hot20-extra-problems.json`, with official
+source URLs. All data generators include these extensions.
+
 The 17 knowledge groups and navigation order in `dist/data/groups.js` follow
 the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. The recitation cards in
 `dist/data/recitation.json` reproduce its 100 problem titles, difficulty labels,
-short task descriptions, and input/output examples in the same order. They
+short task descriptions, and input/output examples in the same order. Three additional stock cards follow problem 121. The cards
 contain no solutions. The source document itself is not distributed.
 
 To regenerate the recitation cards from the supplied Markdown:

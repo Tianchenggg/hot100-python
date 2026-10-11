@@ -1,8 +1,8 @@
 // Keep both screens alive so switching pages preserves the editor and scroll position.
 const base = new URL('./', import.meta.url);
 const pages = {
-  practice: { selector: '.app-shell', path: './', module: './app.js?v=23', title: 'Hot 100' },
-  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=23', title: '背诵模式 · Hot 100' },
+  practice: { selector: '.app-shell', path: './', module: './app.js?v=27', title: 'Hot 100' },
+  recite: { selector: '.recitation-app', path: './recite.html', module: './recite.js?v=27', title: '背诵模式 · Hot 100' },
 };
 const loading = window.pageLoading;
 let current = document.querySelector('.recitation-app') ? 'recite' : 'practice';

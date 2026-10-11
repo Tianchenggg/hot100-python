@@ -12,7 +12,7 @@ export default [
   { id: 'g11', name: '二分查找', problemIds: [35, 74, 34, 33, 153, 4] },
   { id: 'g12', name: '栈', problemIds: [20, 155, 394, 739, 84] },
   { id: 'g13', name: '堆', problemIds: [215, 347, 295] },
-  { id: 'g14', name: '贪心算法', problemIds: [121, 55, 45, 763] },
+  { id: 'g14', name: '贪心算法', problemIds: [121, 122, 123, 188, 55, 45, 763] },
   { id: 'g15', name: '动态规划', problemIds: [70, 118, 198, 279, 322, 139, 300, 152, 416, 32] },
   { id: 'g16', name: '多维动态规划', problemIds: [62, 64, 5, 1143, 72] },
   { id: 'g17', name: '技巧', problemIds: [136, 169, 75, 31, 287] },

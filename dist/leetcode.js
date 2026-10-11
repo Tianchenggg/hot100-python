@@ -1,4 +1,4 @@
-import data from './data/leetcode.js?v=7';
+import data from './data/leetcode.js?v=8';
 import { checkOutput } from './checker.js?v=7';
 
 export function getLeetCodeProblem(problem) {

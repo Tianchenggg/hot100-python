@@ -20,6 +20,7 @@
   --passed-bg: #f3f6f4;
   --problem-selected: #e8ebe9;
   --problem-hover: #f0f2f1;
+  --hot-ink: #916329;
   --red: #c5322c;
   --red-bg: #fff0ef;
   --red-line: #f0c1bd;
@@ -100,6 +101,15 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .sidebar-section-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 18px 4px; color: var(--muted); font-size: 11px; line-height: 20px; }
 .search-field[hidden] + .sidebar-section-label { padding-top: 8px; }
 .sidebar-section-label span { font-size: 11px; font-variant-numeric: tabular-nums; }
+.collection-switch { display:flex; align-items:center; gap:3px; padding:3px; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+.collection-option { flex:1; min-width:0; min-height:29px; padding:4px 13px; border:0; border-radius:6px; background:transparent; color:var(--secondary); font-size:12px; font-weight:500; white-space:nowrap; transition:background 140ms ease,color 140ms ease,box-shadow 140ms ease; }
+.collection-option:hover { color:var(--text); }
+.collection-option[aria-pressed="true"] { color:var(--text); background:var(--canvas); box-shadow:0 1px 3px #0000000a; }
+.collection-option:focus-visible { outline-offset:1px; }
+.practice-collection { flex:none; margin:3px 17px 10px; }
+.hot-badge { display:inline-flex; flex:none; align-items:center; justify-content:center; width:16px; height:18px; color:var(--hot-ink); }
+.problem-hot-marker { position:absolute; left:7px; top:8px; display:flex; align-items:center; justify-content:center; width:18px; height:15px; color:var(--hot-ink); }
+.hot-badge svg, .problem-hot-marker svg { width:13px; height:13px; fill:currentColor; stroke:currentColor; stroke-width:1; }
 .problem-list { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: scroll; scrollbar-gutter: stable; scrollbar-width: thin; padding: 0 10px 12px; }
 @supports selector(::-webkit-scrollbar) {
   .problem-list { scrollbar-width: auto; }
@@ -122,7 +132,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
 .group-items { min-height: 0; overflow: hidden; }
 .problem-group.is-open .group-content { grid-template-rows: 1fr; opacity: 1; }
 .problem-group.is-open .group-chevron { transform: rotate(90deg); }
-.problem-group .problem-item { padding-left: 31px; }
+.problem-group .problem-item { position:relative; padding-left: 31px; }
 .problem-item { display: flex; align-items: center; gap: 7px; width: 100%; height: 31px; min-height: 31px; padding: 0 9px; margin: 1px 0; border: 0; border-radius: 7px; text-align: left; color: #363636; background: transparent; font-size: 13px; line-height: 20px; transition: background .12s, color .12s; }
 .problem-item.is-passed { background: var(--passed-bg); }
 .problem-item:hover { background: var(--problem-hover); color: var(--text); }
@@ -429,6 +439,7 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
     --green-line: #3a624a;
     --passed-mark: #95b59f;
     --passed-bg: #202722;
+    --hot-ink: #dec08b;
     --problem-selected: #303632;
     --problem-hover: #292d2a;
     --red: #ffaaa1;

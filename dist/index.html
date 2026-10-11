@@ -127,7 +127,7 @@
   </script>
   <script src="./page-loader.js?v=26" onerror="window.__pageLoadError()"></script>
   <link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
-  <link rel="stylesheet" href="./styles.css?v=22" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
+  <link rel="stylesheet" href="./styles.css?v=27" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
 
   <div class="app-shell" id="appShell" inert aria-busy="true">
     <nav class="app-rail" aria-label="导航">
@@ -147,7 +147,11 @@
         <button class="icon-button" id="searchButton" aria-label="搜索题目" aria-expanded="false" aria-controls="searchField" title="搜索题目"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg></button>
       </div>
       <label class="search-field" id="searchField" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg><input id="searchInput" type="search" placeholder="搜索题目" aria-label="搜索题号、标题或知识点" autocomplete="off"></label>
-      <div class="sidebar-section-label">题目<span>100</span></div>
+      <div class="collection-switch practice-collection" id="practiceCollection" role="group" aria-label="题库范围">
+        <button class="collection-option" type="button" data-collection="hot100" aria-pressed="true" disabled>Hot 100</button>
+        <button class="collection-option" type="button" data-collection="hot20" aria-pressed="false" disabled>Hot 20</button>
+      </div>
+      <div class="sidebar-section-label">题目<span id="problemCount">100 题</span></div>
       <div class="problem-list" id="problemList"><div class="empty-result">正在加载…</div></div>
       <div class="sidebar-footer"><span id="progressText">0 / 100 已通过</span><a class="mobile-recite-link" href="./recite.html" data-page="recite">背诵模式</a></div>
     </aside>
@@ -181,6 +185,6 @@
     </main>
     <div class="toast" id="copyNotice" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   </div>
-  <script type="module" src="./navigation.js?v=25" onerror="window.__pageLoadError()"></script>
+  <script type="module" src="./navigation.js?v=27" onerror="window.__pageLoadError()"></script>
 </body>
 </html>

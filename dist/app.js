@@ -1,10 +1,11 @@
 import { PythonRunner } from './runner.js?v=15';
-import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=7';
+import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from './leetcode.js?v=27';
 import { checkOutput } from './checker.js?v=7';
 import { getResultTone as resultTone, buildResultsView } from './result-view.js?v=22';
 import { celebrateAcceptance, clearCelebration } from './celebration.js?v=22';
 import { bookmarkIcon } from './acceptance-mark.js?v=22';
-import problemGroups from './data/groups.js';
+import problemGroups from './data/groups.js?v=27';
+import { getCollection, setCollection, subscribeCollection, filterProblems, isHot20, collectionLabel, EXTRA_IDS } from './collections.js?v=27';
 import { initLayout } from './layout.js?v=5';
 import { installPythonEnhancements, smartIndentBackspace } from './editor-enhancements.js?v=10';
 
@@ -197,14 +198,18 @@ function setSearchOpen(open, restoreFocus = false) {
   }
 }
 function clearErrorLine() {
-  if (state.errorLine !== null) editor.removeLineClass(state.errorLine, 'background', 'code-error-line');
-  editor.clearGutter('errors'); state.errorLine = null;
+  editor.operation(() => {
+    if (state.errorLine !== null) editor.removeLineClass(state.errorLine, 'background', 'code-error-line');
+    editor.eachLine(line => {
+      if (editor.lineInfo(line)?.bgClass?.split(/\s+/).includes('code-error-line')) editor.removeLineClass(line, 'background', 'code-error-line');
+    });
+    editor.clearGutter('errors'); state.errorLine = null;
+  });
 }
 function markError(line) {
   clearErrorLine();
   if (!Number.isInteger(line) || line < 1 || line > editor.lineCount()) return;
-  state.errorLine = line - 1;
-  editor.addLineClass(state.errorLine, 'background', 'code-error-line');
+  state.errorLine = editor.addLineClass(line - 1, 'background', 'code-error-line');
   const marker = document.createElement('span'); marker.className = 'error-gutter-marker'; marker.textContent = '●';
   marker.title = `第 ${line} 行`; editor.setGutterMarker(state.errorLine, 'errors', marker);
 }
@@ -226,7 +231,8 @@ function setGroupOpen(section, open) {
 }
 function renderList() {
   const search = $('searchInput').value.trim().toLowerCase();
-  const byId = new Map(state.problems.map(p => [p.id, p]));
+  const collectionProblems = filterProblems(state.problems);
+  const byId = new Map(collectionProblems.map(p => [p.id, p]));
   const fragment = document.createDocumentFragment();
   let count = 0;
   for (const group of problemGroups) {
@@ -245,7 +251,8 @@ function renderList() {
       const button = document.createElement('button'); button.type = 'button'; button.className = `problem-item${state.current?.id === p.id ? ' active' : ''}${state.passed.has(p.id) ? ' is-passed' : ''}`;
       button.dataset.problemId = p.id; button.title = `${p.id}. ${p.title}`;
       if (state.current?.id === p.id) button.setAttribute('aria-current', 'true');
-      button.innerHTML = `<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span>${state.passed.has(p.id) ? `<span class="problem-bookmark" role="img" aria-label="已通过" title="已通过">${bookmarkIcon}</span>` : ''}`;
+      const hotMarker = getCollection() === 'hot100' && isHot20(p.id) ? '<span class="problem-hot-marker" role="img" aria-label="重点题" title="重点题 · Hot 20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9Z"/></svg></span>' : '';
+      button.innerHTML = `${hotMarker}<span class="problem-number">${p.id}</span><span class="problem-name">${escapeHtml(p.title)}</span>${state.passed.has(p.id) ? `<span class="problem-bookmark" role="img" aria-label="已通过" title="已通过">${bookmarkIcon}</span>` : ''}`;
       button.addEventListener('click', () => selectProblem(p.id)); items.append(button);
     }
     content.append(items); section.append(header, content);
@@ -264,7 +271,27 @@ function renderList() {
   }
   if (!count) { const empty = document.createElement('div'); empty.className = 'empty-result'; empty.textContent = '没有找到题目'; fragment.append(empty); }
   $('problemList').replaceChildren(fragment);
-  $('progressText').textContent = `${state.passed.size} / ${state.problems.length} 已通过`;
+  $('problemCount').textContent = `${collectionProblems.length} 题`;
+  $('progressText').textContent = `${collectionProblems.filter(p => state.passed.has(p.id)).length} / ${collectionProblems.length} 已通过`;
+  $('practiceCollection').querySelectorAll('[data-collection]').forEach(button => {
+    button.disabled = false;
+    button.setAttribute('aria-pressed', String(button.dataset.collection === getCollection()));
+  });
+}
+function updateProblemNavigation() {
+  const problems = filterProblems(state.problems);
+  const index = problems.findIndex(p => p.id === state.current?.id);
+  $('prevProblem').disabled = index <= 0;
+  $('nextProblem').disabled = index < 0 || index === problems.length - 1;
+}
+function updateProblemUrl() {
+  if (!state.current) return;
+  const url = new URL('./', import.meta.url);
+  url.searchParams.set('problem', state.current.id); url.searchParams.set('mode', state.mode); url.searchParams.set('collection', getCollection());
+  $('appShell').dataset.url = url.href;
+  $('appShell').dataset.title = `${state.current.title} · ${collectionLabel()}`;
+  if (!$('appShell').hidden) { history.replaceState(history.state, '', url); document.title = $('appShell').dataset.title; }
+  save(`collection:${getCollection()}:current`, String(state.current.id));
 }
 function revealCurrentProblem() {
   const list = $('problemList'), selected = list.querySelector('[aria-current="true"]');
@@ -294,8 +321,7 @@ function selectProblem(id, force = false) {
   state.restoring = true; editor.setValue(p.template || ''); state.restoring = false; clearErrorLine();
   editor.clearHistory(); updateHistoryButton();
   $('saveStatus').textContent = state.historyCode === null ? '尚未作答' : '历史作答已保留';
-  const index = state.problems.findIndex(item => item.id === p.id);
-  $('prevProblem').disabled = index === 0; $('nextProblem').disabled = index === state.problems.length - 1;
+  updateProblemNavigation();
   const constraints = p.constraints?.length ? `<details class="problem-constraints"><summary>数据范围</summary><ul>${p.constraints.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul></details>` : '';
   $('statementContent').innerHTML = `<div class="problem-meta"><span class="difficulty">${escapeHtml(p.difficulty)}</span><a class="source-link" href="${escapeHtml(p.url)}" target="_blank" rel="noreferrer">原题 ↗</a></div><h1>${p.id}. ${escapeHtml(p.title)}</h1><p class="description">${escapeHtml(p.desc)}</p><h2>输入</h2><p class="spec-text">${escapeHtml(p.inputSpec)}</p><h2>输出</h2><p class="spec-text">${escapeHtml(p.outputSpec)}</p>${constraints}${p.examples.map((e, i) => `<section class="example-block"><h2>样例 ${i + 1}</h2><div class="example-label">输入</div><pre class="example-code">${escapeHtml(e.input)}</pre><div class="example-label">输出</div><pre class="example-code">${escapeHtml(e.output)}</pre></section>`).join('')}`;
   $('statementContent').scrollTop = 0;
@@ -305,13 +331,7 @@ function selectProblem(id, force = false) {
   if (groupId) { expandedGroups.add(groupId); searchCollapsedGroups.delete(groupId); save('expandedGroups', JSON.stringify([...expandedGroups])); }
   selectCase(0); setTab('input'); renderList();
   save('current', String(p.id));
-  const url = new URL('./', import.meta.url); url.searchParams.set('problem', p.id); url.searchParams.set('mode', state.mode);
-  $('appShell').dataset.url = url.href;
-  $('appShell').dataset.title = `${p.title} · Hot 100`;
-  if (!$('appShell').hidden) {
-    history.replaceState(history.state, '', url);
-    document.title = $('appShell').dataset.title;
-  }
+  updateProblemUrl();
   $('workspaceTitle').textContent = p.title;
   if (!force) {
     setSearchOpen(false);
@@ -376,8 +396,10 @@ function renderResults(submit) {
     $('resultView').querySelector(`[data-case="${state.resultIndex}"]`).focus({ preventScroll: true });
   }));
   $('resultView').querySelector('[data-line]')?.addEventListener('click', () => { editor.setCursor(r.line - 1, 0); editor.scrollIntoView({ line: r.line - 1, ch: 0 }, 60); editor.focus(); });
-  if (editor.getValue() === state.submittedCode) markError(r.line);
-  else $('resultTab').firstChild.textContent = '上次结果';
+  clearErrorLine();
+  if (editor.getValue() === state.submittedCode) {
+    if (r.status === 'error') markError(r.line);
+  } else $('resultTab').firstChild.textContent = '上次结果';
 }
 async function execute(submit) {
   if (state.busy || !state.current) return;
@@ -428,6 +450,21 @@ $('searchInput').addEventListener('input', () => {
   if (!$('searchInput').value.trim()) requestAnimationFrame(revealCurrentProblem);
 });
 $('searchButton').addEventListener('click', () => setSearchOpen($('searchField').hidden, true));
+$('practiceCollection').addEventListener('click', event => {
+  const button = event.target.closest('[data-collection]');
+  if (button) setCollection(button.dataset.collection);
+});
+subscribeCollection(() => {
+  if (!state.problems.length) return;
+  $('searchInput').value = ''; searchCollapsedGroups.clear();
+  const problems = filterProblems(state.problems);
+  if (!problems.some(p => p.id === state.current?.id)) {
+    const remembered = Number(read(`collection:${getCollection()}:current`));
+    selectProblem(problems.find(p => p.id === remembered)?.id || problems[0]?.id);
+  } else {
+    renderList(); updateProblemNavigation(); updateProblemUrl(); requestAnimationFrame(revealCurrentProblem);
+  }
+});
 $('copyProblem').addEventListener('click', copyProblem);
 $('homeButton').addEventListener('click', () => {
   closeModeMenu();
@@ -462,8 +499,8 @@ $('testInput').addEventListener('input', updateCustom); $('expectedOutput').addE
 $('historyButton').addEventListener('click', loadHistory);
 $('runButton').addEventListener('click', () => execute(false)); $('submitButton').addEventListener('click', () => execute(true)); $('stopButton').addEventListener('click', stop);
 $('inputTab').addEventListener('click', () => { setTab('input'); expandPanel(); }); $('resultTab').addEventListener('click', () => { setTab('result'); expandPanel(); });
-$('prevProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) - 1]?.id));
-$('nextProblem').addEventListener('click', () => selectProblem(state.problems[state.problems.findIndex(p => p.id === state.current.id) + 1]?.id));
+$('prevProblem').addEventListener('click', () => { const problems = filterProblems(state.problems); selectProblem(problems[problems.findIndex(p => p.id === state.current.id) - 1]?.id); });
+$('nextProblem').addEventListener('click', () => { const problems = filterProblems(state.problems); selectProblem(problems[problems.findIndex(p => p.id === state.current.id) + 1]?.id); });
 $('openSidebar').addEventListener('click', () => setSidebar(true));
 $('sidebarBackdrop').addEventListener('click', () => setSidebar(false));
 $('panelToggle').addEventListener('click', () => {
@@ -488,17 +525,20 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('resize', () => { syncSidebar(); editor.refresh(); });
 window.addEventListener('pagehide', () => { persistCode(); if (state.busy) stop(); else runner.cancel(); });
-export function activate() { syncSidebar(); editor.refresh(); }
+export function activate() { syncSidebar(); editor.refresh(); updateProblemUrl(); }
 export function deactivate() { persistCode(); closeModeMenu(); clearCelebration(); resetCopyFeedback(); }
 $('appShell').addEventListener('transitionend', e => { if (e.target === $('appShell') && e.propertyName === 'grid-template-columns') editor.refresh(); });
 
 try {
-  const response = await fetch('./data/problems.json?v=7'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
+  const response = await fetch('./data/problems.json?v=27'); if (!response.ok) throw new Error('题库加载失败，请刷新重试');
   const problems = await response.json();
   const byId = new Map(problems.map(p => [p.id, p]));
   state.problems = problemGroups.flatMap(group => group.problemIds.map(id => byId.get(id)));
   if (state.problems.some(p => !p) || new Set(state.problems).size !== problems.length) throw new Error('题目分组加载失败，请刷新重试');
   loadProgress(); updateModeControl(); syncSidebar();
-  const requested = Number(new URL(location.href).searchParams.get('problem') || read('current', '1'));
-  selectProblem(state.problems.some(p => p.id === requested) ? requested : state.problems[0].id);
+  const url = new URL(location.href);
+  const requested = Number(url.searchParams.get('problem') || read(`collection:${getCollection()}:current`, read('current', '1')));
+  if (!url.searchParams.has('collection') && url.searchParams.has('problem') && EXTRA_IDS.includes(requested)) setCollection('hot20');
+  const available = filterProblems(state.problems);
+  selectProblem(available.some(p => p.id === requested) ? requested : available[0].id);
 } catch (error) { $('statementContent').innerHTML = `<div class="empty-result">${escapeHtml(error.message)}</div>`; $('problemList').textContent = '加载失败'; $('runButton').disabled = true; $('submitButton').disabled = true; throw error; }

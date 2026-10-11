@@ -1,9 +1,15 @@
+import { getCollection, setCollection, subscribeCollection, filterProblems, isHot20, collectionLabel } from './collections.js?v=27';
+
 const $ = (id) => document.getElementById(id);
+const root = document.querySelector('.recitation-app');
 const folder = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8V5h6l2 3h10v12H3Zm0 3h18"/></svg>';
 const chevron = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
 const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 const escape = (text) => String(text).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 let problems = [];
+let allGroups = [];
+let scope = getCollection();
+let selectedGroup = location.pathname.endsWith('/recite.html') ? location.hash.slice(1) : '';
 let lastProblemId = null;
 let drawBag = [];
 let scrollFrame = 0;
@@ -12,7 +18,7 @@ let dialogResizeAnimation;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function metadata(problem) {
-  return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span><span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
+  return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span>${scope === 'hot100' && isHot20(problem.id) ? '<span class="hot-badge" role="img" aria-label="重点题" title="重点题 · Hot 20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9Z"/></svg></span>' : ''}<span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
 }
 
 function examples(problem, expanded = false) {
@@ -80,11 +86,13 @@ function randomProblem() {
 }
 
 function activeGroup(id) {
+  selectedGroup = id;
   $('reciteGroups').querySelectorAll('a').forEach((link) => {
     if (link.hash === `#${id}`) link.setAttribute('aria-current', 'location');
     else link.removeAttribute('aria-current');
   });
   $('mobileGroup').value = id;
+  syncLocation(false);
 }
 
 function jumpToGroup(id) {
@@ -92,24 +100,54 @@ function jumpToGroup(id) {
   if (!section?.classList.contains('recite-section')) return;
   section.scrollIntoView({ block: 'start', behavior: 'instant' });
   activeGroup(id);
-  if (!document.querySelector('.recitation-app').hidden) history.replaceState(history.state, '', `#${id}`);
+  syncLocation();
+}
+
+function syncLocation(updateBrowser = true) {
+  const url = new URL(root.dataset.url || (location.pathname.endsWith('/recite.html') ? location.href : new URL('./recite.html', import.meta.url)));
+  url.searchParams.set('collection', scope);
+  url.hash = selectedGroup;
+  root.dataset.url = url.href;
+  root.dataset.title = `背诵模式 · ${collectionLabel(scope)}`;
+  root.querySelectorAll('[data-recitation-collection]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.recitationCollection === scope));
+  });
+  root.querySelectorAll('a[data-page]').forEach(link => {
+    const target = new URL(link.href);
+    target.searchParams.set('collection', scope);
+    link.href = target.href;
+  });
+  if (updateBrowser && !root.hidden && location.pathname.endsWith('/recite.html')) {
+    history.replaceState(history.state, '', url);
+    document.title = root.dataset.title;
+  }
+}
+
+function renderCollection() {
+  closeProblem();
+  drawBag = [];
+  lastProblemId = null;
+  const groups = allGroups.map(group => ({ ...group, problems: filterProblems(group.problems, scope) })).filter(group => group.problems.length);
+  problems = groups.flatMap(group => group.problems.map(problem => ({ ...problem, groupName: group.name })));
+  $('groupCount').textContent = groups.length;
+  $('cardCount').textContent = `${problems.length} 题`;
+  $('reciteGroups').innerHTML = groups.map(group => `<a class="recite-group-link" href="#${group.id}">${folder}<span>${escape(group.name)}</span><span>${group.problems.length}</span></a>`).join('');
+  $('mobileGroup').innerHTML = groups.map(group => `<option value="${group.id}">${escape(group.name)} · ${group.problems.length} 题</option>`).join('');
+  $('mobileGroup').disabled = !groups.length;
+  $('reciteContent').innerHTML = groups.map(group => `<section class="recite-section" id="${group.id}" aria-labelledby="${group.id}-heading"><div class="recite-section-heading">${folder}<h2 id="${group.id}-heading">${escape(group.name)}</h2><span>${group.problems.length}</span></div><div class="recite-grid">${group.problems.map(card).join('')}</div></section>`).join('');
+  $('randomProblem').disabled = !problems.length;
+  selectedGroup = groups.some(group => group.id === selectedGroup) ? selectedGroup : groups[0]?.id || '';
+  syncLocation();
+  jumpToGroup(selectedGroup);
 }
 
 async function loadProblems({ reportFailure = false } = {}) {
   try {
-    const response = await fetch('./data/recitation.json');
+    const response = await fetch('./data/recitation.json?v=27');
     if (!response.ok) throw new Error('Could not load cards');
-    const { groups } = await response.json();
-    problems = groups.flatMap((group) => group.problems.map((problem) => ({ ...problem, groupName: group.name })));
-    $('groupCount').textContent = groups.length;
-    $('cardCount').textContent = `${problems.length} 题`;
-    $('reciteGroups').innerHTML = groups.map((group) => `<a class="recite-group-link" href="#${group.id}">${folder}<span>${escape(group.name)}</span><span>${group.problems.length}</span></a>`).join('');
-    $('mobileGroup').innerHTML = groups.map((group) => `<option value="${group.id}">${escape(group.name)} · ${group.problems.length} 题</option>`).join('');
-    $('mobileGroup').disabled = false;
-    $('reciteContent').innerHTML = groups.map((group) => `<section class="recite-section" id="${group.id}" aria-labelledby="${group.id}-heading"><div class="recite-section-heading">${folder}<h2 id="${group.id}-heading">${escape(group.name)}</h2><span>${group.problems.length}</span></div><div class="recite-grid">${group.problems.map(card).join('')}</div></section>`).join('');
-    $('randomProblem').disabled = false;
-    const requested = location.hash.slice(1);
-    jumpToGroup(groups.some((group) => group.id === requested) ? requested : groups[0].id);
+    ({ groups: allGroups } = await response.json());
+    scope = getCollection();
+    renderCollection();
   } catch (error) {
     $('reciteContent').innerHTML = '<div class="recite-error"><p class="recite-loading" role="alert">题目未能加载</p><button class="button" id="retryLoad">重试</button></div>';
     $('retryLoad').addEventListener('click', loadProblems, { once: true });
@@ -118,6 +156,16 @@ async function loadProblems({ reportFailure = false } = {}) {
 }
 
 $('randomProblem').addEventListener('click', randomProblem);
+root.querySelectorAll('[data-recitation-collection]').forEach(button => {
+  button.addEventListener('click', () => setCollection(button.dataset.recitationCollection));
+});
+subscribeCollection(() => {
+  const next = getCollection();
+  if (next === scope) return;
+  scope = next;
+  if (allGroups.length) renderCollection();
+  else syncLocation();
+});
 $('nextRandom').addEventListener('click', randomProblem);
 $('closeDialog').addEventListener('click', closeProblem);
 $('problemDialog').addEventListener('cancel', (event) => {
@@ -154,7 +202,14 @@ $('reciteScroll').addEventListener('scroll', () => {
   });
 }, { passive: true });
 window.addEventListener('hashchange', (event) => {
-  if (!document.querySelector('.recitation-app').hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
+  if (!root.hidden && new URL(event.oldURL).pathname === new URL(event.newURL).pathname) jumpToGroup(location.hash.slice(1));
 });
+export function activate() {
+  if (scope !== getCollection()) { scope = getCollection(); renderCollection(); }
+  const requested = location.hash.slice(1);
+  if (requested && requested !== selectedGroup && document.getElementById(requested)?.classList.contains('recite-section')) jumpToGroup(requested);
+  else syncLocation();
+}
 export function deactivate() { closeProblem(); }
+syncLocation();
 await loadProblems({ reportFailure: true });

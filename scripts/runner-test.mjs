@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Worker as NodeWorker } from 'node:worker_threads';
 import { PythonRunner, outputsEqual } from '../dist/runner.js';
+import { extraIds } from './extra-problems.mjs';
 
 const runtimePath = resolve(process.env.PYODIDE_PACKAGE_PATH || fileURLToPath(
   new URL('../node_modules/pyodide/', import.meta.url),
@@ -257,6 +258,7 @@ if (process.env.REFERENCE_SOLUTIONS_PATH) {
   const failures = [];
   let count = 0;
   for (const problem of problems) {
+    if (extraIds.includes(problem.id)) continue;
     for (const [index, test] of problem.tests.entries()) {
       pyodide.globals.set('_qa_source', references[problem.id]);
       pyodide.globals.set('_qa_input', test.input);
@@ -282,6 +284,6 @@ json.dumps({"stdout": _qa_stdout.getvalue(), "stderr": _qa_stderr.getvalue(), "e
       if (result.error || !checked) failures.push({ id: problem.id, index, checked, ...result });
     }
   }
-  console.log(JSON.stringify({ references: problems.length, cases: count, failures }));
+  console.log(JSON.stringify({ references: problems.length - extraIds.length, cases: count, failures }));
   assert.equal(failures.length, 0, 'Reference solutions failed in Pyodide');
 }

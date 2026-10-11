@@ -67,6 +67,8 @@ const checks = {
   114: x => tree(x.root,0,2000,-100,100),
   118: x => n(x.numRows,1,30),
   121: x => arr(x.prices,1,1e5,0,1e4),
+  122: x => arr(x.prices,1,3e4,0,1e4),
+  123: x => arr(x.prices,1,1e5,0,1e5),
   124: x => tree(x.root,1,3e4,-1000,1000),
   128: x => arr(x.nums,0,1e5,-1e9,1e9),
   131: x => str(x.s,1,16,letters),
@@ -83,6 +85,7 @@ const checks = {
   // Official example 1 contains 0 despite the displayed Node.val lower bound of 1.
   160: x => [x.listA,x.listB].every(v=>arr(v,1,3e4,0,1e5)) && n(x.skipA,0,x.listA.length) && n(x.skipB,0,x.listB.length) && JSON.stringify(x.listA.slice(x.skipA))===JSON.stringify(x.listB.slice(x.skipB)),
   169: x => arr(x.nums,1,5e4,-1e9,1e9) && x.nums.some(v=>x.nums.filter(w=>w===v).length>x.nums.length/2),
+  188: x => n(x.k,1,100) && arr(x.prices,1,1000,0,1000),
   189: x => arr(x.nums,1,1e5,...int32) && n(x.k,0,1e5),
   198: x => arr(x.nums,1,100,0,400),
   199: x => tree(x.root,0,100,-100,100),
@@ -116,7 +119,7 @@ const checks = {
   994: x => matrix(x.grid,1,10,0,2),
   1143: x => [x.text1,x.text2].every(v=>str(v,1,1000,letters)),
 };
-assert.equal(Object.keys(checks).length,100);
+assert.equal(Object.keys(checks).length,103);
 let cases=0;
 for(const p of problems) {
   assert.equal(typeof checks[p.id],'function',`Missing domain check ${p.id}`);

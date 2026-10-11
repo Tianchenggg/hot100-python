@@ -13,6 +13,7 @@ import argparse
 import json
 from pathlib import Path
 import re
+from extra_problems import add_recitation_extras
 
 
 GROUP = re.compile(r"## (\d+)\. (.+)")
@@ -144,14 +145,14 @@ def main():
     parser.add_argument("--groups", type=Path, help="Optional groups.js to verify IDs and order")
     args = parser.parse_args()
     try:
-        data = parse_recitation(args.input.read_text(encoding="utf-8"))
+        data = add_recitation_extras(parse_recitation(args.input.read_text(encoding="utf-8")))
         if args.groups:
             verify_groups(data, args.groups)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     except (OSError, ValueError) as error:
         parser.exit(1, f"error: {error}\n")
-    print(f"Wrote {args.output}: 17 groups, 100 problems, all six fields present.")
+    print(f"Wrote {args.output}: 17 groups, 100 original + 3 extra problems, all six fields present.")
     if args.groups:
         print(f"Group names, IDs, and problem order exactly match {args.groups}.")
 

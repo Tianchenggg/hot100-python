@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { addExtraLeetCodeProblems } from './extra-problems.mjs';
 
 const upstream = process.argv[2];
 if (!upstream) throw new Error('Usage: node scripts/prepare-leetcode.mjs /path/to/hot100-judge');
@@ -85,5 +86,6 @@ for (const [id, entry] of Object.entries(dataset)) {
   entry.examples = entry.tests.slice(0, 2);
   for (const [index, value] of Object.entries(patch.examplesReplacements || {})) entry.examples[Number(index)] = value;
 }
+addExtraLeetCodeProblems(dataset);
 fs.writeFileSync(new URL('../dist/data/leetcode.js', import.meta.url), `export default ${JSON.stringify(dataset)};\n`);
-console.log(`Generated ${problems.length} LeetCode problems, ${Object.values(dataset).reduce((n, p) => n + p.tests.length, 0)} cases.`);
+console.log(`Generated ${Object.keys(dataset).length} LeetCode problems, ${Object.values(dataset).reduce((n, p) => n + p.tests.length, 0)} cases.`);

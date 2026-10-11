@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { getLeetCodeProblem, buildLeetCodeHarness, checkLeetCodeOutput } from '../dist/leetcode.js';
+import { extraIds } from './extra-problems.mjs';
 
 const rawProblems = JSON.parse(await readFile(new URL('../dist/data/problems.json', import.meta.url), 'utf8'));
 const problems = new Map(rawProblems.map((problem) => [Number(problem.id), getLeetCodeProblem(problem)]));
@@ -272,6 +273,7 @@ if (process.env.CORE_REFERENCE_DATA_DIR) {
   const failures = [];
   let count = 0;
   for (const [id, problem] of problems) {
+    if (extraIds.includes(id)) continue;
     const core = metadata.get(id);
     let code = references[id]?.python3?.core;
     assert.equal(typeof code, 'string', `Missing reference solution ${id}`);
@@ -286,6 +288,6 @@ if (process.env.CORE_REFERENCE_DATA_DIR) {
       if (!accepted) failures.push({ id, index, expected: test.output, ...result });
     }
   }
-  console.log(JSON.stringify({ referenceProblems: problems.size, cases: count, failures }));
+  console.log(JSON.stringify({ referenceProblems: problems.size - extraIds.length, cases: count, failures }));
   equal(failures.length, 0, 'Reference solutions failed in Pyodide');
 }

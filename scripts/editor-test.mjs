@@ -163,4 +163,112 @@ for (const [text, selections, options] of [
   assert.equal(doc.getValue(), text);
   assert.equal(JSON.stringify(doc.listSelections()), beforeSelections);
 }
-console.log('Editor checks passed: Python tokenizer state, semantic colors, f-strings, Unicode, indentation, tabs and multiple cursors.');
+// Exercise the production marker functions on real CodeMirror line handles.
+const appSource = await readFile(new URL('../dist/app.js', import.meta.url), 'utf8');
+function sourceBetween(start, end) {
+  const from = appSource.indexOf(start);
+  const to = appSource.indexOf(end, from);
+  assert.ok(from >= 0 && to > from, `production source exists: ${start}`);
+  return appSource.slice(from, to);
+}
+const markerSource = sourceBetween('function clearErrorLine()', "editor.on('change'");
+const resultSource = sourceBetween('function renderResults(submit)', 'async function execute(submit)');
+const changeSource = sourceBetween("editor.on('change'", 'function setGroupOpen');
+function errorEditor(text = 'one\ntwo\nbroken\nfour', trackChanges = false) {
+  const doc = editor(text, [pos(0, 0)]);
+  const state = { errorLine: null, results: [], resultIndex: 0, current: { tests: [{}] }, mode: 'acm', submittedCode: text };
+  const ui = {
+    resultIndicator: { className: '' },
+    resultView: { innerHTML: '', querySelectorAll: () => [], querySelector: () => null },
+    resultTab: { firstChild: { textContent: '结果' } }
+  };
+  const api = vm.runInNewContext(markerSource + resultSource + (trackChanges ? changeSource : '') + '\n({ clearErrorLine, markError, renderResults })', {
+    editor: doc, state, document, $: id => ui[id], persistCode() {},
+    buildResultsView: () => '', resultTone: result => result.status === 'error' ? 'failure' : 'success'
+  });
+  return { doc, state, ui, ...api };
+}
+function assertNoErrors(harness) {
+  harness.doc.eachLine(line => {
+    const info = harness.doc.lineInfo(line);
+    assert.ok(!(info.bgClass || '').split(/\s+/).includes('code-error-line'), 'no orphan error background');
+    assert.ok(!info.gutterMarkers?.errors, 'no orphan error gutter');
+  });
+  assert.equal(harness.state.errorLine, null);
+}
+for (const [name, edit, expectedLine] of [
+  ['insert before', doc => doc.replaceRange('new\nnewer\n', pos(0, 0)), 4],
+  ['delete before', doc => doc.replaceRange('', pos(0, 0), pos(1, 0)), 1],
+  ['delete error line', doc => doc.replaceRange('', pos(1, 3), pos(3, 0)), null],
+  ['replace document', doc => doc.setValue('replacement\nclean'), null]
+]) {
+  const harness = errorEditor();
+  harness.markError(3);
+  const handle = harness.doc.getLineHandle(2);
+  assert.equal(harness.state.errorLine, handle, 'track the actual CodeMirror handle');
+  assert.equal(harness.doc.lineInfo(handle).bgClass, 'code-error-line');
+  assert.equal(harness.doc.lineInfo(handle).gutterMarkers.errors.textContent, '●');
+  edit(harness.doc);
+  assert.equal(harness.doc.getLineNumber(handle), expectedLine, name);
+  const textAfterEdit = harness.doc.getValue();
+  const historyAfterEdit = JSON.stringify(harness.doc.historySize());
+  harness.clearErrorLine();
+  assertNoErrors(harness);
+  assert.equal(harness.doc.getValue(), textAfterEdit, 'cleanup preserves code');
+  assert.equal(JSON.stringify(harness.doc.historySize()), historyAfterEdit, 'cleanup preserves undo history');
+  harness.doc.undo();
+  assert.equal(harness.doc.getValue(), 'one\ntwo\nbroken\nfour');
+  harness.doc.redo();
+  assert.equal(harness.doc.getValue(), textAfterEdit);
+  assertNoErrors(harness);
+}
+{
+  const harness = errorEditor();
+  harness.doc.addLineClass(0, 'background', 'other-decoration');
+  for (const line of [0, 2]) {
+    harness.doc.addLineClass(line, 'background', 'code-error-line');
+    harness.doc.setGutterMarker(line, 'errors', element());
+  }
+  harness.doc.setGutterMarker(0, 'bookmarks', element());
+  harness.clearErrorLine();
+  assertNoErrors(harness);
+  assert.equal(harness.doc.lineInfo(0).bgClass, 'other-decoration', 'only error backgrounds are removed');
+  assert.ok(harness.doc.lineInfo(0).gutterMarkers.bookmarks, 'unrelated gutter markers survive');
+  for (const line of [0, -1, 5, 1.5, NaN, undefined, '2']) {
+    harness.markError(2);
+    harness.markError(line);
+    assertNoErrors(harness);
+  }
+}
+for (const submit of [false, true]) {
+  const harness = errorEditor();
+  harness.state.results = [{ status: 'error', line: 3 }];
+  harness.renderResults(submit);
+  assert.equal(harness.doc.lineInfo(2).bgClass, 'code-error-line');
+  harness.state.results = [{ status: 'ok', line: 3, passed: true, compared: true }];
+  harness.renderResults(submit);
+  assertNoErrors(harness);
+  harness.state.results = [{ status: 'ok', line: 3, passed: false, compared: true }];
+  harness.renderResults(submit);
+  assertNoErrors(harness);
+  harness.state.results = [{ status: 'error', line: 3 }, { status: 'ok', passed: true }];
+  harness.renderResults(submit);
+  harness.state.resultIndex = 1;
+  harness.renderResults(submit);
+  assertNoErrors(harness);
+  harness.state.resultIndex = 0;
+  harness.renderResults(submit);
+  harness.doc.replaceRange('new\n', pos(0, 0));
+  harness.renderResults(submit);
+  assertNoErrors(harness);
+  assert.equal(harness.ui.resultTab.firstChild.textContent, '上次结果', 'stale errors cannot mark changed code');
+}
+{
+  const harness = errorEditor(undefined, true);
+  harness.markError(3);
+  harness.doc.replaceRange('new\n', pos(0, 0));
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assertNoErrors(harness);
+  assert.equal(harness.state.codeAuthored, true, 'production change handler ran');
+}
+console.log('Editor checks passed: tokenizer, colors, indentation, real CodeMirror error handles, edits, orphan cleanup, result transitions and undo history.');

@@ -699,6 +699,30 @@
           "output": "5"
         },
         {
+          "id": 122,
+          "title": "买卖股票的最佳时机 II",
+          "difficulty": "中等",
+          "description": "可以多次买卖同一只股票，但最多持有一股，求最大利润。",
+          "input": "prices = [7,1,5,3,6,4]",
+          "output": "7"
+        },
+        {
+          "id": 123,
+          "title": "买卖股票的最佳时机 III",
+          "difficulty": "困难",
+          "description": "最多完成两笔股票交易，且必须先卖出再买入，求最大利润。",
+          "input": "prices = [3,3,5,0,0,3,1,4]",
+          "output": "6"
+        },
+        {
+          "id": 188,
+          "title": "买卖股票的最佳时机 IV",
+          "difficulty": "困难",
+          "description": "最多完成 k 笔股票交易，且必须先卖出再买入，求最大利润。",
+          "input": "k = 2, prices = [2,4,1]",
+          "output": "2"
+        },
+        {
           "id": 55,
           "title": "跳跃游戏",
           "difficulty": "中等",

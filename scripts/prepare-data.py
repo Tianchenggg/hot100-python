@@ -5,6 +5,7 @@ import argparse
 import json
 import shutil
 from pathlib import Path
+from extra_problems import acm_problem, insert_extras, load_extra_problems, EXTRA_IDS
 
 
 def correct_output_order(entry):
@@ -85,6 +86,7 @@ def main():
             for index, value in specific.get(field + "Replacements", {}).items():
                 entry[field][int(index)] = value
         entry["tests"].extend(specific.get("additionalTests", []))
+    exported = insert_extras(exported, [acm_problem(p) for p in load_extra_problems()])
     output = project / "dist" / "data" / "problems.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(exported, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -92,7 +94,7 @@ def main():
     if args.references:
         assert project not in args.references.resolve().parents, "QA answers must stay outside the project"
         solutions = json.loads((data / "solutions.json").read_text(encoding="utf-8"))
-        references = {str(problem["id"]): solutions[str(problem["id"])]["python3"]["acm"] for problem in exported}
+        references = {str(problem["id"]): solutions[str(problem["id"])]["python3"]["acm"] for problem in exported if problem["id"] not in EXTRA_IDS}
         assert len(references) == 100 and all(isinstance(code, str) and code.strip() for code in references.values())
         args.references.parent.mkdir(parents=True, exist_ok=True)
         args.references.write_text(json.dumps(references, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
