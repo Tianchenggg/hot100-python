@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 432">
+<defs>
+ <linearGradient id="ivory"><stop stop-color="#d0d6dd"/><stop offset=".12" stop-color="#f5f7ee"/><stop offset=".62" stop-color="#e6ece9"/><stop offset="1" stop-color="#ced8df"/></linearGradient>
+ <linearGradient id="carving"><stop stop-color="#9b987e"/><stop offset=".32" stop-color="#e5d9b5"/><stop offset=".64" stop-color="#aaa187"/><stop offset="1" stop-color="#f1e8d0"/></linearGradient>
+</defs>
+<path d="M0 0h124v432H0Z" fill="url(#ivory)" stroke="#a9b4c0"/>
+<path d="M7 5h110v422H7Z" fill="none" stroke="#fffff7" stroke-width="2"/>
+<g stroke="url(#carving)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M17 22h50l18 19v71L61 140v33l23 27v32l-23 30v33l24 25v70l-18 19H17Z"/>
+ <path d="M28 37h32l12 13v56l-24 29v43l23 29v20l-23 31v43l24 27v54l-12 12H28Z" stroke-width="1.3"/>
+ <path d="M120 20c-28 0-47 9-47 32 0 16 17 26 29 15 11-11-2-24-14-15m32 36c-19 0-24 11-24 26v35l-17 16 41 39m0 204c-28 0-47-9-47-32 0-16 17-26 29-15 11 11-2 24-14 15m32-36c-19 0-24-11-24-26v-35l-17-16 41-39"/>
+ <path d="m122 178-37 38 37 39m0-60-20 21 20 22" stroke-width="4"/>
+ <path d="M22 163c20 0 32 18 21 29-9 9-21 0-13-8m-8 86c20 0 32-18 21-29-9-9-21 0-13 8"/>
+ <path d="m22 209 8 7-8 7-8-7ZM34 78l15-15 14 15-14 19Zm0 273 15 15 14-15-14-19Z"/>
+ <path d="M48 113v13m0 181v13M20 303v-16M20 130v16" stroke-width="1.5"/>
+</g>
+<path d="M121 0v432" stroke="#fffce2" stroke-width="4"/>
+</svg>

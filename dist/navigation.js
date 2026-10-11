@@ -20,9 +20,9 @@ for (const page of Object.values(pages)) {
 pages[current].url = location.href;
 document.body.dataset.page = current;
 
-function stage(name, text) {
+function stage(name, text, completed = 0, total = 1) {
   pages[name].phase = text;
-  if (loadingTarget === name) loading.stage(loadingToken, text);
+  if (loadingTarget === name) loading.stage(loadingToken, text, completed, total);
 }
 
 function stylesheet(href) {
@@ -76,8 +76,8 @@ function prepare(name) {
     } else {
       await Promise.all([...document.querySelectorAll('link[data-page-style]')].map(link => stylesheet(link.href)));
     }
-    if (name === 'practice') { stage(name, '正在准备编辑器'); await loadEditor(); }
-    stage(name, '正在加载题目');
+    if (name === 'practice') { stage(name, '正在准备编辑器', 1, 3); await loadEditor(); }
+    stage(name, '正在加载题目', name === 'practice' ? 2 : 1, name === 'practice' ? 3 : 2);
     page.controller = await import(page.module);
     page.root.dataset.ready = 'true';
     return page;
@@ -119,7 +119,8 @@ async function navigate(name, { pop = false } = {}) {
       { opacity: .45, transform: `translateX(${name === 'recite' ? 8 : -8}px)` },
       { opacity: 1, transform: 'translateX(0)' },
     ], { duration: 160, easing: 'cubic-bezier(.2,.8,.2,1)' });
-  } catch {
+  } catch (error) {
+    console.error('Page navigation failed', error);
     if (ticket === sequence) loading.fail(token);
   }
 }
@@ -132,21 +133,27 @@ document.addEventListener('click', event => {
   navigate(link.dataset.page).finally(() => link.removeAttribute('aria-busy'));
 });
 window.addEventListener('popstate', () => {
-  if (document.body.classList.contains('is-booting')) { location.reload(); return; }
+  if (loading.awaitingEntry) { location.reload(); return; }
   navigate(location.pathname.endsWith('/recite.html') ? 'recite' : 'practice', { pop: true });
 });
 
 const bootName = current, bootToken = loadingToken, bootTicket = sequence;
 try {
-  const page = await prepare(bootName);
+  const [page] = await Promise.all([
+    prepare(bootName).then(page => { loading.stage(bootToken, '正在准备场景', 3, 4); return page; }),
+    loading.assets(),
+  ]);
   await new Promise(resolve => requestAnimationFrame(resolve));
   if (sequence === bootTicket && loading.pending(bootToken)) {
-    loading.finish(bootToken); loadingTarget = null;
-    page.controller?.activate?.();
-    const preload = () => prepare(current === 'practice' ? 'recite' : 'practice').catch(() => {});
-    if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 1000 });
-    else setTimeout(preload, 120);
+    loadingTarget = null;
+    const entered = await loading.ready(bootToken, () => page.controller?.activate?.());
+    if (entered && sequence === bootTicket) {
+      const preload = () => prepare(current === 'practice' ? 'recite' : 'practice').catch(() => {});
+      if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 1000 });
+      else setTimeout(preload, 120);
+    }
   }
-} catch {
+} catch (error) {
+  console.error('Page initialization failed', error);
   if (sequence === bootTicket) loading.fail(bootToken);
 }

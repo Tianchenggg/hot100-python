@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 580">
+<defs>
+ <linearGradient id="stone"><stop stop-color="#aaaebe"/><stop offset=".22" stop-color="#faf9f1"/><stop offset=".58" stop-color="#e8e9e4"/><stop offset="1" stop-color="#c0c4ce"/></linearGradient>
+ <linearGradient id="gold"><stop stop-color="#988365"/><stop offset=".38" stop-color="#faf0cb"/><stop offset=".7" stop-color="#b49f76"/><stop offset="1" stop-color="#ebdfbd"/></linearGradient>
+ <linearGradient id="cap" x2="0" y2="1"><stop stop-color="#fffffa"/><stop offset=".3" stop-color="#dce0e3"/><stop offset=".64" stop-color="#f7f6eb"/><stop offset="1" stop-color="#aab1c0"/></linearGradient>
+ <g id="pillar">
+  <path d="M33 92h37v451H33Z" fill="url(#stone)" stroke="#a9aaba"/>
+  <path d="M39 101v432M46 101v432M60 101v432M65 101v432" fill="none" stroke="#faffff" stroke-opacity=".7"/>
+  <path d="M49 101v432M57 101v432" fill="none" stroke="#99a5b3" stroke-opacity=".5"/>
+  <path d="M22 80h60v14H22Zm4 16h52v9H26Zm-4 430h60v12H22Zm-8 12h76v12H14Z" fill="url(#cap)" stroke="#bac0c9"/>
+  <path d="M30 86h44M29 438h47M25 546h57" stroke="url(#gold)" stroke-width="3"/>
+  <path d="M51 111v47l-12 20 12 19 12-19-12-20m0 245v-38l-12-20 12-18 12 18-12 20" fill="none" stroke="url(#gold)" stroke-width="3"/>
+  <path d="m33 260 18-30 19 30-19 28Zm7 0 11-17 11 17-11 16Z" fill="none" stroke="url(#gold)" stroke-width="2"/>
+ </g>
+</defs>
+<path d="M70 93h260v445H70Z" fill="none" stroke="url(#gold)" stroke-width="9"/>
+<path d="M77 106h246v429H77Z" fill="none" stroke="#fffffb" stroke-width="3"/>
+<use href="#pillar"/><use href="#pillar" transform="translate(400) scale(-1 1)"/>
+<path d="M21 77 53 62h80l22-15h90l22 15h80l32 15v10H21Z" fill="url(#cap)" stroke="#bbbfc5"/>
+<path d="M52 65h80l26-17h84l26 17h80M23 81h354" fill="none" stroke="url(#gold)" stroke-width="3"/>
+<path d="m134 61 20-14 13-29 14 16 19-32 19 32 14-16 13 29 20 14Z" fill="url(#stone)" stroke="url(#gold)" stroke-width="3"/>
+<path d="m200 19 12 26-12 13-12-13Zm-34 28 9 2m50 0 9-2" fill="none" stroke="url(#gold)" stroke-width="3"/>
+<path d="M104 73c17-15 39-3 28 5-9 7-15-9-4-14m168 9c-17-15-39-3-28 5 9 7 15-9 4-14" fill="none" stroke="url(#gold)" stroke-width="3"/>
+<path d="M11 551h378v11H11ZM0 562h400v13H0Z" fill="url(#cap)" stroke="#bdc2cc"/>
+<path d="M18 553h364M6 564h388" stroke="#fffced" stroke-width="2"/>
+<path d="M86 97v29q24-2 31-29m197 0v29q-24-2-31-29M86 535v-29q24 2 31 29m197 0v-29q-24 2-31 29" fill="none" stroke="url(#gold)" stroke-width="3"/>
+</svg>

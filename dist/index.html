@@ -8,10 +8,11 @@
   <title>Hot 100</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <style id="pageLoadingStyles">
-    .site-loading { --load-bg:#fff; --load-ink:#292929; --load-muted:#858585; --load-line:#e6e6e6; position:fixed; inset:0; z-index:1000; display:grid; place-items:center; background:var(--load-bg); color:var(--load-ink); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif; }
+    .site-loading { --load-bg:#f7f8fa; --load-ink:#313a44; --load-muted:#7b838d; --load-line:#dce1e5; --door-face:#f0f3f5; --door-edge:#bec8d1; --door-light:#fff; position:fixed; inset:0; z-index:1000; display:grid; place-items:center; overflow:clip; background:var(--load-bg); color:var(--load-ink); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif; }
     .site-loading[hidden], .site-loading [hidden] { display:none!important; }
-    body:not(.is-booting) .site-loading { background:color-mix(in srgb,var(--load-bg) 94%,transparent); }
-    .site-loading-inner { display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px; }
+    .site-loading[data-gate="true"] { background:radial-gradient(ellipse at 50% 45%,var(--door-light),transparent 60%),var(--load-bg); }
+    .site-loading[data-gate="false"] { background:color-mix(in srgb,var(--load-bg) 94%,transparent); }
+    .site-loading-inner { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px; }
     .site-loading-ring { width:34px; height:34px; box-sizing:border-box; margin-bottom:22px; border:2px solid var(--load-line); border-top-color:var(--load-ink); border-radius:50%; animation:page-loading-spin 900ms linear infinite; }
     .site-loading-title { margin:0; font-size:14px; line-height:1.5; font-weight:500; letter-spacing:.1px; }
     .site-loading-detail { margin:8px 0 0; color:var(--load-muted); font-size:12px; line-height:1.6; }
@@ -21,18 +22,84 @@
     .site-loading-error { display:none; width:34px; height:34px; box-sizing:border-box; margin-bottom:22px; border:1px solid var(--load-line); border-radius:50%; font-size:20px; line-height:32px; }
     .site-loading[data-state="error"] .site-loading-ring { display:none; }
     .site-loading[data-state="error"] .site-loading-error { display:block; }
+    .is-booting { overflow:hidden; }
     .is-booting .app-shell, .is-booting .recitation-app { visibility:hidden; }
+    .entrance-eyebrow { position:absolute; z-index:2; top:30px; left:36px; color:#fffef6; font:500 12px/1.4 Georgia,serif; letter-spacing:4px; text-shadow:0 1px 10px #526281; }
+    .entrance-scene { position:absolute; width:max(100vw,177.68vh); height:max(100vh,56.28vw); left:50%; top:50%; margin:0; transform:translate(-50%,-50%); transform-origin:50% 43%; }
+    .entrance-landscape { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
+    .entrance-atmosphere { position:absolute; inset:0; pointer-events:none; background:linear-gradient(0deg,#142e528c,transparent 39%),radial-gradient(ellipse at 50% 36%,#fffde224,transparent 35%); }
+    .entrance-mist { position:absolute; inset:40% -10% -5%; background:radial-gradient(ellipse at 13% 73%,#fffdf3a3,transparent 34%),radial-gradient(ellipse at 88% 66%,#f5f3ffad,transparent 33%); filter:blur(15px); opacity:.42; animation:celestial-drift 24s ease-in-out infinite alternate; pointer-events:none; }
+    .entrance-mist-back { inset:15% -12% 7%; opacity:.28; animation-duration:35s; animation-direction:alternate-reverse; }
+    .entrance-door { position:absolute; z-index:2; left:50%; bottom:34.5%; width:18.5%; aspect-ratio:400/580; transform:translateX(-50%); padding:0; border:0; border-radius:0; background:none; perspective:1000px; cursor:pointer; filter:drop-shadow(8px 13px 9px #41506d44); }
+    .entrance-door:disabled { opacity:1; cursor:default; }
+    .entrance-door::before { content:''; position:absolute; z-index:0; inset:18% 19% 7%; background:#fafce9; box-shadow:0 0 25px 8px #fffde986; transition:box-shadow .5s; }
+    .door-frame { position:absolute; z-index:3; width:100%; height:100%; inset:0; pointer-events:none; }
+    .door-leaf { position:absolute; z-index:2; top:18.3%; bottom:7.1%; width:30.7%; backface-visibility:hidden; transform-style:preserve-3d; transition:transform 1.2s cubic-bezier(.25,.6,.2,1),filter 1.2s; }
+    .door-leaf img { display:block; width:100%; height:100%; pointer-events:none; }
+    .door-left { left:19.3%; transform-origin:left center; }
+    .door-right { right:19.3%; transform-origin:right center; }
+    .door-right img { transform:scaleX(-1); }
+    .door-seam { position:absolute; z-index:4; left:calc(50% - 1px); top:18.6%; bottom:7%; width:2px; background:#fffee7; box-shadow:0 0 9px 3px #fff9ca,0 0 35px 8px #fffce075; opacity:.18; transition:opacity .6s; pointer-events:none; }
+    .entrance-flash { position:absolute; inset:0; z-index:3; pointer-events:none; background:#fffef9; opacity:0; }
+    .site-loading[data-gate="true"] .site-loading-inner { position:absolute; width:100%; bottom:5vh; min-height:160px; padding:12px 20px; color:#fffef6; text-shadow:0 1px 8px #173c63; }
+    .site-loading[data-gate="true"] .site-loading-title, .site-loading[data-gate="true"] .site-loading-ring { display:none; }
+    .site-loading[data-gate="true"] .site-loading-detail { min-height:20px; color:#fffef6; margin:0; letter-spacing:2px; }
+    .entrance-progress { width:min(360px,72vw); margin-top:17px; }
+    .entrance-progress-track { height:4px; padding:1px; background:#38557038; border:1px solid #fffcdfcc; box-shadow:0 1px 5px #384e702e; overflow:hidden; }
+    .entrance-progress-fill { display:block; width:var(--load-progress,0%); height:100%; background:#fffbe4; box-shadow:0 0 7px #fff9cf; transition:width .45s cubic-bezier(.2,.7,.2,1); }
+    .entrance-progress-label { display:flex; justify-content:space-between; margin-top:9px; color:#fffdf1; font-size:10px; letter-spacing:1px; font-variant-numeric:tabular-nums; }
+    .entrance-enter-wrap { height:44px; margin-top:13px; }
+    .entrance-enter { position:relative; min-width:200px; min-height:42px; padding:9px 30px; border:0; border-radius:2px; color:#fffef6; background:transparent; font:500 15px/1.5 'Songti SC','STSong',serif; letter-spacing:6px; text-shadow:0 1px 7px #264d7ec7; cursor:pointer; animation:entrance-in .45s ease-out both; }
+    .entrance-enter::before, .entrance-enter::after { content:'◆'; display:inline-block; margin:0 16px; font-size:6px; vertical-align:middle; color:#fffae6; }
+    .entrance-enter:hover { background:#fffbed12; }
+    .entrance-enter:focus-visible { outline:1px solid #fff8d4a3; outline-offset:1px; }
+    .entrance-door:focus-visible { outline:1px solid #fff9d6; outline-offset:7px; }
+    .site-loading[data-state="ready"] .door-seam { opacity:.95; }
+    .site-loading[data-state="ready"] .entrance-door::before { box-shadow:0 0 38px 15px #fffde9a3; }
+    .site-loading[data-state="opening"] { animation:door-arrival 1.85s linear forwards; pointer-events:none; }
+    .site-loading[data-state="opening"] .entrance-scene { animation:celestial-forward 1.85s cubic-bezier(.38,.01,.61,1) forwards; }
+    .site-loading[data-state="opening"] .door-left { transform:rotateY(-106deg); filter:brightness(1.15); }
+    .site-loading[data-state="opening"] .door-right { transform:rotateY(106deg); filter:brightness(1.15); }
+    .site-loading[data-state="opening"] .door-seam { opacity:0; }
+    .site-loading[data-state="opening"] .entrance-flash { animation:celestial-light 1.85s ease-in-out forwards; }
+    .site-loading[data-state="opening"] .site-loading-inner, .site-loading[data-state="opening"] .entrance-eyebrow { opacity:0; transition:opacity .2s; }
+    .site-loading[data-state="error"][data-gate="true"] .site-loading-title { display:block; color:#fff; }
+    .site-loading[data-state="error"] .entrance-progress, .site-loading[data-state="error"] .entrance-enter-wrap { display:none; }
+    .site-loading[data-state="error"][data-gate="true"] .site-loading-inner { background:#26344863; backdrop-filter:blur(14px); border-radius:12px; width:auto; min-width:280px; left:50%; transform:translateX(-50%); }
+    .site-loading[data-gate="false"] .entrance-only { display:none; }
     @keyframes page-loading-spin { to { transform:rotate(360deg); } }
-    @media(prefers-color-scheme:dark) { .site-loading { --load-bg:#212121; --load-ink:#eee; --load-muted:#aaa; --load-line:#3d3d3d; } }
-    @media(prefers-reduced-motion:reduce) { .site-loading-ring { animation:none; } }
+    @keyframes entrance-in { from { opacity:0; } to { opacity:1; } }
+    @keyframes celestial-drift { from { transform:translateX(-1%); } to { transform:translateX(2%); } }
+    @keyframes celestial-forward { 0% { transform:translate(-50%,-50%) scale(1); } 100% { transform:translate(-50%,-50%) scale(5.8); } }
+    @keyframes celestial-light { 0%,28% { opacity:0; } 65%,100% { opacity:1; } }
+    @keyframes door-arrival { 0%,76% { opacity:1; } 100% { opacity:0; } }
+    @media(max-height:500px) { .site-loading[data-gate="true"] .site-loading-inner { bottom:0; min-height:100px; padding:8px; } .entrance-progress { margin-top:8px; } .entrance-enter-wrap { margin-top:2px; } .entrance-eyebrow { top:16px; left:20px; } }
+    @media(prefers-color-scheme:dark) { .site-loading { --load-bg:#171d25; --load-ink:#e1e9f0; --load-muted:#9eacba; --load-line:#354350; } .entrance-landscape { filter:brightness(.48) saturate(.68) hue-rotate(12deg); } .door-frame,.door-leaf { filter:brightness(.8) saturate(.55); } .entrance-atmosphere { background:linear-gradient(0deg,#14283f66,transparent 40%),linear-gradient(#15345f28,#15345f28); } .entrance-mist { opacity:.12; } .entrance-flash { background:#dee7f5; } }
+    @media(prefers-reduced-motion:reduce) { .site-loading *, .site-loading { animation:none!important; transition:none!important; } }
   </style>
 </head>
 <body class="is-booting">
-  <div class="site-loading" id="pageLoader" data-state="loading">
+  <div class="site-loading" id="pageLoader" data-state="loading" data-gate="true">
+    <span class="entrance-eyebrow entrance-only" aria-hidden="true">HOT 100 / PYTHON</span>
+    <div class="entrance-scene entrance-only">
+      <img class="entrance-landscape" src="./assets/celestial-sky.jpg" alt="" data-entrance-asset fetchpriority="high">
+      <div class="entrance-mist entrance-mist-back" aria-hidden="true"></div>
+      <button class="entrance-door" id="pageLoadDoor" type="button" aria-label="开门进入" disabled>
+        <span class="door-leaf door-left"><img src="./assets/celestial-leaf.svg" alt="" data-entrance-asset></span>
+        <span class="door-leaf door-right"><img src="./assets/celestial-leaf.svg" alt="" data-entrance-asset></span>
+        <img class="door-frame" src="./assets/celestial-frame.svg" alt="" data-entrance-asset>
+        <span class="door-seam" aria-hidden="true"></span>
+      </button>
+      <div class="entrance-mist" aria-hidden="true"></div>
+      <div class="entrance-atmosphere" aria-hidden="true"></div>
+    </div>
+    <div class="entrance-flash entrance-only" aria-hidden="true"></div>
     <div class="site-loading-inner">
       <div class="site-loading-ring" id="pageLoadProgress" role="progressbar" aria-label="页面加载" aria-valuetext="正在准备页面"></div>
       <span class="site-loading-error" aria-hidden="true">!</span>
-      <div role="status" aria-live="polite" aria-atomic="true"><p class="site-loading-title" id="pageLoadTitle">正在加载…</p><p class="site-loading-detail" id="pageLoadDetail">正在准备页面</p></div>
+      <div class="entrance-copy" role="status" aria-live="polite" aria-atomic="true"><p class="site-loading-title" id="pageLoadTitle">Hot 100</p><p class="site-loading-detail" id="pageLoadDetail">正在准备页面</p></div>
+      <div class="entrance-progress entrance-only"><div class="entrance-progress-track" id="pageLoadMeter" role="progressbar" aria-label="页面资源准备" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="entrance-progress-fill"></span></div><div class="entrance-progress-label" aria-hidden="true"><span>资源准备</span><span id="pageLoadValue">0%</span></div></div>
+      <div class="entrance-enter-wrap entrance-only"><button class="entrance-enter" id="pageLoadEnter" type="button" hidden disabled>点击进入</button></div>
       <div class="site-loading-actions" id="pageLoadActions" hidden><a id="pageLoadRetry" href="">重新加载</a><button id="pageLoadBack" type="button" hidden>返回当前页</button></div>
     </div>
   </div>
@@ -46,7 +113,7 @@
     };
     window.__pageBootTimer = setTimeout(window.__pageLoadError, 30000);
   </script>
-  <script src="./page-loader.js?v=23" onerror="window.__pageLoadError()"></script>
+  <script src="./page-loader.js?v=24" onerror="window.__pageLoadError()"></script>
   <link rel="stylesheet" href="./vendor/codemirror/lib/codemirror.css" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
   <link rel="stylesheet" href="./styles.css?v=22" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
 
@@ -102,6 +169,6 @@
     </main>
     <div class="toast" id="copyNotice" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   </div>
-  <script type="module" src="./navigation.js?v=23" onerror="window.__pageLoadError()"></script>
+  <script type="module" src="./navigation.js?v=24" onerror="window.__pageLoadError()"></script>
 </body>
 </html>

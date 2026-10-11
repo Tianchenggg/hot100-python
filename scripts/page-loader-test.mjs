@@ -5,21 +5,26 @@ import { runInNewContext } from 'node:vm';
 const nodes = new Map();
 function element() {
   return { hidden: false, inert: false, dataset: {}, attrs: {}, listeners: {},
+    style: { setProperty() {} }, querySelector() { return null; }, querySelectorAll() { return []; },
     setAttribute(k, v) { this.attrs[k] = v; }, removeAttribute(k) { delete this.attrs[k]; },
     addEventListener(type, fn) { this.listeners[type] = fn; }, focus() {},
   };
 }
-for (const id of ['pageLoader', 'pageLoadTitle', 'pageLoadDetail', 'pageLoadActions', 'pageLoadRetry', 'pageLoadBack', 'pageLoadProgress']) nodes.set(id, element());
+for (const id of ['pageLoader', 'pageLoadTitle', 'pageLoadDetail', 'pageLoadActions', 'pageLoadRetry', 'pageLoadBack', 'pageLoadProgress', 'pageLoadMeter', 'pageLoadValue', 'pageLoadEnter', 'pageLoadDoor']) nodes.set(id, element());
 const visible = element(), hidden = element();
 hidden.hidden = true; hidden.inert = true;
 let booting = true, now = 0, nextTimer = 0;
 const timers = new Map();
 const window = {};
+const frames = [];
+const paint = () => { for (const fn of frames.splice(0)) fn(); };
+const reducedMotion = { matches: false };
 const context = {
-  window, location: { href: 'https://example.test/?problem=3' },
+  window, matchMedia: () => reducedMotion, location: { href: 'https://example.test/?problem=3' },
   document: { activeElement: null, getElementById: id => nodes.get(id), querySelectorAll: () => [visible, hidden], body: { classList: { remove: () => { booting = false; } } } },
   setTimeout(fn, delay) { const id = ++nextTimer; timers.set(id, { fn, at: now + delay }); return id; },
   clearTimeout(id) { timers.delete(id); },
+  requestAnimationFrame(fn) { frames.push(fn); },
 };
 const advance = ms => {
   now += ms;
@@ -30,9 +35,30 @@ const loading = window.pageLoading, panel = nodes.get('pageLoader');
 const first = loading.token;
 assert.equal(visible.inert, true);
 assert.equal(panel.hidden, false);
-loading.stage(first, '正在加载题目');
+loading.stage(first, '正在加载题目', 2, 3);
 assert.equal(nodes.get('pageLoadProgress').attrs['aria-valuetext'], '正在加载题目');
-loading.finish(first);
+assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '67');
+let prepared = 0;
+const entered = loading.ready(first, () => prepared++);
+assert.equal(nodes.get('pageLoadMeter').attrs['aria-valuenow'], '100');
+assert.equal(panel.dataset.state, 'ready');
+assert.equal(visible.inert, true);
+assert.equal(booting, true);
+assert.equal(loading.pending(first), false);
+advance(30001); loading.fail(first);
+assert.equal(panel.dataset.state, 'ready', 'waiting for entry must not time out');
+nodes.get('pageLoadEnter').listeners.click();
+assert.equal(booting, false);
+assert.equal(prepared, 1, 'layout must be prepared before the overlay reveals it');
+assert.equal(panel.dataset.state, 'ready', 'the overlay stays opaque through layout preparation');
+paint(); paint();
+assert.equal(visible.inert, true, 'page stays locked while the door opens');
+assert.equal(panel.hidden, false);
+assert.equal(panel.dataset.state, 'opening');
+nodes.get('pageLoadDoor').listeners.click();
+assert.equal(timers.size, 1, 'repeated entry must not start another animation');
+panel.listeners.animationend({target: panel, animationName:'door-arrival'});
+assert.equal(await entered, true);
 assert.equal(booting, false);
 assert.equal(panel.hidden, true);
 assert.equal(visible.inert, false);
@@ -66,11 +92,33 @@ assert.equal(loading.pending(cancelledToken), false);
 loading.finish(cancelledToken); loading.fail(cancelledToken);
 assert.equal(panel.hidden, true);
 
+const fallback = loading.start({ entrance: true });
+const fallbackEntry = loading.ready(fallback);
+nodes.get('pageLoadDoor').listeners.click();
+paint(); paint();
+advance(2050);
+assert.equal(await fallbackEntry, true, 'animation fallback must unblock entry');
+reducedMotion.matches = true;
+const reduced = loading.start({ entrance: true });
+const reducedEntry = loading.ready(reduced);
+nodes.get('pageLoadEnter').listeners.click();
+assert.equal(await reducedEntry, true);
+assert.equal(panel.hidden, true, 'reduced motion must enter without animation');
+const abandoned = loading.start({ entrance: true });
+const abandonedEntry = loading.ready(abandoned);
+loading.start();
+assert.equal(await abandonedEntry, false, 'a replacement must settle the previous entrance');
+loading.finish(loading.token);
+
+await loading.assets();
 const entrypoints = await Promise.all(['index.html','recite.html'].map(name => readFile(new URL(`../dist/${name}`, import.meta.url),'utf8')));
 for (const html of entrypoints) {
   assert.ok(html.indexOf('id="pageLoader"') < html.indexOf('src="./page-loader.js'));
   assert.ok(html.indexOf('id="pageLoadingStyles"') < html.indexOf('rel="stylesheet"'));
   assert.match(html, /media="print" data-page-style/);
+  assert.match(html, /overflow:clip/, "entry overlay must not scroll when focus changes");
   assert.match(html, /inert aria-busy="true"/);
+  assert.match(html, /id="pageLoadEnter" type="button" hidden disabled/);
+  assert.match(html, /id="pageLoadDoor" type="button" aria-label="开门进入" disabled/);
 }
-console.log('Loading readiness, delayed display, timeout, cancellation and stale-request checks passed.');
+console.log('Entrance progress, explicit entry, opening animation, reduced motion, loading failures and navigation checks passed.');
