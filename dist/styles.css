@@ -16,11 +16,11 @@
   --green: #16733d;
   --green-bg: #edf8f1;
   --green-line: #badfc8;
-  --passed-mark: #50715d;
-  --passed-bg: #f3f6f4;
+  --passed-mark: #3e6d50;
+  --passed-bg: #e9f0eb;
   --problem-selected: #e8ebe9;
   --problem-hover: #f0f2f1;
-  --hot-ink: #916329;
+  --hot-ink: #c44c49;
   --red: #c5322c;
   --red-bg: #fff0ef;
   --red-line: #f0c1bd;
@@ -437,9 +437,9 @@ button svg, .icon-button svg { width: 16px; height: 16px; flex: none; stroke-wid
     --green: #78d59b;
     --green-bg: #20372a;
     --green-line: #3a624a;
-    --passed-mark: #95b59f;
-    --passed-bg: #202722;
-    --hot-ink: #dec08b;
+    --passed-mark: #8bb99b;
+    --passed-bg: #24332a;
+    --hot-ink: #ef8b83;
     --problem-selected: #303632;
     --problem-hover: #292d2a;
     --red: #ffaaa1;
