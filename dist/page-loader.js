@@ -12,23 +12,65 @@
   const doorButton = document.getElementById('pageLoadDoor');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let token = 0, status = 'idle', gate = false;
-  let timeout, reveal, openingTimer, onCancel, returnFocus, resolveEntry, prepareEntry;
+  let timeout, reveal, openingTimer, readyTimer, progressFrame, onCancel, returnFocus, resolveEntry, prepareEntry;
+  let displayed = 0, targetProgress = 0, lastFrame = 0;
   const roots = () => document.querySelectorAll('.app-shell, .recitation-app');
-  function clearTimers() { clearTimeout(timeout); clearTimeout(reveal); clearTimeout(openingTimer); clearTimeout(window.__pageBootTimer); }
+  function clearTimers() {
+    clearTimeout(timeout); clearTimeout(reveal); clearTimeout(openingTimer); clearTimeout(readyTimer); clearTimeout(window.__pageBootTimer);
+    cancelAnimationFrame(progressFrame); progressFrame = null; lastFrame = 0;
+  }
   function unlock() {
     roots().forEach(root => { root.inert = root.hidden; root.removeAttribute('aria-busy'); });
   }
   function setProgress(percent) {
-    meter.style.setProperty('--load-progress', `${percent}%`);
-    meter.setAttribute('aria-valuenow', String(percent));
-    value.textContent = `${percent}%`;
+    displayed = percent;
+    const label = Math.floor(percent);
+    meter.style.setProperty('--load-progress', String(percent / 100));
+    meter.setAttribute('aria-valuenow', String(label));
+    value.textContent = `${label}%`;
+  }
+  function revealEntry(id) {
+    if (id !== token || status !== 'completing') return;
+    status = 'ready'; panel.dataset.state = 'ready'; detail.textContent = '准备就绪';
+    enterButton.hidden = false; enterButton.disabled = false; doorButton.disabled = false;
+    enterButton.focus({ preventScroll: true });
+  }
+  function animateProgress(id) {
+    if (progressFrame != null) return;
+    lastFrame = performance.now();
+    const tick = time => {
+      progressFrame = null;
+      if (id !== token || !['pending', 'completing'].includes(status)) return;
+      const elapsed = Math.max(0, Math.min(32, time - lastFrame));
+      lastFrame = time;
+      const remaining = targetProgress - displayed;
+      const step = Math.min(remaining, Math.min(48, Math.max(8, remaining * 3)) * elapsed / 1000);
+      setProgress(Math.min(targetProgress, displayed + step));
+      if (displayed < targetProgress) progressFrame = requestAnimationFrame(tick);
+      else if (status === 'completing') {
+        // Paint the full bar before revealing the entry action.
+        progressFrame = requestAnimationFrame(() => {
+          progressFrame = null;
+          if (id === token && status === 'completing') readyTimer = setTimeout(() => revealEntry(id), 180);
+        });
+      }
+    };
+    progressFrame = requestAnimationFrame(tick);
+  }
+  function target(id, percent) {
+    targetProgress = Math.max(targetProgress, percent);
+    if (gate && !reducedMotion.matches) animateProgress(id);
+    else {
+      setProgress(targetProgress);
+      if (status === 'completing') progressFrame = requestAnimationFrame(() => { progressFrame = null; revealEntry(id); });
+    }
   }
   function start({ text = '正在准备页面', href = location.href, cancel = null, delay = 0, entrance = false } = {}) {
     clearTimers(); resolveEntry?.(false); resolveEntry = null;
     const id = ++token;
     status = 'pending'; gate = entrance; onCancel = cancel; returnFocus = document.activeElement;
-    title.textContent = gate ? 'Hot 100' : '正在加载…'; detail.textContent = text;
-    progress.setAttribute('aria-valuetext', text); setProgress(0);
+    title.textContent = gate ? 'Hot 100' : '正在加载…'; detail.textContent = gate ? '正在加载' : text;
+    progress.setAttribute('aria-valuetext', text); targetProgress = 0; setProgress(0);
     panel.dataset.gate = String(gate); panel.dataset.state = 'loading'; panel.dataset.sceneReady = String(!gate);
     actions.hidden = true; retry.href = href; back.hidden = !cancel;
     enterButton.hidden = true; enterButton.disabled = true; doorButton.disabled = true;
@@ -41,8 +83,9 @@
   const pending = id => id === token && status === 'pending';
   function stage(id, text, completed = 0, total = 1) {
     if (!pending(id) || (gate && panel.dataset.sceneReady !== 'true')) return;
-    detail.textContent = text; progress.setAttribute('aria-valuetext', text);
-    setProgress(Math.min(99, Math.round(completed / total * 100)));
+    if (!gate) detail.textContent = text;
+    progress.setAttribute('aria-valuetext', text);
+    target(id, Math.min(99, Math.round(completed / total * 100)));
   }
   function finish(id) {
     if (!pending(id)) return;
@@ -51,11 +94,11 @@
   }
   function ready(id, beforeEnter = () => {}) {
     if (!pending(id) || (gate && panel.dataset.sceneReady !== 'true')) return Promise.resolve(false);
-    clearTimers(); prepareEntry = beforeEnter; status = 'ready'; panel.hidden = false; panel.dataset.state = 'ready';
-    setProgress(100); detail.textContent = '准备就绪';
-    enterButton.hidden = false; enterButton.disabled = false; doorButton.disabled = false;
-    enterButton.focus({ preventScroll: true });
-    return new Promise(resolve => { resolveEntry = resolve; });
+    clearTimeout(timeout); clearTimeout(reveal); clearTimeout(window.__pageBootTimer);
+    prepareEntry = beforeEnter; status = 'completing'; panel.hidden = false; panel.dataset.state = 'completing';
+    const entry = new Promise(resolve => { resolveEntry = resolve; });
+    target(id, 100);
+    return entry;
   }
   function completeEntry(id) {
     if (id !== token || status !== 'opening') return;
@@ -93,6 +136,7 @@
     if (!onCancel) return;
     const cancel = onCancel;
     clearTimers(); ++token; status = 'idle'; panel.hidden = true; unlock(); cancel();
+    resolveEntry?.(false); resolveEntry = null;
     if (returnFocus?.isConnected && !returnFocus.closest('[hidden]')) returnFocus.focus({ preventScroll: true });
   }
   back.addEventListener('click', cancel);

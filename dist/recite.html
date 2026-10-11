@@ -47,10 +47,10 @@
     .site-loading[data-gate="true"] .site-loading-title, .site-loading[data-gate="true"] .site-loading-ring { display:none; }
     .site-loading[data-gate="true"] .site-loading-detail { min-height:20px; color:#fffef6; margin:0; letter-spacing:2px; }
     .entrance-progress { width:min(360px,72vw); margin-top:17px; }
-    .entrance-progress-track { height:4px; padding:1px; background:#38557038; border:1px solid #fffcdfcc; box-shadow:0 1px 5px #384e702e; overflow:hidden; }
-    .entrance-progress-fill { display:block; width:var(--load-progress,0%); height:100%; background:#fffbe4; box-shadow:0 0 7px #fff9cf; transition:width .45s cubic-bezier(.2,.7,.2,1); }
+    .entrance-progress-track { height:4px; padding:0; background:#38557038; border:1px solid #fffcdfcc; box-shadow:0 1px 5px #384e702e; overflow:hidden; }
+    .entrance-progress-fill { display:block; width:100%; height:100%; background:#fffbe4; box-shadow:0 0 7px #fff9cf; transform:scaleX(var(--load-progress,0)); transform-origin:left; }
     .entrance-progress-label { display:flex; justify-content:space-between; margin-top:9px; color:#fffdf1; font-size:10px; letter-spacing:1px; font-variant-numeric:tabular-nums; }
-    .entrance-enter-wrap { height:44px; margin-top:13px; }
+    .entrance-enter-wrap { height:46px; flex:0 0 46px; margin-top:13px; }
     .entrance-enter { position:relative; min-width:200px; min-height:42px; padding:9px 30px; border:0; border-radius:2px; color:#fffef6; background:transparent; font:500 15px/1.5 'Songti SC','STSong',serif; letter-spacing:6px; text-shadow:0 1px 7px #264d7ec7; cursor:pointer; animation:entrance-in .45s ease-out both; }
     .entrance-enter::before, .entrance-enter::after { content:'◆'; display:inline-block; margin:0 16px; font-size:6px; vertical-align:middle; color:#fffae6; }
     .entrance-enter:hover { background:#fffbed12; }
@@ -125,7 +125,7 @@
     };
     window.__pageBootTimer = setTimeout(window.__pageLoadError, 30000);
   </script>
-  <script src="./page-loader.js?v=25" onerror="window.__pageLoadError()"></script>
+  <script src="./page-loader.js?v=26" onerror="window.__pageLoadError()"></script>
   <link rel="stylesheet" href="./styles.css?v=22" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
   <link rel="stylesheet" href="./recite.css?v=16" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
 
