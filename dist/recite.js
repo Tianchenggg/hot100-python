@@ -20,7 +20,7 @@ function metadata(problem, heading = '') {
 }
 
 function examples(problem) {
-  return `<div class="recite-examples" role="group" aria-label="ACM 样例"><div class="recite-example-body"><div class="recite-example-field"><span class="recite-example-label">输入</span><p class="recite-example-format">${escape(problem.inputSpec)}</p><pre>${escape(problem.input)}</pre></div><div class="recite-example-field"><span class="recite-example-label">输出</span><p class="recite-example-format">${escape(problem.outputSpec)}</p><pre>${escape(problem.output)}</pre></div></div></div>`;
+  return `<div class="recite-examples" role="group" aria-label="ACM 样例"><div class="recite-example-body"><div class="recite-example-field"><span class="recite-example-label">输入</span><pre>${escape(problem.input)}</pre></div><div class="recite-example-field"><span class="recite-example-label">输出</span><pre>${escape(problem.output)}</pre></div></div></div>`;
 }
 
 function problemRow(problem) {

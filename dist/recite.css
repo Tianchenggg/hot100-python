@@ -41,8 +41,7 @@
 .recite-item > .recite-description { margin: 10px 0 18px; }
 .recite-example-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .recite-example-field { min-width: 0; }
-.recite-example-label { display: block; color: var(--secondary); font-size: 11px; font-weight: 500; line-height: 18px; }
-.recite-example-format { margin: 5px 0 9px; color: var(--secondary); font-size: 12px; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
+.recite-example-label { display: block; margin-bottom: 8px; color: var(--secondary); font-size: 11px; font-weight: 500; line-height: 18px; }
 .recite-example-body pre { margin: 0; padding: 11px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font-family: var(--mono); font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
 .recite-loading { padding: 28px 0; color: var(--secondary); font-size: 14px; }
 .recite-error { display: flex; align-items: center; gap: 16px; }
