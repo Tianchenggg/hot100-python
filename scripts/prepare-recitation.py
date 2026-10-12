@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Extract the supplied Hot 100 recitation Markdown without rewriting its text.
+"""Extract the supplied recitation order and descriptions, using ACM examples.
 
 Usage:
-    python3 prepare-recitation.py INPUT.md OUTPUT.json [--groups GROUPS.js]
+    python3 prepare-recitation.py INPUT.md OUTPUT.json [--groups GROUPS.js] [--acm PROBLEMS.json]
 
 The parser deliberately rejects unknown content inside a problem so extra prose
 or examples cannot be silently dropped. Document introduction, table of contents,
 and the final 使用建议 section are outside the requested problem-data schema.
+Examples and input/output formats come from the practice page's ACM data.
 """
 
 import argparse
@@ -138,21 +139,48 @@ def verify_groups(data, groups_path):
         raise ValueError(f"Group names, IDs, or problem order differ from {groups_path}")
 
 
+def use_acm_examples(data, acm_problems):
+    acm_by_id = {problem["id"]: problem for problem in acm_problems}
+    problems = [problem for group in data["groups"] for problem in group["problems"]]
+    if len(acm_by_id) != len(acm_problems):
+        raise ValueError("ACM problem IDs are not unique")
+    if set(acm_by_id) != {problem["id"] for problem in problems}:
+        raise ValueError("Recitation and ACM problem IDs differ")
+    for problem in problems:
+        acm = acm_by_id[problem["id"]]
+        if not acm.get("examples"):
+            raise ValueError(f"Problem {problem['id']} has no ACM example")
+        example = acm["examples"][0]
+        for key in ("input", "output"):
+            if not isinstance(example.get(key), str):
+                raise ValueError(f"Problem {problem['id']} has invalid ACM {key}")
+            problem[key] = example[key]
+        for key in ("inputSpec", "outputSpec"):
+            if not isinstance(acm.get(key), str) or not acm[key].strip():
+                raise ValueError(f"Problem {problem['id']} has invalid ACM {key}")
+            problem[key] = acm[key]
+    return data
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--groups", type=Path, help="Optional groups.js to verify IDs and order")
+    parser.add_argument("--acm", type=Path,
+                        default=Path(__file__).resolve().parents[1] / "dist/data/problems.json",
+                        help="ACM problem data (defaults to dist/data/problems.json)")
     args = parser.parse_args()
     try:
         data = add_recitation_extras(parse_recitation(args.input.read_text(encoding="utf-8")))
         if args.groups:
             verify_groups(data, args.groups)
+        use_acm_examples(data, json.loads(args.acm.read_text(encoding="utf-8")))
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     except (OSError, ValueError) as error:
         parser.exit(1, f"error: {error}\n")
-    print(f"Wrote {args.output}: 17 groups, 100 original + 3 extra problems, all six fields present.")
+    print(f"Wrote {args.output}: 17 groups, 100 original + 3 extra problems, with ACM examples and formats.")
     if args.groups:
         print(f"Group names, IDs, and problem order exactly match {args.groups}.")
 

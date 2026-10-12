@@ -24,12 +24,13 @@ boundary tests are maintained in `scripts/hot20-extra-problems.json`, with offic
 source URLs. All data generators include these extensions.
 
 The 17 knowledge groups and navigation order in `dist/data/groups.js` follow
-the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. The recitation cards in
-`dist/data/recitation.json` reproduce its 100 problem titles, difficulty labels,
-short task descriptions, and input/output examples in the same order. Three additional stock cards follow problem 121. The cards
-contain no solutions. The source document itself is not distributed.
+the user-provided `LeetCode_Hot_100_纯题目背诵版.md`. The recitation list in
+`dist/data/recitation.json` reproduces its 100 problem titles, difficulty labels,
+and short task descriptions in the same order. Three additional stock problems
+follow problem 121. Input/output formats and examples use the same ACM data as the
+practice page. The list contains no solutions. The source document itself is not distributed.
 
-To regenerate the recitation cards from the supplied Markdown:
+To regenerate the recitation list from the supplied Markdown and ACM data:
 
 ```sh
 python3 scripts/prepare-recitation.py /path/to/recitation.md dist/data/recitation.json --groups dist/data/groups.js

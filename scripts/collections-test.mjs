@@ -13,6 +13,17 @@ globalThis.window = {
 const { getCollection, setCollection, subscribeCollection, filterProblems, HOT20_IDS, EXTRA_IDS } = await import('../dist/collections.js');
 const problems = JSON.parse(await readFile(new URL('../dist/data/problems.json', import.meta.url)));
 const recitation = JSON.parse(await readFile(new URL('../dist/data/recitation.json', import.meta.url)));
+const acmById = new Map(problems.map(problem => [problem.id, problem]));
+const recitationProblems = recitation.groups.flatMap(group => group.problems);
+assert.equal(recitationProblems.length, 103);
+for (const problem of recitationProblems) {
+  const acm = acmById.get(problem.id);
+  assert.ok(acm, `Recitation problem ${problem.id} must exist in ACM data`);
+  assert.equal(problem.input, acm.examples[0].input, `ACM sample input ${problem.id}`);
+  assert.equal(problem.output, acm.examples[0].output, `ACM sample output ${problem.id}`);
+  assert.equal(problem.inputSpec, acm.inputSpec, `ACM input format ${problem.id}`);
+  assert.equal(problem.outputSpec, acm.outputSpec, `ACM output format ${problem.id}`);
+}
 assert.equal(getCollection(), 'hot20', 'an explicit shared URL overrides the stored scope');
 assert.equal(storage.get(storageKey), 'hot20');
 assert.deepEqual(HOT20_IDS, [49,15,42,3,76,48,25,146,199,200,22,20,215,55,121,122,123,188,139,300,1143,64,72]);
@@ -50,4 +61,4 @@ assert.equal(storage.get('hot100-python:v1:code:49'), 'my code', 'collection cha
 window.localStorage.setItem = () => { throw new Error('Storage unavailable'); };
 assert.equal(setCollection('hot20'), true, 'unavailable storage must not prevent switching');
 assert.equal(filterProblems(problems).length, 23);
-console.log('Collection checks passed: exact 100/23 membership, 20 highlights, data parity, URL preference, cross-page updates and record preservation.');
+console.log('Collection checks passed: exact 100/23 membership, 20 highlights, all 103 recitation ACM samples/formats, data parity, URL preference, cross-page updates and record preservation.');

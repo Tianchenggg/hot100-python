@@ -127,7 +127,7 @@
   </script>
   <script src="./page-loader.js?v=26" onerror="window.__pageLoadError()"></script>
   <link rel="stylesheet" href="./styles.css?v=28" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
-  <link rel="stylesheet" href="./recite.css?v=27" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
+  <link rel="stylesheet" href="./recite.css?v=29" media="print" data-page-style onload="this.media='all'" onerror="this.dataset.failed='true';window.__pageLoadError()">
 
   <div class="recitation-app" inert aria-busy="true">
     <nav class="app-rail" aria-label="导航">
@@ -146,7 +146,7 @@
     </aside>
     <main class="recite-main">
       <header class="recite-header">
-        <div class="recite-heading"><h1>题目卡片</h1><span id="cardCount"></span></div>
+        <div class="recite-heading"><h1>题目列表</h1><span id="cardCount"></span></div>
         <button class="button button-primary recite-random" id="randomProblem" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3c4 0 8 10 12 10h3m-4-4 4 4-4 4M3 17h3c1.5 0 3-1.4 4.5-3.3M14 10.3C15.4 8.4 16.6 7 18 7h3m-4-4 4 4-4 4"/></svg>随机一题</button>
       </header>
       <div class="recite-mobile-nav">
@@ -156,7 +156,7 @@
         </div>
         <select id="mobileGroup" aria-label="选择知识点" disabled><option>知识点</option></select>
       </div>
-      <div class="recite-scroll" id="reciteScroll" tabindex="0" aria-label="题目卡片列表">
+      <div class="recite-scroll" id="reciteScroll" tabindex="0" aria-label="背诵题目列表">
         <div class="recite-content" id="reciteContent"><p class="recite-loading" role="status">正在加载题目…</p></div>
       </div>
     </main>
@@ -167,6 +167,6 @@
     <div class="recite-dialog-content" id="dialogContent" aria-live="polite"></div>
     <div class="recite-dialog-footer" id="dialogFooter" hidden><button class="button" id="nextRandom">再出一题<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div>
   </dialog>
-  <script type="module" src="./navigation.js?v=27" onerror="window.__pageLoadError()"></script>
+  <script type="module" src="./navigation.js?v=29" onerror="window.__pageLoadError()"></script>
 </body>
 </html>

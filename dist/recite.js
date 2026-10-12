@@ -3,8 +3,6 @@ import { getCollection, setCollection, subscribeCollection, filterProblems, isHo
 const $ = (id) => document.getElementById(id);
 const root = document.querySelector('.recitation-app');
 const folder = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8V5h6l2 3h10v12H3Zm0 3h18"/></svg>';
-const chevron = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
-const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 const escape = (text) => String(text).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 let problems = [];
 let allGroups = [];
@@ -17,16 +15,16 @@ let drawTimer = null;
 let dialogResizeAnimation;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-function metadata(problem) {
-  return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span>${scope === 'hot100' && isHot20(problem.id) ? '<span class="hot-badge" role="img" aria-label="重点题" title="重点题 · Hot 20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9Z"/></svg></span>' : ''}<span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
+function metadata(problem, heading = '') {
+  return `<div class="recite-card-meta"><span class="recite-number">${problem.id.toString().padStart(3, '0')}</span>${scope === 'hot100' && isHot20(problem.id) ? '<span class="hot-badge" role="img" aria-label="重点题" title="重点题 · Hot 20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9Z"/></svg></span>' : ''}${heading}<span class="recite-level" data-level="${escape(problem.difficulty)}">${escape(problem.difficulty)}</span></div>`;
 }
 
-function examples(problem, expanded = false) {
-  return `<details class="recite-examples"${expanded ? ' open' : ''}><summary>${expanded ? '样例' : '查看样例'}${chevron}</summary><div class="recite-example-body"><span class="recite-example-label">输入</span><pre>${escape(problem.input)}</pre><span class="recite-example-label">输出</span><pre>${escape(problem.output)}</pre></div></details>`;
+function examples(problem) {
+  return `<div class="recite-examples" role="group" aria-label="ACM 样例"><div class="recite-example-body"><div class="recite-example-field"><span class="recite-example-label">输入</span><p class="recite-example-format">${escape(problem.inputSpec)}</p><pre>${escape(problem.input)}</pre></div><div class="recite-example-field"><span class="recite-example-label">输出</span><p class="recite-example-format">${escape(problem.outputSpec)}</p><pre>${escape(problem.output)}</pre></div></div></div>`;
 }
 
-function card(problem) {
-  return `<article class="recite-card">${metadata(problem)}<h3><button class="recite-card-title" data-problem="${problem.id}" aria-label="查看题目：${escape(problem.title)}"><span>${escape(problem.title)}</span>${arrow}</button></h3><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}</article>`;
+function problemRow(problem) {
+  return `<article class="recite-item" aria-labelledby="recite-title-${problem.id}">${metadata(problem, `<h3 id="recite-title-${problem.id}">${escape(problem.title)}</h3>`)}<p class="recite-description">${escape(problem.description)}</p>${examples(problem)}</article>`;
 }
 
 function showProblem(problem, random = false) {
@@ -38,7 +36,7 @@ function showProblem(problem, random = false) {
   $('dialogFooter').hidden = !random;
   lastProblemId = problem.id;
   $('dialogGroup').textContent = problem.groupName;
-  $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem, true)}`;
+  $('dialogContent').innerHTML = `${metadata(problem)}<h2 id="dialogTitle">${escape(problem.title)}</h2><p class="recite-description">${escape(problem.description)}</p>${examples(problem)}`;
   if (!dialog.open) dialog.showModal();
   if (random && previousHeight && !reducedMotion.matches) {
     const height = dialog.getBoundingClientRect().height;
@@ -134,7 +132,7 @@ function renderCollection() {
   $('reciteGroups').innerHTML = groups.map(group => `<a class="recite-group-link" href="#${group.id}">${folder}<span>${escape(group.name)}</span><span>${group.problems.length}</span></a>`).join('');
   $('mobileGroup').innerHTML = groups.map(group => `<option value="${group.id}">${escape(group.name)} · ${group.problems.length} 题</option>`).join('');
   $('mobileGroup').disabled = !groups.length;
-  $('reciteContent').innerHTML = groups.map(group => `<section class="recite-section" id="${group.id}" aria-labelledby="${group.id}-heading"><div class="recite-section-heading">${folder}<h2 id="${group.id}-heading">${escape(group.name)}</h2><span>${group.problems.length}</span></div><div class="recite-grid">${group.problems.map(card).join('')}</div></section>`).join('');
+  $('reciteContent').innerHTML = groups.map(group => `<section class="recite-section" id="${group.id}" aria-labelledby="${group.id}-heading"><div class="recite-section-heading">${folder}<h2 id="${group.id}-heading">${escape(group.name)}</h2><span>${group.problems.length}</span></div><div class="recite-list">${group.problems.map(problemRow).join('')}</div></section>`).join('');
   $('randomProblem').disabled = !problems.length;
   selectedGroup = groups.some(group => group.id === selectedGroup) ? selectedGroup : groups[0]?.id || '';
   syncLocation();
@@ -143,8 +141,8 @@ function renderCollection() {
 
 async function loadProblems({ reportFailure = false } = {}) {
   try {
-    const response = await fetch('./data/recitation.json?v=27');
-    if (!response.ok) throw new Error('Could not load cards');
+    const response = await fetch('./data/recitation.json?v=29');
+    if (!response.ok) throw new Error('Could not load recitation problems');
     ({ groups: allGroups } = await response.json());
     scope = getCollection();
     renderCollection();
@@ -179,10 +177,6 @@ $('problemDialog').addEventListener('click', (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeProblem();
   }
-});
-$('reciteContent').addEventListener('click', (event) => {
-  const button = event.target.closest('[data-problem]');
-  if (button) showProblem(problems.find((problem) => problem.id === Number(button.dataset.problem)));
 });
 $('reciteGroups').addEventListener('click', (event) => {
   const link = event.target.closest('a');

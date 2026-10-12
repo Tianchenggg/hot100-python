@@ -38,12 +38,15 @@ def acm_problem(problem):
 
 
 def recitation_problem(problem):
-    example = problem["cases"][0]
+    acm = acm_problem(problem)
+    example = acm["examples"][0]
     return {
         **{key: problem[key] for key in ("id", "title", "difficulty")},
         "description": problem["recitation"],
-        "input": ", ".join(f"{key} = {json.dumps(value, separators=(',', ':'))}" for key, value in example["params"].items()),
-        "output": str(example["expected"]),
+        "input": example["input"],
+        "output": example["output"],
+        "inputSpec": acm["inputSpec"],
+        "outputSpec": acm["outputSpec"],
     }
 
 
